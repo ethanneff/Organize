@@ -12,7 +12,7 @@ class MenuContainers {
   var menuLeftWidth: CGFloat = 250
   var menuRightWidth: CGFloat = 100
   
-  var menuSpeed: NSTimeInterval = 0.4
+  var menuSpeed: NSTimeInterval = 0.25
   // TODO: make menu and modals the same (need to add shadow to modal)
   var menuFade: CGFloat = 0.9
   var menuShadow: Float = 0.7
