@@ -29,4 +29,3 @@ struct Config {
 enum UserDefaultKey:String {
   case AskedLocalNotification
 }
-
