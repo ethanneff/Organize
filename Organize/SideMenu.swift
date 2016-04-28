@@ -1,14 +1,16 @@
 import UIKit
 
+// view controller to incapsulate for gestures
 class SideMenu: UIViewController {
   // MARK: - properties
   
-  // references to main
-  let parent: UIViewController
-  let child: UIViewController
-  let left: UIViewController?
-  let right: UIViewController?
+  // required (references to main)
+  private let parent: UIViewController
+  private let child: UIViewController
+  private let left: UIViewController?
+  private let right: UIViewController?
   
+  // public
   var leftWidth: CGFloat = 250 {
     didSet {
       if let _ = left {
@@ -30,6 +32,7 @@ class SideMenu: UIViewController {
   var shadow: Float = 0.7
   var panMinPercentage: CGFloat = 10
   
+  // private
   private var panBeganLocation: CGPoint = CGPointZero
   private var panEndedLocation: CGPoint = CGPointZero
   private var panBeganHorizontal: Bool = false
@@ -53,7 +56,7 @@ class SideMenu: UIViewController {
     case Center
   }
   
-  // MARK: - INIT
+  // MARK: - init
   init(parent: UIViewController, child: UIViewController, left: UIViewController?, right: UIViewController?) {
     self.parent = parent
     self.child = child
@@ -75,7 +78,7 @@ class SideMenu: UIViewController {
   }
   
   
-  // MARK: - DEINIT
+  // MARK: - deinit
   deinit {
     dealloc()
   }
@@ -281,7 +284,7 @@ class SideMenu: UIViewController {
   }
   
   
-  // MARK: -  handling
+  // MARK: - menu handling
   internal func toggle(side side: Side) {
     print("toggle")
     switch side {

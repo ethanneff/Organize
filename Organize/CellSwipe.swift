@@ -10,10 +10,12 @@ protocol CellSwipeDelegate: class {
 }
 
 // cell swipe feature
+// view controller to incapsulate for gestures
 class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   // MARK: - PROPERTIES
   
   // required
+  // TODO: should be weak var?
   private let cell: UITableViewCell
   
   // optional
