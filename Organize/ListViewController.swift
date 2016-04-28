@@ -26,10 +26,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func initialize() {
+    loadNotebook()
+  }
+  
+  private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
         self.notebook = data
-        print(self.notebook)
       }
     }
   }
