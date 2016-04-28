@@ -27,9 +27,9 @@ class SideMenu: UIViewController {
       }
     }
   }
-  var speed: NSTimeInterval = 0.25
-  var fade: CGFloat = 0.9
-  var shadow: Float = 0.7
+  var speed: NSTimeInterval = 0.30
+  var fade: CGFloat = 0.90
+  var shadow: Float = 0.70
   var panMinPercentage: CGFloat = 10
   
   // private
@@ -286,7 +286,6 @@ class SideMenu: UIViewController {
   
   // MARK: - menu handling
   internal func toggle(side side: Side) {
-    print("toggle")
     switch side {
     case .Left:
       if isVisible(container: right?.view) {

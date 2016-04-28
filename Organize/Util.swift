@@ -79,6 +79,13 @@ class Util {
           button.backgroundColor = color
         }
       }
+    } else {
+      UIView.animateWithDuration(0.4) { () -> Void in
+        button.alpha = 0.4
+        UIView.animateWithDuration(0.4) { () -> Void in
+          button.alpha = 1
+        }
+      }
     }
   }
   
@@ -101,7 +108,7 @@ class Util {
   }
   
   
-  // image 
+  // image
   class func imageViewWithColor(image image: UIImage, color: UIColor) -> UIImageView {
     let imageView = UIImageView(image: image)
     imageView.image = imageView.image!.imageWithRenderingMode(.AlwaysTemplate)

@@ -2,7 +2,7 @@ import UIKit
 
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate {
   // MARK: - properties
-  var data: [Int] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+  var notebook: Notebook
   var tableView: UITableView?
   var gestureDoubleTap: UITapGestureRecognizer?
   var gestureSingleTap: UITapGestureRecognizer?
@@ -14,45 +14,80 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return refreshControl
   }()
   
+  // MARK: - init
+  init() {
+    notebook = Notebook.getDefault()
+    super.init(nibName: nil, bundle: nil)
+    initialize()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init coder not implemented")
+  }
+  
+  private func initialize() {
+    Notebook.get { data in
+      if let data = data {
+        self.notebook = data
+        print(self.notebook)
+      }
+    }
+  }
+  
+  // MARK: - deinit
+  deinit {
+    dealloc()
+  }
+  
+  private func dealloc() {
+    
+  }
+  
   // MARK: - create
   override func loadView() {
     super.loadView()
     
     createTableView()
-    print("lsit")
-    //    createGestures()
+    createGestures()
   }
   
   private func createTableView() {
+    // create
     tableView = UITableView()
-    view.addSubview(tableView!)
-    // delegates
-    tableView?.delegate = self
-    tableView?.dataSource = self
-    
-    // cell
-    tableView?.registerClass(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
-    
-    // refresh
-    tableView?.addSubview(refreshControl)
-    
-    // color
-    tableView?.backgroundColor = Config.colorBackground
-    
-    // borders
-    tableView?.contentInset = UIEdgeInsetsZero
-    tableView?.separatorInset = UIEdgeInsetsZero
-    tableView?.separatorColor = Config.colorBorder
-    tableView?.scrollIndicatorInsets = UIEdgeInsetsZero
-    tableView?.layoutMargins = UIEdgeInsetsZero
-    tableView?.tableFooterView = UIView(frame: CGRect.zero)
-    
-    // constraints
-    tableView?.translatesAutoresizingMaskIntoConstraints = false
-    tableView?.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
-    tableView?.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
-    tableView?.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
-    tableView?.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+    if let tableView = tableView {
+      // add
+      view.addSubview(tableView)
+      
+      // delegates
+      tableView.delegate = self
+      tableView.dataSource = self
+      
+      // cell
+      tableView.registerClass(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
+      
+      // refresh
+      tableView.addSubview(refreshControl)
+      
+      // color
+      tableView.backgroundColor = Config.colorBackground
+      
+      // borders
+      tableView.contentInset = UIEdgeInsetsZero
+      tableView.separatorInset = UIEdgeInsetsZero
+      tableView.separatorColor = Config.colorBorder
+      tableView.scrollIndicatorInsets = UIEdgeInsetsZero
+      tableView.layoutMargins = UIEdgeInsetsZero
+      tableView.tableFooterView = UIView(frame: CGRect.zero)
+      
+      // constraints
+      tableView.translatesAutoresizingMaskIntoConstraints = false
+      NSLayoutConstraint.activateConstraints([
+        tableView.topAnchor.constraintEqualToAnchor(view.topAnchor),
+        tableView.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
+        tableView.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
+        tableView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor),
+        ])
+    }
   }
   
   private func createGestures() {
@@ -83,7 +118,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return data.count
+    return notebook.notes.count
   }
   
   func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -93,36 +128,33 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier(ListTableViewCell.identifier, forIndexPath: indexPath) as! ListTableViewCell
     cell.delegate = self
-    cell.updateCell(data: data[indexPath.row])
-//    let swipe = CellSwipe(cell: cell)
-////    swipe.delegate = self
-//    swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Right1, swipeMode: CellSwipe.SwipeMode.Slide, icon: UIImageView(image: UIImage(named: "list")), color: Config.colorBrown) { (cell) -> () in
-//      print("finsih")
-//    }
-//    swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Left1, swipeMode: CellSwipe.SwipeMode.Slide, icon: UIImageView(image: UIImage(named: "clock")), color: Config.colorGreen) { (cell) -> () in
-//      print("finsih")
-//    }
-//    swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Right2, swipeMode: CellSwipe.SwipeMode.Slide, icon: UIImageView(image: UIImage(named: "check")), color: Config.colorYellow) { (cell) -> () in
-//      print("finsih")
-//    }
-//    swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Left2, swipeMode: CellSwipe.SwipeMode.Slide, icon: UIImageView(image: UIImage(named: "list")), color: Config.colorButton) { (cell) -> () in
-//      print("finsih")
-//    }
-//    
+    cell.updateCell(note: notebook.notes[indexPath.row])
     return cell
   }
   
+  
   // cell accessory button
-  
-  func cellAccessoryButtonPressed(button: UIButton) {
-    print("pressed")
+  func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
+    if let index = tableView?.indexPathForCell(cell) {
+      notebook.notes[index.row].title = "hello"
+      tableView?.reloadRowsAtIndexPaths([index], withRowAnimation: .Fade)
+    }
+    Notebook.set(data: notebook)
   }
-  // cell swipe 1
-  // cell swipe 2
-  // cell swipe 3
-  // cell swipe 4
   
   
+  // cell swiped
+  func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
+    print(type)
+    switch type {
+    case .Complete: break
+    case .Indent: break
+    case .Reminder: modalReminderDisplay()
+    case .Uncomplete: break
+    case .Unindent: break
+    case .Delete: break
+    }
+  }
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
@@ -133,8 +165,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     print("single")
-    modalReminderDisplay()
   }
+  
+  
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
     
     let paramLater: Double = 2

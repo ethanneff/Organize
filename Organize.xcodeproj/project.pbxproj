@@ -22,7 +22,7 @@
 		675037DE1CD176570061EC6E /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C41CD176570061EC6E /* Note.swift */; };
 		675037DF1CD176570061EC6E /* Notebook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C51CD176570061EC6E /* Notebook.swift */; };
 		675037E01CD176570061EC6E /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C61CD176570061EC6E /* SettingViewController.swift */; };
-		675037E11CD176570061EC6E /* Reminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C71CD176570061EC6E /* Reminder.swift */; };
+		675037E11CD176570061EC6E /* ReminderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C71CD176570061EC6E /* ReminderType.swift */; };
 		675037E21CD176570061EC6E /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C81CD176570061EC6E /* SearchViewController.swift */; };
 		675037E31CD176570061EC6E /* String+Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C91CD176570061EC6E /* String+Config.swift */; };
 		675037E41CD176570061EC6E /* ListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037CA1CD176570061EC6E /* ListTableViewCell.swift */; };
@@ -44,6 +44,7 @@
 		675038081CD178F30061EC6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038021CD178F30061EC6E /* LoginViewController.swift */; };
 		675038091CD178F30061EC6E /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038031CD178F30061EC6E /* SignupViewController.swift */; };
 		6750380A1CD178F30061EC6E /* ForgotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038041CD178F30061EC6E /* ForgotViewController.swift */; };
+		67D8441E1CD2847B004C144F /* SwipeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D8441D1CD2847B004C144F /* SwipeType.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,7 +65,7 @@
 		675037C41CD176570061EC6E /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		675037C51CD176570061EC6E /* Notebook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notebook.swift; sourceTree = "<group>"; };
 		675037C61CD176570061EC6E /* SettingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
-		675037C71CD176570061EC6E /* Reminder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reminder.swift; sourceTree = "<group>"; };
+		675037C71CD176570061EC6E /* ReminderType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReminderType.swift; sourceTree = "<group>"; };
 		675037C81CD176570061EC6E /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		675037C91CD176570061EC6E /* String+Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Config.swift"; sourceTree = "<group>"; };
 		675037CA1CD176570061EC6E /* ListTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListTableViewCell.swift; sourceTree = "<group>"; };
@@ -86,6 +87,7 @@
 		675038021CD178F30061EC6E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		675038031CD178F30061EC6E /* SignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		675038041CD178F30061EC6E /* ForgotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotViewController.swift; sourceTree = "<group>"; };
+		67D8441D1CD2847B004C144F /* SwipeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,8 @@
 			children = (
 				675037CB1CD176570061EC6E /* ListViewController.swift */,
 				675037CA1CD176570061EC6E /* ListTableViewCell.swift */,
+				675037C71CD176570061EC6E /* ReminderType.swift */,
+				67D8441D1CD2847B004C144F /* SwipeType.swift */,
 			);
 			name = list;
 			sourceTree = "<group>";
@@ -240,7 +244,6 @@
 				675037D31CD176570061EC6E /* User.swift */,
 				675037C51CD176570061EC6E /* Notebook.swift */,
 				675037C41CD176570061EC6E /* Note.swift */,
-				675037C71CD176570061EC6E /* Reminder.swift */,
 				675037BD1CD176570061EC6E /* LocalNotification.swift */,
 			);
 			name = models;
@@ -373,10 +376,11 @@
 				675037EE1CD176570061EC6E /* Util.swift in Sources */,
 				675037D71CD176570061EC6E /* LocalNotification.swift in Sources */,
 				675037E31CD176570061EC6E /* String+Config.swift in Sources */,
-				675037E11CD176570061EC6E /* Reminder.swift in Sources */,
+				675037E11CD176570061EC6E /* ReminderType.swift in Sources */,
 				675037E21CD176570061EC6E /* SearchViewController.swift in Sources */,
 				675037E41CD176570061EC6E /* ListTableViewCell.swift in Sources */,
 				675037F21CD176600061EC6E /* Config.swift in Sources */,
+				67D8441E1CD2847B004C144F /* SwipeType.swift in Sources */,
 				675037EB1CD176570061EC6E /* UITableViewController+Config.swift in Sources */,
 				675037D61CD176570061EC6E /* IntroViewController.swift in Sources */,
 				675037E71CD176570061EC6E /* UIColor+Config.swift in Sources */,

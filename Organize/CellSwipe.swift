@@ -1,5 +1,3 @@
-// TODO: remove completions for delegations (remove need for swipe property and allows for more swipes at a time)
-
 import UIKit
 
 // delegate
@@ -7,6 +5,13 @@ protocol CellSwipeDelegate: class {
   func tableViewCellDidStartSwiping(cell cell: UITableViewCell)
   func tableViewCellDidEndSwiping(cell cell: UITableViewCell)
   func tableViewCell(cell cell: UITableViewCell, didSwipeWithPercentage percentage: CGFloat)
+}
+
+// make optional functions
+extension CellSwipeDelegate {
+  func tableViewCellDidStartSwiping(cell cell: UITableViewCell) {}
+  func tableViewCellDidEndSwiping(cell cell: UITableViewCell) {}
+  func tableViewCell(cell cell: UITableViewCell, didSwipeWithPercentage percentage: CGFloat) {}
 }
 
 // cell swipe feature
@@ -44,20 +49,20 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   private lazy var contentScreenshotView: UIImageView = UIImageView()
   private lazy var colorIndicatorView: UIView = UIView()
   private lazy var iconView: UIView = UIView()
-  private var direction: SwipeDirection = .Center
+  private var direction: Direction = .Center
   
-  private var Left1: SwipeObject?
-  private var Left2: SwipeObject?
-  private var Left3: SwipeObject?
-  private var Left4: SwipeObject?
-  private var Right1: SwipeObject?
-  private var Right2: SwipeObject?
-  private var Right3: SwipeObject?
-  private var Right4: SwipeObject?
+  private var Left1: Container?
+  private var Left2: Container?
+  private var Left3: Container?
+  private var Left4: Container?
+  private var Right1: Container?
+  private var Right2: Container?
+  private var Right3: Container?
+  private var Right4: Container?
   
-  typealias SwipeCompletion = (cell: UITableViewCell) -> ()
+  typealias Completion = (cell: UITableViewCell) -> ()
   
-  enum SwipeGesture {
+  enum Position {
     case Left1
     case Left2
     case Left3
@@ -68,27 +73,27 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     case Right4
   }
   
-  enum SwipeMode {
+  enum Animation {
     case Bounce
     case Slide
   }
   
-  private enum SwipeDirection {
+  private enum Direction {
     case Center
     case Left
     case Right
   }
   
-  private struct SwipeObject {
+  private struct Container {
     // the swipe gesture object per cell
     var color: UIColor
     var icon: UIView
-    var mode: SwipeMode
-    var completion: SwipeCompletion
+    var animation: Animation
+    var completion: Completion
     
-    init(color: UIColor, mode: SwipeMode, icon: UIView, completion: SwipeCompletion) {
+    init(color: UIColor, animation: Animation, icon: UIView, completion: Completion) {
       self.color = color
-      self.mode = mode
+      self.animation = animation
       self.icon = icon
       self.completion = completion
     }
@@ -138,17 +143,17 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   
   
   // MARK: - PUBLIC ADD SWIPE
-  internal func addSwipeGesture(swipeGesture swipeGesture: SwipeGesture, swipeMode: SwipeMode, icon: UIImageView, color: UIColor, completion: SwipeCompletion) {
+  internal func create(position position: Position, animation: Animation, icon: UIImageView, color: UIColor, completion: Completion) {
     // public function to add a new gesture on the cell
-    switch swipeGesture {
-    case .Left1: Left1 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Left2: Left2 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Left3: Left3 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Left4: Left4 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Right1: Right1 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Right2: Right2 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Right3: Right3 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
-    case .Right4: Right4 = SwipeObject(color: color, mode: swipeMode, icon: icon, completion: completion)
+    switch position {
+    case .Left1: Left1 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Left2: Left2 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Left3: Left3 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Left4: Left4 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Right1: Right1 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Right2: Right2 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Right3: Right3 = Container(color: color, animation: animation, icon: icon, completion: completion)
+    case .Right4: Right4 = Container(color: color, animation: animation, icon: icon, completion: completion)
     }
   }
   
@@ -240,7 +245,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   
   
   // MARK: - CHANGED
-  private func moveCell(offset offset: CGFloat, direction: SwipeDirection) {
+  private func moveCell(offset offset: CGFloat, direction: Direction) {
     // move the cell when swipping
     let percentage = getPercentage(offset: offset, width: CGRectGetWidth(cell.bounds))
     if let object = getSwipeObject(percentage: percentage) {
@@ -263,7 +268,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     iconView.addSubview(icon)
   }
   
-  private func updateIcon(percentage percentage: CGFloat, direction: SwipeDirection, icon: UIView, isDragging: Bool) {
+  private func updateIcon(percentage percentage: CGFloat, direction: Direction, icon: UIView, isDragging: Bool) {
     // position the icon when swiping
     var position: CGPoint = CGPointZero
     position.y = CGRectGetHeight(cell.bounds) / 2
@@ -298,14 +303,14 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   
   
   // MARK: - END
-  private func completeCell(percentage percentage: CGFloat, duration: Double, direction: SwipeDirection) {
+  private func completeCell(percentage percentage: CGFloat, duration: Double, direction: Direction) {
     // determine which completion animation
     if let object = getSwipeObject(percentage: percentage) {
       let icon = object.icon
       let completion = object.completion
-      let mode = object.mode
+      let animation = object.animation
       
-      if getBeforeTrigger(percentage: percentage, direction: direction) || mode == .Bounce {
+      if getBeforeTrigger(percentage: percentage, direction: direction) || animation == .Bounce {
         // bounce
         directionBounce(duration: duration, direction: direction, icon: icon, percentage: percentage, completion: completion)
       } else {
@@ -318,7 +323,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     }
   }
   
-  private func directionBounce(duration duration: NSTimeInterval, direction: SwipeDirection, icon: UIView?, percentage: CGFloat, completion: SwipeCompletion?) {
+  private func directionBounce(duration duration: NSTimeInterval, direction: Direction, icon: UIView?, percentage: CGFloat, completion: Completion?) {
     let icon = icon ?? UIView()
     
     UIView.animateWithDuration(duration, delay: 0, usingSpringWithDamping: kDamping, initialSpringVelocity: kVelocity, options: .CurveEaseInOut, animations: { () -> Void in
@@ -338,7 +343,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     }
   }
   
-  private func directionSlide(duration duration: NSTimeInterval, direction: SwipeDirection, icon: UIView, completion: SwipeCompletion) {
+  private func directionSlide(duration duration: NSTimeInterval, direction: Direction, icon: UIView, completion: Completion) {
     // determine ending percentage
     var origin: CGFloat
     if direction == .Left {
@@ -368,9 +373,9 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   
   
   // MARK: - GET
-  private func getSwipeObject(percentage percentage: CGFloat) -> SwipeObject? {
+  private func getSwipeObject(percentage percentage: CGFloat) -> Container? {
     // determine if swipe object exits
-    var object: SwipeObject?
+    var object: Container?
     if let left1 = Left1 where percentage >= 0 {
       object = left1
     }
@@ -400,7 +405,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     return object
   }
   
-  private func getBeforeTrigger(percentage percentage: CGFloat, direction: SwipeDirection) -> Bool {
+  private func getBeforeTrigger(percentage percentage: CGFloat, direction: Direction) -> Bool {
     // if before the first trigger, do not run completion and bounce back
     if (direction == .Left && percentage > -firstTrigger) || (direction == .Right && percentage < firstTrigger) {
       return true
@@ -465,7 +470,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     return alpha
   }
   
-  private func getDirection(percentage percentage: CGFloat) -> SwipeDirection {
+  private func getDirection(percentage percentage: CGFloat) -> Direction {
     // get the direction either left or right
     if percentage < 0 {
       return .Left
@@ -476,7 +481,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     }
   }
   
-  private func getGestureDirection(direction direction:SwipeDirection) -> Bool {
+  private func getGestureDirection(direction direction: Direction) -> Bool {
     // used to prevent swiping if there is not gesture in a direction
     switch direction {
     case .Left:

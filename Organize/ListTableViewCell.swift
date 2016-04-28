@@ -1,10 +1,11 @@
 import UIKit
 
 protocol ListTableViewCellDelegate: class {
-  func cellAccessoryButtonPressed(button: UIButton)
+  func cellAccessoryButtonPressed(cell cell: UITableViewCell)
+  func cellSwiped(type type: SwipeType, cell: UITableViewCell)
 }
 
-class ListTableViewCell: UITableViewCell {
+class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   
   // MARK: properties
   static let identifier: String = "cell"
@@ -16,10 +17,11 @@ class ListTableViewCell: UITableViewCell {
   private let titleLabelPadding: CGFloat = 10
   private let accessoryButtonWidth: CGFloat = 44
   private let reminderViewWidth: CGFloat = 3
+  private let titleIndentSpace: String = "     "
   
   weak var delegate: ListTableViewCellDelegate?
-  private var swipe: CellSwipe?
-  
+  // TODO: figure out why to make a property... swipe gets deinit otherwise
+  var swipe: CellSwipe?
   
   // MARK: init
   override func awakeFromNib() {
@@ -46,7 +48,7 @@ class ListTableViewCell: UITableViewCell {
     setupView()
     setupViewConstraints()
     setupCellDefaults()
-    setupSwipeGesture()
+    setupSwipe(cell: self)
   }
   
   
@@ -55,6 +57,7 @@ class ListTableViewCell: UITableViewCell {
     titleLabel?.removeFromSuperview()
     accessoryButton?.removeFromSuperview()
     reminderView?.removeFromSuperview()
+    swipe = nil
   }
   
   deinit {
@@ -72,7 +75,6 @@ class ListTableViewCell: UITableViewCell {
     accessoryButton?.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
     accessoryButton?.setTitle("+", forState: .Normal)
     accessoryButton?.setTitleColor(Config.colorButton, forState: .Normal)
-    accessoryButton?.setTitleColor(Config.colorShadow, forState: .Highlighted)
     
     reminderView = UIView()
     addSubview(reminderView!)
@@ -109,52 +111,39 @@ class ListTableViewCell: UITableViewCell {
       ])
   }
   
-  
-  func setupSwipeGesture() {
-    // need global for completion block
-    swipe = CellSwipe(cell: self)
-//    cell.swipeDelegate = self
-
+  func setupSwipe(cell cell: UITableViewCell) {
+    swipe = CellSwipe(cell: cell)
     if let swipe = swipe {
+      swipe.delegate = self
       swipe.firstTrigger = 0.15
       swipe.secondTrigger = 0.40
       swipe.thirdTrigger = 0.65
       
-      // complete
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Left1, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-check")!, color: Config.colorBackground), color: Config.colorGreen) { cell in
-        print("finsih")
-      }
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Right1, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-close-small")!, color: Config.colorBackground), color: Config.colorSubtitle) { cell in
-        print("finsih")
-      }
       
-      // indent
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Left2, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-arrow-right")!, color: Config.colorBackground), color: Config.colorBrown) { cell in
-        print("finsih")
-      }
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Right2, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-arrow-left")!, color: Config.colorBackground), color: Config.colorBrown) { cell in
-        print("finsih")
-      }
-      
-      // notification
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Left3, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-clock")!, color: Config.colorBackground), color: Config.colorButton) { cell in
-        print("finsih")
-      }
-      
-      // delete
-      swipe.addSwipeGesture(swipeGesture: CellSwipe.SwipeGesture.Right3, swipeMode: CellSwipe.SwipeMode.Slide, icon: Util.imageViewWithColor(image: UIImage(named: "icon-delete")!, color: Config.colorBackground), color: Config.colorRed) { cell in
-        print("finsih")
+      for i in 0..<SwipeType.count {
+        if let type = SwipeType(rawValue: i) {
+          swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { cell in
+            self.delegate?.cellSwiped(type: type, cell: cell)
+          }
+        }
       }
     }
   }
   
+  
   // MARK: load
-  func updateCell(data data: Int) {
-    titleLabel?.text = String(data)
+  func updateCell(note note: Note) {
+    // title
+    var title = note.title
+    for _ in 0..<note.indent {
+      title = titleIndentSpace + title
+    }
+    titleLabel?.text = title
   }
   
   // MARK: buttons
   func accessoryButtonPressed(button: UIButton) {
-    delegate?.cellAccessoryButtonPressed(button)
+    Util.animateButtonPress(button: button)
+    delegate?.cellAccessoryButtonPressed(cell: self)
   }
 }

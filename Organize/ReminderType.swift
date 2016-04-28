@@ -1,6 +1,7 @@
 import UIKit
 
-enum ReminderType:Int {
+enum ReminderType: Int {
+  case None
   case Later
   case Evening
   case Tomorrow
@@ -8,7 +9,6 @@ enum ReminderType:Int {
   case Week
   case Month
   case Someday
-  case None
   case Date
   
   var increment: NSDate? {
@@ -41,15 +41,15 @@ enum ReminderType:Int {
   
   var image: UIImage {
     switch self {
-    case .Later: return UIImage(named: "appbar.clock")!
-    case .Evening: return UIImage(named: "appbar.moon")!
-    case .Tomorrow: return UIImage(named: "appbar.cup")!
-    case .Weekend: return UIImage(named: "appbar.weather.sun")!
-    case .Week: return UIImage(named: "appbar.cabinet.files")!
-    case .Month: return UIImage(named: "appbar.calendar")!
-    case .Someday: return UIImage(named: "appbar.weather.rain")!
-    case .None: return UIImage(named: "appbar.close")!
-    case .Date: return UIImage(named: "appbar.list")!
+    case .Later: return UIImage(named: "icon-clock")!
+    case .Evening: return UIImage(named: "icon-moon")!
+    case .Tomorrow: return UIImage(named: "icon-cup")!
+    case .Weekend: return UIImage(named: "icon-weather-sun")!
+    case .Week: return UIImage(named: "icon-cabinet-files")!
+    case .Month: return UIImage(named: "icon-calendar")!
+    case .Someday: return UIImage(named: "icon-weather-rain")!
+    case .None: return UIImage(named: "icon-close-small")!
+    case .Date: return UIImage(named: "icon-list")!
     }
   }
   
