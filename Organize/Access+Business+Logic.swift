@@ -82,6 +82,7 @@ class AccessBusinessLogic {
   static func validateForgot(emailTextField emailTextField: UITextField) -> ErrorMessage {
     let email = textFieldToString(textField: emailTextField)
     if let user = getUser(email: email) {
+      user.email = "TODO"
       // TODO: todo send email with password
       return .Success
     } else {
@@ -102,8 +103,8 @@ class AccessBusinessLogic {
   }
   
   static func createUser(emailTextField emailTextField: UITextField, passwordTextField: UITextField) {
-    let email = textFieldToString(textField: emailTextField)
-    let password = textFieldToString(textField: passwordTextField)
+//    let email = textFieldToString(textField: emailTextField)
+//    let password = textFieldToString(textField: passwordTextField)
     
   }
   
@@ -112,8 +113,8 @@ class AccessBusinessLogic {
   }
   
   static func loginUser(emailTextField emailTextField: UITextField, passwordTextField: UITextField) -> Bool {
-    let email = textFieldToString(textField: emailTextField)
-    let password = textFieldToString(textField: passwordTextField)
+//    let email = textFieldToString(textField: emailTextField)
+//    let password = textFieldToString(textField: passwordTextField)
     
     return true
   }

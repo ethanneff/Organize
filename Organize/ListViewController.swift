@@ -1,6 +1,6 @@
 import UIKit
 
-class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, TasksTableViewCellDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate {
   // MARK: - properties
   var data: [Int] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
   var tableView: UITableView?
@@ -19,6 +19,7 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
     super.loadView()
     
     createTableView()
+    print("lsit")
     //    createGestures()
   }
   
@@ -30,7 +31,7 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
     tableView?.dataSource = self
     
     // cell
-    tableView?.registerClass(TasksTableViewCell.self, forCellReuseIdentifier: TasksTableViewCell.identifier)
+    tableView?.registerClass(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
     
     // refresh
     tableView?.addSubview(refreshControl)
@@ -86,11 +87,11 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
   }
   
   func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-    return TasksTableViewCell.height
+    return ListTableViewCell.height
   }
   
   func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier(TasksTableViewCell.identifier, forIndexPath: indexPath) as! TasksTableViewCell
+    let cell = tableView.dequeueReusableCellWithIdentifier(ListTableViewCell.identifier, forIndexPath: indexPath) as! ListTableViewCell
     cell.delegate = self
     cell.updateCell(data: data[indexPath.row])
 //    let swipe = CellSwipe(cell: cell)

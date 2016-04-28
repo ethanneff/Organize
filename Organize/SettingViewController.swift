@@ -1,6 +1,6 @@
 import UIKit
 
-class OrganizeViewController: UIViewController {
+class SettingViewController: UIViewController {
 
   override func loadView() {
     super.loadView()

@@ -1,10 +1,10 @@
 import UIKit
 
-protocol TasksTableViewCellDelegate: class {
+protocol ListTableViewCellDelegate: class {
   func cellAccessoryButtonPressed(button: UIButton)
 }
 
-class TasksTableViewCell: UITableViewCell {
+class ListTableViewCell: UITableViewCell {
   
   // MARK: properties
   static let identifier: String = "cell"
@@ -17,8 +17,9 @@ class TasksTableViewCell: UITableViewCell {
   private let accessoryButtonWidth: CGFloat = 44
   private let reminderViewWidth: CGFloat = 3
   
-  weak var delegate: TasksTableViewCellDelegate?
+  weak var delegate: ListTableViewCellDelegate?
   private var swipe: CellSwipe?
+  
   
   // MARK: init
   override func awakeFromNib() {
@@ -51,14 +52,12 @@ class TasksTableViewCell: UITableViewCell {
   
   // MARK: dealloc
   private func dealloc() {
-    print("Cell dealloc")
     titleLabel?.removeFromSuperview()
     accessoryButton?.removeFromSuperview()
     reminderView?.removeFromSuperview()
   }
   
   deinit {
-    print("CELL deinit")
     dealloc()
   }
   

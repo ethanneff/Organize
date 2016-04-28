@@ -115,7 +115,6 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   }
   
   
-  
   // MARK: - DEINIT
   deinit {
     if let gesture = gesture {
@@ -124,6 +123,16 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
     dealloc()
   }
   
+  
+  private func dealloc() {
+    iconView.removeFromSuperview()
+    colorIndicatorView.removeFromSuperview()
+    contentScreenshotView.removeFromSuperview()
+    
+    delegate = nil
+    gesture = nil
+    isExiting = false
+  }
   
   
   // MARK: - PUBLIC ADD SWIPE
@@ -352,16 +361,6 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
           self.dealloc()
         }
     })
-  }
-  
-  private func dealloc() {
-    iconView.removeFromSuperview()
-    colorIndicatorView.removeFromSuperview()
-    contentScreenshotView.removeFromSuperview()
-    
-    delegate = nil
-    gesture = nil
-    isExiting = false
   }
   
   
