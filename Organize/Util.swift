@@ -103,8 +103,10 @@ class Util {
   }
   
   class func playSound(systemSound systemSound: SystemSounds) {
-    let systemSoundID: SystemSoundID = systemSound.rawValue
-    AudioServicesPlaySystemSound(systemSoundID)
+    Util.threadMain {
+      let systemSoundID: SystemSoundID = systemSound.rawValue
+      AudioServicesPlaySystemSound(systemSoundID)
+    }
   }
   
   

@@ -73,12 +73,10 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
     accessoryButton = UIButton()
     addSubview(accessoryButton!)
     accessoryButton?.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
-    accessoryButton?.setTitle("+", forState: .Normal)
-    accessoryButton?.setTitleColor(Config.colorButton, forState: .Normal)
     
     reminderView = UIView()
     addSubview(reminderView!)
-    reminderView?.backgroundColor = Config.colorButton
+    
   }
   
   private func setupCellDefaults() {
@@ -95,7 +93,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
     
     NSLayoutConstraint.activateConstraints([
       titleLabel!.topAnchor.constraintEqualToAnchor(topAnchor),
-      titleLabel!.leadingAnchor.constraintEqualToAnchor(reminderView!.trailingAnchor,constant: titleLabelPadding),
+      titleLabel!.leadingAnchor.constraintEqualToAnchor(reminderView!.trailingAnchor, constant: titleLabelPadding),
       titleLabel!.trailingAnchor.constraintEqualToAnchor(accessoryButton!.leadingAnchor, constant: titleLabelPadding),
       titleLabel!.bottomAnchor.constraintEqualToAnchor(bottomAnchor),
       
@@ -119,7 +117,6 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
       swipe.secondTrigger = 0.40
       swipe.thirdTrigger = 0.65
       
-      
       for i in 0..<SwipeType.count {
         if let type = SwipeType(rawValue: i) {
           swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { cell in
@@ -139,6 +136,22 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
       title = titleIndentSpace + title
     }
     titleLabel?.text = title
+    
+    // accessoryButton
+    if note.collapsed {
+      accessoryButton?.setTitle(String(note.children), forState: .Normal)
+      accessoryButton?.setTitleColor(Config.colorBorder, forState: .Normal)
+    } else {
+      accessoryButton?.setTitle("+", forState: .Normal)
+      accessoryButton?.setTitleColor(Config.colorButton, forState: .Normal)
+    }
+    
+    // reminder view
+    if note.reminderType != .None {
+      reminderView?.backgroundColor = Config.colorButton
+    } else {
+      reminderView?.backgroundColor = Config.colorBackground
+    }
   }
   
   // MARK: buttons

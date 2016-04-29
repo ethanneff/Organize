@@ -13,7 +13,7 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-    self.displayController(navController: MenuNavigationController())
+    displayController(navController: MenuNavigationController())
     
     //    User.get(completion: { user in
     //      if user == nil {
