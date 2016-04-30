@@ -47,8 +47,8 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   private func initialize() {
     setupView()
     setupViewConstraints()
-    setupCellDefaults()
     setupSwipe(cell: self)
+    setupCellDefaults()
   }
   
   
@@ -83,6 +83,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
     backgroundColor = Config.colorBackground
     separatorInset = UIEdgeInsetsZero
     layoutMargins = UIEdgeInsetsZero
+    preservesSuperviewLayoutMargins = false
     selectionStyle = .None
   }
   

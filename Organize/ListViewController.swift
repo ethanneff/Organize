@@ -56,7 +56,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
   }
   
-  
   func applicationWillResignActiveNotification() {
     Notebook.set(data: notebook)
   }
@@ -229,7 +228,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   
   func reminder() {
-    
     let paramLater: Double = 2
     let paramMorning: Double = 24 + 8
     let paramEvening: Double = 12 + 6
