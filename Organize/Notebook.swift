@@ -47,6 +47,7 @@ class Notebook: NSObject, NSCoding {
         // note parent
         let noteParent = self.getNoteParent(displayParent: displayParent)
         
+        // while because removing
         while true {
           let next = noteParent.index+1
           if next >= self.notes.count {
