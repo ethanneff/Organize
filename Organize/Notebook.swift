@@ -20,16 +20,14 @@ class Notebook: NSObject, NSCoding {
   }
   
   // MARK: - PUBLIC METHODS
-  func indent(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
-    
-    return []
+  func indent(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    self.indent(indexPath: indexPath, tableView: tableView, increase: true)
   }
   
-  func unindent(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
-    
-    return []
+  func unindent(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    self.indent(indexPath: indexPath, tableView: tableView, increase: false)
   }
-  
+
   func complete(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
     
     return []
@@ -42,39 +40,32 @@ class Notebook: NSObject, NSCoding {
   
   func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     Util.threadBackground {
-      // search children
-      let parent = self.display[indexPath.row]
+      // display parent
+      let displayParent = self.display[indexPath.row]
       
-      if parent.collapsed {
-        // find parent data
-        var realParentIndex = 0
-        for i in 0..<self.notes.count {
-          let child = self.notes[i]
-          if child === parent {
-            realParentIndex = i
-            break
-          }
-        }
-        let realParent = self.notes[realParentIndex]
+      if displayParent.collapsed {
+        // note parent
+        let noteParent = self.getNoteParent(displayParent: displayParent)
         
-        // remove children from real
         while true {
-          if realParentIndex+1 >= self.notes.count {
+          let next = noteParent.index+1
+          if next >= self.notes.count {
             break
           }
           
-          let realChild = self.notes[realParentIndex+1]
-          if realChild.indent <= realParent.indent {
+          // note child
+          let noteChild = self.notes[next]
+          if noteChild.indent <= noteParent.note.indent {
             break
           }
-          self.notes.removeAtIndex(realParentIndex+1)
+          self.notes.removeAtIndex(next)
         }
       }
       
-      // remove parent from real
+      // note parent
       self.notes.removeAtIndex(indexPath.row)
       
-      // remove parent from display
+      // display parent
       self.remove(indexPath: indexPath, tableView: tableView)
       
       // sound
@@ -125,21 +116,13 @@ class Notebook: NSObject, NSCoding {
       self.reload(indexPath: indexPath, tableView: tableView)
       
       // note parent
-      var realParentIndex = 0
-      for i in 0..<self.notes.count {
-        let child = self.notes[i]
-        if child === displayParent {
-          realParentIndex = i
-          break
-        }
-      }
-      let realParent = self.notes[realParentIndex]
+      let noteParent = self.getNoteParent(displayParent: displayParent)
       
       // note children
       var children: [Note] = []
-      for i in realParentIndex+1..<self.notes.count {
+      for i in noteParent.index+1..<self.notes.count {
         let child = self.notes[i]
-        if child.indent <= realParent.indent {
+        if child.indent <= noteParent.note.indent {
           break
         }
         child.collapsed = false
@@ -159,8 +142,57 @@ class Notebook: NSObject, NSCoding {
     print(note)
   }
   
+  // MARK: - PRIVATE HELPER METHODS
+  private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
+    Util.threadBackground {
+      // note parent
+      let parent = self.display[indexPath.row]
+      
+      // find parent data
+      if parent.collapsed {
+        var realParentIndex = 0
+        for i in 0..<self.notes.count {
+          let child = self.notes[i]
+          if child === parent {
+            realParentIndex = i
+            break
+          }
+        }
+        let realParent = self.notes[realParentIndex]
+        
+        // note children
+        for i in realParentIndex+1..<self.notes.count {
+          let child = self.notes[i]
+          if child.indent <= realParent.indent {
+            break
+          }
+          child.indent += (increase) ? 1 : (parent.indent == 0) ? 0 : -1
+        }
+      }
+      
+      // display parent
+      parent.indent += (increase) ? 1 : (parent.indent == 0) ? 0 : -1
+      self.reload(indexPath: indexPath, tableView: tableView)
+      
+      // sound
+      Util.playSound(systemSound: .SMSSent)
+    }
+  }
   
-  // MARK: PRIVATE METHODS
+  private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
+    var noteParentIndex = 0
+    for i in 0..<self.notes.count {
+      let child = self.notes[i]
+      if child === displayParent {
+        noteParentIndex = i
+        break
+      }
+    }
+    return (noteParentIndex, self.notes[noteParentIndex])
+  }
+  
+  
+  // MARK: - TABLEVIEW MODIFICATION
   private func remove(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     Util.threadMain {
       self.display.removeAtIndex(indexPath.row)

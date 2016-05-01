@@ -47,8 +47,8 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   private func initialize() {
     setupView()
     setupViewConstraints()
-    setupSwipe(cell: self)
     setupCellDefaults()
+    setupSwipe(cell: self)
   }
   
   
@@ -81,6 +81,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   
   private func setupCellDefaults() {
     backgroundColor = Config.colorBackground
+    // TODO: there is still a bug when scroll on device, it adds a pixel to the left of the separator
     separatorInset = UIEdgeInsetsZero
     layoutMargins = UIEdgeInsetsZero
     preservesSuperviewLayoutMargins = false

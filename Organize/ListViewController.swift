@@ -135,9 +135,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     let cell = tableView.dequeueReusableCellWithIdentifier(ListTableViewCell.identifier, forIndexPath: indexPath) as! ListTableViewCell
     cell.delegate = self
     cell.updateCell(note: notebook.display[indexPath.row])
+    
     return cell
   }
-  
   
   // cell accessory button
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
@@ -172,13 +172,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       case .Complete:
         notebook.complete(indexPath: indexPath)
       case .Indent:
-        notebook.indent(indexPath: indexPath)
+        notebook.indent(indexPath: indexPath, tableView: tableView)
       case .Reminder:
         modalReminderDisplay()
       case .Uncomplete:
         notebook.uncomplete(indexPath: indexPath)
       case .Unindent:
-        notebook.unindent(indexPath: indexPath)
+        notebook.unindent(indexPath: indexPath, tableView: tableView)
       case .Delete:
         modalDelete(indexPath: indexPath) {
           self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
