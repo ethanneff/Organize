@@ -35,7 +35,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
-        print(data)
         self.notebook = data
       }
     }

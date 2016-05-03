@@ -32,6 +32,11 @@ class Notebook: NSObject, NSCoding {
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
+      
+      if !displayParent.completed {
+        return
+      }
+      
       displayParent.completed = true
       
       // note parent
@@ -44,47 +49,50 @@ class Notebook: NSObject, NSCoding {
         if noteChild.note.indent <= noteParent.note.indent {
           break
         }
-        noteChild.note.completed = true
       }
       
       // note insert
-      var noteInsert = (note: noteParent.note, index: noteParent.index)
-      for i in noteParent.index+1..<self.notes.count {
-        noteInsert = (note: self.notes[i], index: i)
-        if noteInsert.note.indent < noteParent.note.indent {
+      var noteInsertIndex = self.notes.count
+      for i in indexPath.row..<self.notes.count {
+        let noteInsert = self.notes[i]
+        if noteInsert.indent < noteParent.note.indent {
+          noteInsertIndex = i
           break
         }
       }
       
       // display insert
-      var displayInsert = (note: displayParent, index: indexPath.row)
-      for i in indexPath.row+1..<self.display.count {
-        displayInsert = (note: self.display[i], index: i)
-        if displayInsert.note.indent < displayInsert.note.indent {
+      var displayInsertIndex = self.display.count
+      for i in indexPath.row..<self.display.count {
+        let displayInsert = self.display[i]
+        if displayInsert.indent < displayParent.indent {
+          displayInsertIndex = i
           break
         }
       }
       
-      print(displayInsert)
-      
       // note relocate
       for _ in noteParent.index..<noteChild.index {
         let note = self.notes.removeAtIndex(noteParent.index)
-        self.notes.insert(note, atIndex: noteInsert.index)
+        self.notes.insert(note, atIndex: noteInsertIndex-1)
       }
       
       // display relocate
-      let displayIndexPath = NSIndexPath(forRow: displayInsert.index+1, inSection: indexPath.section)
-      self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent])
+      print(displayInsertIndex)
+      var displayIndexPath = NSIndexPath(forRow: displayInsertIndex, inSection: indexPath.section)
+      self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent]) {
+        self.collapse(indexPath: indexPath, tableView: tableView) { children in
+          self.remove(indexPaths: [indexPath], tableView: tableView) {
+            displayIndexPath = NSIndexPath(forRow: displayInsertIndex-children-1, inSection: indexPath.section)
+            self.reload(indexPaths: [displayIndexPath], tableView: tableView) {
+              // save
+              Notebook.set(data: self)
+            }
+          }
+        }
+      }
       
-      // display collapse
-      self.collapse(indexPath: indexPath, tableView: tableView)
-      
-      // display remove
-      self.remove(indexPaths: [indexPath], tableView: tableView)
-      
-      self.reload(indexPaths: [indexPath], tableView: tableView)
-      
+      // sound
       Util.playSound(systemSound: .MailSent)
     }
   }
@@ -138,7 +146,7 @@ class Notebook: NSObject, NSCoding {
     }
   }
   
-  func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+  func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -173,8 +181,13 @@ class Notebook: NSObject, NSCoding {
         // display parent
         displayParent.children = count
         self.reload(indexPaths: [indexPath], tableView: tableView) {
-          // save
-          Notebook.set(data: self)
+          if let completion = completion {
+            // handle complete
+            completion(children: count)
+          } else {
+            // save
+            Notebook.set(data: self)
+          }
         }
       }
     }
@@ -191,7 +204,7 @@ class Notebook: NSObject, NSCoding {
       let noteParent = self.getNoteParent(displayParent: displayParent)
       
       // note children
-      let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, collapsed: false, children: 0)
+      let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, collapsed: false, children: 0, completed: nil)
       
       // display children
       var indexPaths: [NSIndexPath] = []
@@ -227,7 +240,7 @@ class Notebook: NSObject, NSCoding {
         let noteParent = self.getNoteParent(displayParent: displayParent)
         
         // note children
-        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, collapsed: nil, children: nil)
+        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, collapsed: nil, children: nil, completed: nil)
       }
       
       // display parent
@@ -242,7 +255,7 @@ class Notebook: NSObject, NSCoding {
     }
   }
   
-  private func setNoteChild(noteParent noteParent: (note: Note, index: Int), indent: Bool?, increase: Bool?, collapsed: Bool?, children: Int?) -> [(note: Note, index: Int)] {
+  private func setNoteChild(noteParent noteParent: (note: Note, index: Int), indent: Bool? = nil, increase: Bool? = nil, collapsed: Bool? = nil, children: Int? = nil, completed: Bool? = nil) -> [(note: Note, index: Int)] {
     var noteChildren: [(note: Note, index: Int)] = []
     for i in noteParent.index+1..<self.notes.count {
       let noteChild = (note: self.notes[i], index: i)
@@ -257,6 +270,9 @@ class Notebook: NSObject, NSCoding {
       }
       if let children = children {
         noteChild.note.children = children
+      }
+      if let completed = completed {
+        noteChild.note.completed = completed
       }
       
       noteChildren.append(noteChild)
@@ -383,8 +399,8 @@ class Notebook: NSObject, NSCoding {
     notebook.notes.append(Note(title: "15", indent: 0))
     notebook.notes.append(Note(title: "16", indent: 1))
     notebook.notes.append(Note(title: "17", indent: 2))
-    notebook.notes.append(Note(title: "18", indent: 2))
-    notebook.notes.append(Note(title: "19", indent: 0))
+    notebook.notes.append(Note(title: "18", indent: 0))
+    notebook.notes.append(Note(title: "19", indent: 1))
     
     // copy the references to display view
     notebook.display = notebook.notes
