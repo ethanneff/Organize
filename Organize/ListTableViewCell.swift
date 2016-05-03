@@ -139,6 +139,19 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
     }
     titleLabel?.text = title
     
+    // complete
+    if note.completed {
+      let attrString = NSAttributedString(string: title, attributes: [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue])
+      titleLabel?.attributedText = attrString
+      titleLabel?.textColor = Config.colorBorder
+      accessoryButton?.tintColor = Config.colorBorder
+    } else {
+      titleLabel?.textColor = Config.colorTitle
+      accessoryButton?.tintColor = Config.colorButton
+      titleLabel?.text = title
+    }
+    
+    
     // accessoryButton
     if note.collapsed {
       accessoryButton?.setTitle(String(note.children), forState: .Normal)

@@ -144,7 +144,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if let indexPath = tableView.indexPathForCell(cell) {
       let item = notebook.display[indexPath.row]
       if item.collapsed {
-        notebook.collapse(indexPath: indexPath, tableView: tableView)
+        notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
         let note = modalNewNote()
         notebook.add(indexPath: indexPath, tableView: tableView, note: note)
@@ -170,13 +170,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if let indexPath = tableView.indexPathForCell(cell) {
       switch type {
       case .Complete:
-        notebook.complete(indexPath: indexPath)
+        notebook.complete(indexPath: indexPath, tableView: tableView)
       case .Indent:
         notebook.indent(indexPath: indexPath, tableView: tableView)
       case .Reminder:
         modalReminderDisplay()
       case .Uncomplete:
-        notebook.uncomplete(indexPath: indexPath)
+        notebook.uncomplete(indexPath: indexPath, tableView: tableView)
       case .Unindent:
         notebook.unindent(indexPath: indexPath, tableView: tableView)
       case .Delete:
