@@ -35,7 +35,7 @@ class Note: NSObject, NSCoding, Nameable, Indentable, Completable, Collapsable, 
   var reminderType: ReminderType = .None
   var reminderDate: NSDate?
   override var description: String {
-    return "\(title) \(completed)"
+    return "\(title)" // \(completed)"
   }
   
   // MARK: - INIT

@@ -8,7 +8,6 @@ class Notebook: NSObject, NSCoding {
     return notes.description + "\n" + display.description
   }
   
-  
   // MARK: - INIT
   init(notes: [Note]) {
     self.notes = notes
@@ -33,7 +32,7 @@ class Notebook: NSObject, NSCoding {
       // display parent
       let displayParent = self.display[indexPath.row]
       
-      if !displayParent.completed {
+      if displayParent.completed {
         return
       }
       
@@ -53,7 +52,7 @@ class Notebook: NSObject, NSCoding {
       
       // note insert
       var noteInsertIndex = self.notes.count
-      for i in indexPath.row..<self.notes.count {
+      for i in noteParent.index..<self.notes.count {
         let noteInsert = self.notes[i]
         if noteInsert.indent < noteParent.note.indent {
           noteInsertIndex = i
@@ -78,7 +77,6 @@ class Notebook: NSObject, NSCoding {
       }
       
       // display relocate
-      print(displayInsertIndex)
       var displayIndexPath = NSIndexPath(forRow: displayInsertIndex, inSection: indexPath.section)
       self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent]) {
         self.collapse(indexPath: indexPath, tableView: tableView) { children in
@@ -101,9 +99,70 @@ class Notebook: NSObject, NSCoding {
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
-      displayParent.completed = false
-      self.reload(indexPaths: [indexPath], tableView: tableView)
       
+      if !displayParent.completed {
+        return
+      }
+      
+      displayParent.completed = false
+      
+      // note parent
+      let noteParent = self.getNoteParent(displayParent: displayParent)
+      
+      // note child
+      var noteChild = (note: noteParent.note, index: noteParent.index)
+      for i in noteParent.index+1..<self.notes.count {
+        noteChild = (note: self.notes[i], index: i)
+        if noteChild.note.indent <= noteParent.note.indent {
+          break
+        }
+      }
+      
+      // note insert
+      var noteInsertIndex = 0
+      for i in (0..<noteParent.index).reverse() {
+        let noteInsert = self.notes[i]
+        if noteInsert.indent < noteParent.note.indent {
+          noteInsertIndex = i+1
+          break
+        }
+      }
+      
+      // display insert
+      var displayInsertIndex = 0
+      for i in (0..<indexPath.row).reverse() {
+        let displayInsert = self.display[i]
+        if displayInsert.indent < displayParent.indent {
+          displayInsertIndex = i+1
+          break
+        }
+      }
+      
+      // note relocate
+      var count = 0
+      for _ in noteParent.index..<noteChild.index {
+        let note = self.notes.removeAtIndex(noteParent.index+count)
+        self.notes.insert(note, atIndex: noteInsertIndex+count)
+        count += 1
+      }
+      
+      // display relocate
+      self.collapse(indexPath: indexPath, tableView: tableView) { children in
+        let displayIndexPath = NSIndexPath(forRow: displayInsertIndex, inSection: indexPath.section)
+        self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent]) {
+          let newIndexPath = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
+          self.remove(indexPaths: [newIndexPath], tableView: tableView) {
+            self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
+              // save
+              Notebook.set(data: self)
+  
+            }
+          }
+        }
+      }
+      
+      // sound
+      Util.playSound(systemSound: .MailSent)
     }
   }
   
@@ -150,6 +209,14 @@ class Notebook: NSObject, NSCoding {
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
+      
+      if displayParent.collapsed {
+        if let completion = completion {
+          completion(children: 0)
+        }
+        return
+      }
+      
       displayParent.collapsed = true
       
       // temp for background threading
@@ -191,12 +258,23 @@ class Notebook: NSObject, NSCoding {
         }
       }
     }
+    
+    // sound
+    Util.playSound(systemSound: .Tap)
   }
   
-  func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+  func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
+      
+      if !displayParent.collapsed {
+        if let completion = completion {
+          completion()
+        }
+        return
+      }
+      
       displayParent.collapsed = false
       displayParent.children = 0
       
@@ -216,13 +294,20 @@ class Notebook: NSObject, NSCoding {
       }
       
       self.insert(indexPaths: indexPaths, tableView: tableView, data: children) {
-        // save
-        Notebook.set(data: self)
+        self.reload(indexPaths: [indexPath], tableView: tableView) {
+          if let completion = completion {
+            // handle uncomplete
+            completion()
+          } else {
+            // save
+            Notebook.set(data: self)
+          }
+        }
       }
     }
     
-    
-    self.reload(indexPaths: [indexPath], tableView: tableView)
+    // sound
+    Util.playSound(systemSound: .Tap)
   }
   
   func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
