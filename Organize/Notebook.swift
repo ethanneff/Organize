@@ -42,10 +42,11 @@ class Notebook: NSObject, NSCoding {
       let noteParent = self.getNoteParent(displayParent: displayParent)
       
       // note child
-      var noteChild = (note: noteParent.note, index: noteParent.index)
+      var noteChildIndex = self.notes.count
       for i in noteParent.index+1..<self.notes.count {
-        noteChild = (note: self.notes[i], index: i)
-        if noteChild.note.indent <= noteParent.note.indent {
+        let noteChild = self.notes[i]
+        if noteChild.indent < noteParent.note.indent {
+          noteChildIndex = i
           break
         }
       }
@@ -71,7 +72,7 @@ class Notebook: NSObject, NSCoding {
       }
       
       // note relocate
-      for _ in noteParent.index..<noteChild.index {
+      for _ in noteParent.index..<noteChildIndex {
         let note = self.notes.removeAtIndex(noteParent.index)
         self.notes.insert(note, atIndex: noteInsertIndex-1)
       }
@@ -85,6 +86,7 @@ class Notebook: NSObject, NSCoding {
             self.reload(indexPaths: [displayIndexPath], tableView: tableView) {
               // save
               Notebook.set(data: self)
+              print(self)
             }
           }
         }
@@ -110,10 +112,11 @@ class Notebook: NSObject, NSCoding {
       let noteParent = self.getNoteParent(displayParent: displayParent)
       
       // note child
-      var noteChild = (note: noteParent.note, index: noteParent.index)
+      var noteChildIndex = self.notes.count
       for i in noteParent.index+1..<self.notes.count {
-        noteChild = (note: self.notes[i], index: i)
-        if noteChild.note.indent <= noteParent.note.indent {
+        let noteChild = self.notes[i]
+        if noteChild.indent < noteParent.note.indent {
+          noteChildIndex = i
           break
         }
       }
@@ -140,7 +143,7 @@ class Notebook: NSObject, NSCoding {
       
       // note relocate
       var count = 0
-      for _ in noteParent.index..<noteChild.index {
+      for _ in noteParent.index..<noteChildIndex {
         let note = self.notes.removeAtIndex(noteParent.index+count)
         self.notes.insert(note, atIndex: noteInsertIndex+count)
         count += 1
@@ -155,7 +158,7 @@ class Notebook: NSObject, NSCoding {
             self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
               // save
               Notebook.set(data: self)
-  
+              print(self)
             }
           }
         }
