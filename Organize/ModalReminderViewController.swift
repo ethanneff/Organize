@@ -30,8 +30,14 @@ class ModalReminderViewController: UIViewController {
   weak var delegate: ModalReminderDelegate?
   var selected: ReminderType?
   
+  
+  // TODO: look into var? for memory leak
+  // TODO: need deinit
   var modal: UIView = UIView()
   let modalTitleText: String = "Pick a reminder"
+  let modalHeightPadding: CGFloat = 60
+  let modalWidthPadding: CGFloat = 100
+
   
   let buttonHeight: CGFloat = 75
   let buttonMultiplier: CGFloat = 0.18
@@ -48,8 +54,8 @@ class ModalReminderViewController: UIViewController {
   func setupView() {
     Modal.createModalTemplate(background: view, modal: modal, titleText: modalTitleText)
     
-    modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: buttonMultiplier*buttonColumns, constant: 100).active = true
-    modal.heightAnchor.constraintGreaterThanOrEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier*buttonRows, constant: 60).active = true
+    modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: buttonMultiplier*buttonColumns, constant: modalWidthPadding).active = true
+    modal.heightAnchor.constraintGreaterThanOrEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier*buttonRows, constant: modalHeightPadding).active = true
     
     let buttonOne = UIButton()
     let buttonTwo = UIButton()
@@ -95,6 +101,7 @@ class ModalReminderViewController: UIViewController {
     modal.addSubview(midSeparatorOne)
     modal.addSubview(midSeparatorTwo)
     
+    // TODO: need to combine into activeConstraint array
     buttonOne.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor).active = true
     buttonOne.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor).active = true
     

@@ -14,8 +14,8 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   private var titleLabel: UILabel?
   private var accessoryButton: UIButton?
   private var reminderView: UIView?
-  private let titleLabelPadding: CGFloat = 10
-  private let accessoryButtonWidth: CGFloat = 44
+  private let titleLabelPadding: CGFloat = Config.buttonPadding
+  private let accessoryButtonWidth: CGFloat = Config.buttonHeight
   private let reminderViewWidth: CGFloat = 3
   private let titleIndentSpace: String = "     "
   

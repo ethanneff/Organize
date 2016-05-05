@@ -29,6 +29,9 @@ class ModalDatePickerViewController: UIViewController {
   // MARK: properties
   weak var delegate: ModalDatePickerDelegate?
   
+  
+  // TODO: look into var? for memory leak
+  // TODO: need deinit
   var modal: UIView = UIView()
   var modalWidth: CGFloat = 290
   var modalHeight: CGFloat = 290
@@ -64,6 +67,7 @@ class ModalDatePickerViewController: UIViewController {
     let midSeparator = UIView()
     modal.addSubview(midSeparator)
     
+    // TODO: need to combine into activeConstraint array
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
     picker.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor).active = true

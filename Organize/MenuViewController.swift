@@ -16,7 +16,7 @@ class MenuViewController: UIViewController {
   
   func initialize() {
     sideMenu = SideMenu(parent: self, child: ListViewController(), left: SearchViewController(), right: SettingViewController())
-    sideMenu?.rightWidth = 200
+    sideMenu?.rightWidth = 160
     sideMenu?.leftWidth = 250
     createNavButtons()
     createNavTitle(title: Config.appName)

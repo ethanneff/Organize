@@ -4,6 +4,9 @@ struct Config {
   static let appName: String = "Organize"
   static let appLoadingDelay: Double = 0.4
   
+  static let buttonHeight: CGFloat = 44
+  static let buttonPadding: CGFloat = 10
+  
   static let colorButton = UIColor(hex:"#3498db")
   static let colorTitle =  UIColor(hex: "#212121")
   static let colorSubtitle = UIColor(hex: "#757575")

@@ -5,8 +5,8 @@ class Modal {
   static let radius: CGFloat = 15
   static let separator: CGFloat = 0.5
   static let textSize: CGFloat = 17
-  static let textHeight: CGFloat = 44
-  static let textPadding: CGFloat = 10
+  static let textHeight: CGFloat = Config.buttonHeight
+  static let textPadding: CGFloat = Config.buttonPadding
   static let textYes: String = "Done"
   static let textNo: String = "Cancel"
   
