@@ -24,7 +24,7 @@ protocol Remindable {
   var reminderDate: NSDate? { get set }
 }
 
-class Note: NSObject, NSCoding, Nameable, Indentable, Completable, Collapsable, Remindable {
+class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Collapsable, Remindable {
   // MARK: - PROPERTIES
   var title: String
   var body: String?
@@ -35,7 +35,7 @@ class Note: NSObject, NSCoding, Nameable, Indentable, Completable, Collapsable, 
   var reminderType: ReminderType = .None
   var reminderDate: NSDate?
   override var description: String {
-    return "\(title)" // \(completed)"
+    return "\(title) \(indent)"
   }
   
   // MARK: - INIT
@@ -72,6 +72,19 @@ class Note: NSObject, NSCoding, Nameable, Indentable, Completable, Collapsable, 
     self.indent = indent
     self.reminderType = reminderType
     self.reminderDate = reminderDate
+  }
+  
+  
+  // MARK: - COPY
+  required init(original: Note) {
+    title = original.title
+    body = original.body
+    completed = original.completed
+    collapsed = original.collapsed
+    children = original.children
+    indent = original.indent
+    reminderType = original.reminderType
+    reminderDate = original.reminderDate
   }
   
   // MARK: - SAVE

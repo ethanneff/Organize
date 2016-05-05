@@ -194,11 +194,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         notebook.unindent(indexPath: indexPath, tableView: tableView)
         Util.playSound(systemSound: .SMSSent)
       case .Delete:
+        modalDelete(indexPath: indexPath)
         Util.playSound(systemSound: .BeepBeepFailure)
-        modalDelete(indexPath: indexPath) {
-          self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
-          Util.playSound(systemSound: .BeepBoBoopFailure)
-        }
       }
     }
   }
@@ -235,14 +232,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return true
   }
   
-  
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
+    
+    print(event?.subtype)
     if let event = event where event.subtype == .MotionShake {
-      notebook.undo(tableView: tableView)
-      Util.playSound(systemSound: .BeepBoBoopFailure)
+      modalUndo()
     }
   }
-
   
   
   
@@ -359,25 +355,24 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  func modalDelete(indexPath indexPath: NSIndexPath, completion: () -> ()) {
-    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-    let delete = UIAlertAction(title: "Delete", style: .Default) { action in
-      Util.playSound(systemSound: .Tap)
-      completion()
+  func modalDelete(indexPath indexPath: NSIndexPath) {
+    modalActionSheetConfirmation(title: "Delete") {
+      self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
     }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
-      Util.playSound(systemSound: .Tap)
-    }
-    alert.addAction(delete)
-    alert.addAction(cancel)
-    presentViewController(alert, animated: true, completion:nil)
   }
   
+  func modalUndo() {
+    if notebook.history.count > 0 {
+      modalActionSheetConfirmation(title: "Undo") {
+        self.notebook.undo(tableView: self.tableView)
+      }
+    }
+  }
   
-  func modalUndo(indexPath indexPath: NSIndexPath, completion: () -> ()) {
+  func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-    let delete = UIAlertAction(title: "Undo", style: .Default) { action in
-      Util.playSound(systemSound: .Tap)
+    let delete = UIAlertAction(title: title, style: .Default) { action in
+      Util.playSound(systemSound: .BeepBoBoopFailure)
       completion()
     }
     let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in

@@ -1,28 +1,121 @@
 import UIKit
 
-class Notebook: NSObject, NSCoding {
+class Notebook: NSObject, NSCoding, Copying {
   // MARK: - PROPERTIES
   var notes: [Note] = []
   var display: [Note] = []
+  var history: [NotebookHistory] = []
   override var description: String {
-    return notes.description + "\n" + display.description
+    var output: String = notes.description + "\n" + display.description + "\n history \n"
+    for element in history {
+      output += element.notes.description + "\n" + element.display.description + "\n"
+    }
+    
+    return output
   }
+  
   
   // MARK: - INIT
   init(notes: [Note]) {
     self.notes = notes
   }
   
-  convenience init(notes: [Note], display: [Note]) {
+  convenience init(notes: [Note], display: [Note], history: [NotebookHistory]) {
     self.init(notes: notes)
     self.display = display
+    self.history = history
   }
   
-  // MARK: - PUBLIC METHODS
+  
+  // MARK: - COPY
+  required init(original: Notebook) {
+    notes = original.notes
+    display = original.display
+    history = original.history
+  }
+  
+  
+  // MARK: - UNDO
   func undo(tableView tableView: UITableView) {
-    
+    historyLoad(tableView: tableView)
   }
   
+  private func historySave() {
+    // already on background thread
+    while self.history.count >= 20 {
+      self.history.removeFirst()
+    }
+    self.history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
+  }
+  
+  private func historyLoad(tableView tableView: UITableView) {
+    Util.threadBackground {
+      if self.history.count > 0 {
+        let undo = self.history.removeLast()
+        self.notes = undo.notes
+        self.display = undo.display
+        Util.threadMain {
+          tableView.reloadData()
+        }
+        Notebook.set(data: self)
+      }
+    }
+  }
+  
+  
+  
+  // MARK: - ADD
+  func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
+    print(note)
+    
+    // history
+    self.historySave()
+  }
+  
+  
+  
+  // MARK: - DELETE
+  func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // display parent
+      let displayParent = self.display[indexPath.row]
+      
+      if displayParent.collapsed {
+        // note parent
+        let noteParent = self.getNoteParent(displayParent: displayParent)
+        
+        // while because removing
+        while true {
+          let next = noteParent.index+1
+          if next >= self.notes.count {
+            break
+          }
+          
+          // note child
+          let noteChild = self.notes[next]
+          if noteChild.indent <= noteParent.note.indent {
+            break
+          }
+          self.notes.removeAtIndex(next)
+        }
+      }
+      
+      // note parent
+      self.notes.removeAtIndex(indexPath.row)
+      
+      // display parent
+      self.remove(indexPaths: [indexPath], tableView: tableView) {
+        // save
+        Notebook.set(data: self)
+      }
+    }
+  }
+  
+  
+  // MARK: - INDENT
   func indent(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     self.indent(indexPath: indexPath, tableView: tableView, increase: true)
   }
@@ -31,8 +124,38 @@ class Notebook: NSObject, NSCoding {
     self.indent(indexPath: indexPath, tableView: tableView, increase: false)
   }
   
+  private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // display parent
+      let displayParent = self.display[indexPath.row]
+      
+      // note parent
+      if displayParent.collapsed {
+        let noteParent = self.getNoteParent(displayParent: displayParent)
+        
+        // note children
+        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, collapsed: nil, children: nil, completed: nil)
+      }
+      
+      // display parent
+      displayParent.indent += (increase) ? 1 : (displayParent.indent == 0) ? 0 : -1
+      self.reload(indexPaths: [indexPath], tableView: tableView) {
+        // save
+        Notebook.set(data: self)
+      }
+    }
+  }
+  
+  
+  // MARK: - COMPLETE
   func complete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     Util.threadBackground {
+      // history
+      self.historySave()
+      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -99,6 +222,9 @@ class Notebook: NSObject, NSCoding {
   
   func uncomplete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     Util.threadBackground {
+      // history
+      self.historySave()
+      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -165,44 +291,15 @@ class Notebook: NSObject, NSCoding {
     }
   }
   
-  func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
-    Util.threadBackground {
-      // display parent
-      let displayParent = self.display[indexPath.row]
-      
-      if displayParent.collapsed {
-        // note parent
-        let noteParent = self.getNoteParent(displayParent: displayParent)
-        
-        // while because removing
-        while true {
-          let next = noteParent.index+1
-          if next >= self.notes.count {
-            break
-          }
-          
-          // note child
-          let noteChild = self.notes[next]
-          if noteChild.indent <= noteParent.note.indent {
-            break
-          }
-          self.notes.removeAtIndex(next)
-        }
-      }
-      
-      // note parent
-      self.notes.removeAtIndex(indexPath.row)
-      
-      // display parent
-      self.remove(indexPaths: [indexPath], tableView: tableView) {
-        // save
-        Notebook.set(data: self)
-      }
-    }
-  }
   
+  // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
     Util.threadBackground {
+      // history
+      if let _ = completion {} else {
+        self.historySave()
+      }
+      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -258,6 +355,11 @@ class Notebook: NSObject, NSCoding {
   
   func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
     Util.threadBackground {
+      // history
+      if let _ = completion {} else {
+        self.historySave()
+      }
+      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -300,31 +402,17 @@ class Notebook: NSObject, NSCoding {
     }
   }
   
-  func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
-    print(note)
-  }
-  
-  // MARK: - PRIVATE HELPER METHODS
-  private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
-    Util.threadBackground {
-      // display parent
-      let displayParent = self.display[indexPath.row]
-      
-      // note parent
-      if displayParent.collapsed {
-        let noteParent = self.getNoteParent(displayParent: displayParent)
-        
-        // note children
-        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, collapsed: nil, children: nil, completed: nil)
-      }
-      
-      // display parent
-      displayParent.indent += (increase) ? 1 : (displayParent.indent == 0) ? 0 : -1
-      self.reload(indexPaths: [indexPath], tableView: tableView) {
-        // save
-        Notebook.set(data: self)
+  // MARK: - HELPER METHODS
+  private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
+    var noteParentIndex = 0
+    for i in 0..<self.notes.count {
+      let child = self.notes[i]
+      if child === displayParent {
+        noteParentIndex = i
+        break
       }
     }
+    return (index: noteParentIndex, note: self.notes[noteParentIndex])
   }
   
   private func setNoteChild(noteParent noteParent: (note: Note, index: Int), indent: Bool? = nil, increase: Bool? = nil, collapsed: Bool? = nil, children: Int? = nil, completed: Bool? = nil) -> [(note: Note, index: Int)] {
@@ -352,20 +440,8 @@ class Notebook: NSObject, NSCoding {
     return noteChildren
   }
   
-  private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
-    var noteParentIndex = 0
-    for i in 0..<self.notes.count {
-      let child = self.notes[i]
-      if child === displayParent {
-        noteParentIndex = i
-        break
-      }
-    }
-    return (index: noteParentIndex, note: self.notes[noteParentIndex])
-  }
   
-  
-  // MARK: - TABLEVIEW + DISPLAY MODIFICATION
+  // MARK: - TABLEVIEW AND DISPLAY MODIFICATION
   private func remove(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {
     Util.threadMain {
       for indexPath in indexPaths {
@@ -401,22 +477,24 @@ class Notebook: NSObject, NSCoding {
     }
   }
   
-  
   // MARK: - SAVE
-  struct PropertyKey {
+  private struct PropertyKey {
     static let notes = "notes"
     static let display = "display"
+    static let history = "history"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
     aCoder.encodeObject(notes, forKey: PropertyKey.notes)
     aCoder.encodeObject(display, forKey: PropertyKey.display)
+    aCoder.encodeObject(history, forKey: PropertyKey.history)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
     let notes = aDecoder.decodeObjectForKey(PropertyKey.notes) as! [Note]
     let display = aDecoder.decodeObjectForKey(PropertyKey.display) as! [Note]
-    self.init(notes: notes, display: display)
+    let history = aDecoder.decodeObjectForKey(PropertyKey.history) as! [NotebookHistory]
+    self.init(notes: notes, display: display, history: history)
   }
   
   // MARK: - ACCESS
@@ -451,6 +529,8 @@ class Notebook: NSObject, NSCoding {
     })
   }
   
+  
+  // MARK: - DEFAULT
   static func getDefault() -> Notebook {
     let notebook = Notebook(notes: [])
     notebook.notes.append(Note(title: "0", indent: 0))
@@ -476,6 +556,9 @@ class Notebook: NSObject, NSCoding {
     
     // copy the references to display view
     notebook.display = notebook.notes
+    notebook.history.removeAll()
     return notebook
   }
 }
+
+
