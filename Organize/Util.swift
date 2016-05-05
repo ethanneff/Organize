@@ -73,16 +73,16 @@ class Util {
   // animation
   class func animateButtonPress(button button: UIButton) {
     if let color = button.backgroundColor {
-      UIView.animateWithDuration(0.2) { () -> Void in
+      UIView.animateWithDuration(0.2) {
         button.backgroundColor = color.colorWithAlphaComponent(0.7)
-        UIView.animateWithDuration(0.3) { () -> Void in
+        UIView.animateWithDuration(0.3) {
           button.backgroundColor = color
         }
       }
     } else {
-      UIView.animateWithDuration(0.4) { () -> Void in
+      UIView.animateWithDuration(0.4) {
         button.alpha = 0.4
-        UIView.animateWithDuration(0.4) { () -> Void in
+        UIView.animateWithDuration(0.4) {
           button.alpha = 1
         }
       }
@@ -91,15 +91,24 @@ class Util {
   
   // sounds
   enum SystemSounds: UInt32 {
-    case Tap = 1104
+    case Tap = 1104 // tick
     case Positive = 1054 // vibrate
     case Negative = 1053 // vibrate
+    
     case MailReceived = 1000 // vibrate
-    case MailSent = 1001
+    case MailSent = 1001 // woosh
+    
     case SMSReceived = 1003 // vibrate
-    case SMSSent = 1004
-    case CalendarAlert = 1005
-    case LowPower = 1006
+    case SMSSent = 1004 // woop
+    
+    case CalendarAlert = 1005 // beep bo beep bop beep bo beep bop
+    case LowPower = 1006 // dum dum dum
+    case Voicemail = 1015 // boo bo beep
+    
+    case BeepBeepSuccess = 1111
+    case BeepBeepFailure = 1112
+    case BeepBoBoopSuccess = 1115
+    case BeepBoBoopFailure = 1116
   }
   
   class func playSound(systemSound systemSound: SystemSounds) {

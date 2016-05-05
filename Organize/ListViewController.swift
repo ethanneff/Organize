@@ -36,6 +36,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     Notebook.get { data in
       if let data = data {
         self.notebook = data
+        self.tableView.reloadData()
       }
     }
   }
@@ -46,7 +47,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - deinit
   deinit {
-    // TODO: dismissviewcontollors does not call dinit
+    // TODO: dismiss viewcontollor does not call deinit
     print("deinit")
     dealloc()
   }
@@ -171,23 +172,24 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       switch type {
       case .Complete:
         notebook.complete(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .MailSent)
+        Util.playSound(systemSound: .BeepBeepSuccess)
       case .Indent:
         notebook.indent(indexPath: indexPath, tableView: tableView)
         Util.playSound(systemSound: .SMSSent)
       case .Reminder:
         modalReminderDisplay()
-        Util.playSound(systemSound: .Tap)
+        Util.playSound(systemSound: .BeepBoBoopSuccess)
       case .Uncomplete:
         notebook.uncomplete(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .MailSent)
+        Util.playSound(systemSound: .BeepBeepFailure)
       case .Unindent:
         notebook.unindent(indexPath: indexPath, tableView: tableView)
         Util.playSound(systemSound: .SMSSent)
       case .Delete:
+        Util.playSound(systemSound: .BeepBeepFailure)
         modalDelete(indexPath: indexPath) {
           self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
-          Util.playSound(systemSound: .MailSent)
+          Util.playSound(systemSound: .BeepBoBoopFailure)
         }
       }
     }
@@ -197,9 +199,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalDelete(indexPath indexPath: NSIndexPath, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: "Delete", style: .Default) { action in
+      Util.playSound(systemSound: .Tap)
       completion()
     }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
+      Util.playSound(systemSound: .Tap)
+    }
     alert.addAction(delete)
     alert.addAction(cancel)
     presentViewController(alert, animated: true, completion:nil)
@@ -216,9 +221,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     print(notebook)
-    print("single")
+    Util.playSound(systemSound: .Tap)
   }
-  
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
@@ -230,6 +234,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         notebook.collapse(indexPath: indexPath, tableView: tableView)
       }
     }
+    Util.playSound(systemSound: .Tap)
   }
   
   
@@ -304,6 +309,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalDatePickerValue(date date: NSDate) {
+    Util.playSound(systemSound: .Tap)
     print(date)
     // if Task.reminderId != nil
     //    LocalNotification.sharedInstance.delete(uid: Task.reminderId)
@@ -328,7 +334,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalReminderValue(reminderType reminderType: ReminderType) {
-    print(reminderType)
+    Util.playSound(systemSound: .Tap)
     
     if reminderType == .Date {
       modalDatePickerDisplay()
