@@ -86,14 +86,10 @@ class Notebook: NSObject, NSCoding {
             self.reload(indexPaths: [displayIndexPath], tableView: tableView) {
               // save
               Notebook.set(data: self)
-              print(self)
             }
           }
         }
       }
-      
-      // sound
-      Util.playSound(systemSound: .MailSent)
     }
   }
   
@@ -158,14 +154,10 @@ class Notebook: NSObject, NSCoding {
             self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
               // save
               Notebook.set(data: self)
-              print(self)
             }
           }
         }
       }
-      
-      // sound
-      Util.playSound(systemSound: .MailSent)
     }
   }
   
@@ -202,9 +194,6 @@ class Notebook: NSObject, NSCoding {
         // save
         Notebook.set(data: self)
       }
-      
-      // sound
-      Util.playSound(systemSound: .MailSent)
     }
   }
   
@@ -261,9 +250,6 @@ class Notebook: NSObject, NSCoding {
         }
       }
     }
-    
-    // sound
-    Util.playSound(systemSound: .Tap)
   }
   
   func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
@@ -308,9 +294,6 @@ class Notebook: NSObject, NSCoding {
         }
       }
     }
-    
-    // sound
-    Util.playSound(systemSound: .Tap)
   }
   
   func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
@@ -337,9 +320,6 @@ class Notebook: NSObject, NSCoding {
         // save
         Notebook.set(data: self)
       }
-      
-      // sound
-      Util.playSound(systemSound: .SMSSent)
     }
   }
   

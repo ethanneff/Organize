@@ -148,6 +148,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         let note = modalNewNote()
         notebook.add(indexPath: indexPath, tableView: tableView, note: note)
       }
+      Util.playSound(systemSound: .Tap)
     }
   }
   
@@ -170,17 +171,23 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       switch type {
       case .Complete:
         notebook.complete(indexPath: indexPath, tableView: tableView)
+        Util.playSound(systemSound: .MailSent)
       case .Indent:
         notebook.indent(indexPath: indexPath, tableView: tableView)
+        Util.playSound(systemSound: .SMSSent)
       case .Reminder:
         modalReminderDisplay()
+        Util.playSound(systemSound: .Tap)
       case .Uncomplete:
         notebook.uncomplete(indexPath: indexPath, tableView: tableView)
+        Util.playSound(systemSound: .MailSent)
       case .Unindent:
         notebook.unindent(indexPath: indexPath, tableView: tableView)
+        Util.playSound(systemSound: .SMSSent)
       case .Delete:
         modalDelete(indexPath: indexPath) {
           self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
+          Util.playSound(systemSound: .MailSent)
         }
       }
     }

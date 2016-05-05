@@ -44,9 +44,11 @@ class MenuViewController: UIViewController {
   
   internal func leftNavButtonPressed(sender: UIBarButtonItem) {
     sideMenu?.toggle(side: .Left)
+    Util.playSound(systemSound: .Tap)
   }
   
   internal func rightNavButtonPressed(sender: UIBarButtonItem) {
     sideMenu?.toggle(side: .Right)
+    Util.playSound(systemSound: .Tap)
   }
 }
