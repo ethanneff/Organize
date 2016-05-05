@@ -19,6 +19,10 @@ class Notebook: NSObject, NSCoding {
   }
   
   // MARK: - PUBLIC METHODS
+  func undo(tableView tableView: UITableView) {
+    
+  }
+  
   func indent(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     self.indent(indexPath: indexPath, tableView: tableView, increase: true)
   }

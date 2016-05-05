@@ -45,6 +45,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationWillResignActiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
   }
   
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    // shake
+    self.becomeFirstResponder()
+  }
+  
   // MARK: - deinit
   deinit {
     // TODO: dismiss viewcontollor does not call deinit
@@ -97,11 +103,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func createGestures() {
+    // double tap
     gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
     gestureDoubleTap!.numberOfTapsRequired = 2
     gestureDoubleTap!.numberOfTouchesRequired = 1
     tableView.addGestureRecognizer(gestureDoubleTap!)
     
+    // single tap
     gestureSingleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedSingleTap(_:)))
     gestureSingleTap!.numberOfTapsRequired = 1
     gestureSingleTap!.numberOfTouchesRequired = 1
@@ -196,20 +204,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  func modalDelete(indexPath indexPath: NSIndexPath, completion: () -> ()) {
-    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-    let delete = UIAlertAction(title: "Delete", style: .Default) { action in
-      Util.playSound(systemSound: .Tap)
-      completion()
-    }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
-      Util.playSound(systemSound: .Tap)
-    }
-    alert.addAction(delete)
-    alert.addAction(cancel)
-    presentViewController(alert, animated: true, completion:nil)
-  }
-  
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     notebook = Notebook.getDefault()
@@ -236,6 +230,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     Util.playSound(systemSound: .Tap)
   }
+  
+  override func canBecomeFirstResponder() -> Bool {
+    return true
+  }
+  
+  
+  override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
+    if let event = event where event.subtype == .MotionShake {
+      notebook.undo(tableView: tableView)
+      Util.playSound(systemSound: .BeepBoBoopFailure)
+    }
+  }
+
+  
   
   
   func reminder() {
@@ -351,5 +359,33 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  func modalDelete(indexPath indexPath: NSIndexPath, completion: () -> ()) {
+    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+    let delete = UIAlertAction(title: "Delete", style: .Default) { action in
+      Util.playSound(systemSound: .Tap)
+      completion()
+    }
+    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
+      Util.playSound(systemSound: .Tap)
+    }
+    alert.addAction(delete)
+    alert.addAction(cancel)
+    presentViewController(alert, animated: true, completion:nil)
+  }
+  
+  
+  func modalUndo(indexPath indexPath: NSIndexPath, completion: () -> ()) {
+    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+    let delete = UIAlertAction(title: "Undo", style: .Default) { action in
+      Util.playSound(systemSound: .Tap)
+      completion()
+    }
+    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
+      Util.playSound(systemSound: .Tap)
+    }
+    alert.addAction(delete)
+    alert.addAction(cancel)
+    presentViewController(alert, animated: true, completion:nil)
+  }
 }
 
