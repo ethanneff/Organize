@@ -55,10 +55,10 @@ class MenuViewController: UIViewController, SettingsDelegate {
   }
   
   private func createDelegates() {
-    if let rightMenu = rightMenu as? SettingViewController, mainMenu = mainMenu as? SettingsDelegate {
-      rightMenu.delegate = mainMenu
-      rightMenu.menu = self
+    if let rightMenu = rightMenu as? SettingViewController {
+      rightMenu.delegate = self
     }
+
   }
   
   // MARK: - buttons
@@ -74,5 +74,8 @@ class MenuViewController: UIViewController, SettingsDelegate {
   
   func settingsButtonPressed(button button: SettingViewController.Button) {
     sideMenu?.toggle(side: .Right)
+    if let mainMenu = mainMenu as? SettingsDelegate {
+      mainMenu.settingsButtonPressed(button: button)
+    }
   }
 }

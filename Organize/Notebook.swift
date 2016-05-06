@@ -122,7 +122,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func deleteAll(tableView tableView: UITableView) {
-    
+    print("delete all")
   }
   
   
@@ -414,12 +414,14 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func collapseAll(tableView tableView: UITableView) {
+    print("collapse all")
     for note in self.notes {
       note.collapsed = true
     }
   }
   
   func uncollapseAll(tableView tableView: UITableView) {
+    print("uncollapse all")
     for note in self.notes {
       note.collapsed = false
     }

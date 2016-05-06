@@ -35,7 +35,6 @@ class SettingViewController: UIViewController {
   
   private func setupView() {
     view.backgroundColor = Config.colorBackground
-    
     createButtons()
   }
   
@@ -66,7 +65,6 @@ class SettingViewController: UIViewController {
     Util.animateButtonPress(button: button)
     if let button = Button(rawValue: button.tag) {
       delegate?.settingsButtonPressed(button: button)
-      menu?.settingsButtonPressed(button: button)
     }
   }
 }

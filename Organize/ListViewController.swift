@@ -6,6 +6,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   lazy var tableView: UITableView = UITableView()
   var gestureDoubleTap: UITapGestureRecognizer?
   var gestureSingleTap: UITapGestureRecognizer?
+  weak var menuDelegate: MenuViewController?
   
   lazy var refreshControl: UIRefreshControl = {
     let refreshControl = UIRefreshControl()
