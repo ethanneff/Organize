@@ -373,7 +373,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalDeleteAll() {
-    modalActionSheetConfirmation(title: "Delete All") {
+    modalActionSheetConfirmation(title: "Delete completed") {
       self.notebook.deleteAll(tableView: self.tableView)
     }
   }

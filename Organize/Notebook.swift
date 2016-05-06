@@ -187,6 +187,7 @@ class Notebook: NSObject, NSCoding, Copying {
           noteChildIndex = i
           break
         }
+        noteChild.completed = true
       }
       
       // note insert
@@ -256,6 +257,7 @@ class Notebook: NSObject, NSCoding, Copying {
           noteChildIndex = i
           break
         }
+        noteChild.completed = false
       }
       
       // note insert
@@ -414,16 +416,94 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func collapseAll(tableView tableView: UITableView) {
-    print("collapse all")
-    for note in self.notes {
-      note.collapsed = true
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // notes
+      if self.notes.count > 0 {
+        var parent = self.notes[0]
+        var children = 0
+        for note in self.notes {
+          if note.indent <= parent.indent {
+            parent.children = children
+            parent = note
+            children = 0
+          } else {
+            children += 1
+          }
+          note.collapsed = true
+        }
+      }
+      
+      // display
+      if self.display.count > 0 {
+        var collapsePaths: [NSIndexPath] = []
+        var reloadPaths: [NSIndexPath] = []
+        var parent = self.display[0]
+        var count = 0
+        for i in 0..<self.display.count {
+          let note = self.display[i]
+          if note.indent > parent.indent {
+            let indexPath = NSIndexPath(forRow: i-count, inSection: 0)
+            collapsePaths.append(indexPath)
+            count += 1
+          } else {
+            parent = note
+            let indexPath = NSIndexPath(forRow: i, inSection: 0)
+            reloadPaths.append(indexPath)
+          }
+        }
+        
+        // tableview
+        self.reload(indexPaths: reloadPaths, tableView: tableView) {
+          self.remove(indexPaths: collapsePaths, tableView: tableView) {
+            // save
+            Notebook.set(data: self)
+          }
+        }
+      }
     }
   }
   
   func uncollapseAll(tableView tableView: UITableView) {
-    print("uncollapse all")
-    for note in self.notes {
-      note.collapsed = false
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // notes
+      for note in self.notes {
+        note.children = 0
+        note.collapsed = false
+      }
+    
+      // display
+      if self.display.count > 0 {
+        var uncollapsePaths: [NSIndexPath] = []
+        var reloadPaths: [NSIndexPath] = []
+        var parent = self.display[0]
+        var count = 0
+        for i in 0..<self.display.count {
+          let note = self.display[i]
+          if note.indent > parent.indent {
+            let indexPath = NSIndexPath(forRow: i-count, inSection: 0)
+            uncollapsePaths.append(indexPath)
+            count += 1
+          } else {
+            parent = note
+            let indexPath = NSIndexPath(forRow: i, inSection: 0)
+            reloadPaths.append(indexPath)
+          }
+        }
+        
+        // tableview
+        self.reload(indexPaths: reloadPaths, tableView: tableView) {
+          self.remove(indexPaths: uncollapsePaths, tableView: tableView) {
+            // save
+            Notebook.set(data: self)
+          }
+        }
+      }
     }
   }
   
