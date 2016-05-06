@@ -7,6 +7,7 @@ protocol SettingsDelegate: class {
 
 class SettingViewController: UIViewController {
   
+  weak var menu: SettingsDelegate?
   weak var delegate: SettingsDelegate?
   
   override func loadView() {
@@ -64,6 +65,7 @@ class SettingViewController: UIViewController {
     Util.animateButtonPress(button: button)
     if let button = Button(rawValue: button.tag) {
       delegate?.settingsButtonPressed(button: button)
+      menu?.settingsButtonPressed(button: button)
     }
   }
 }

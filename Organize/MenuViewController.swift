@@ -1,6 +1,6 @@
 import UIKit
 
-class MenuViewController: UIViewController {
+class MenuViewController: UIViewController, SettingsDelegate {
   // MARK: - properties
   var sideMenu: SideMenu?
   var leftMenu: UIViewController?
@@ -57,9 +57,11 @@ class MenuViewController: UIViewController {
   private func createDelegates() {
     if let rightMenu = rightMenu as? SettingViewController, mainMenu = mainMenu as? SettingsDelegate {
       rightMenu.delegate = mainMenu
+      rightMenu.menu = self
     }
   }
   
+  // MARK: - buttons
   internal func leftNavButtonPressed(sender: UIBarButtonItem) {
     sideMenu?.toggle(side: .Left)
     Util.playSound(systemSound: .Tap)
@@ -68,5 +70,9 @@ class MenuViewController: UIViewController {
   internal func rightNavButtonPressed(sender: UIBarButtonItem) {
     sideMenu?.toggle(side: .Right)
     Util.playSound(systemSound: .Tap)
+  }
+  
+  func settingsButtonPressed(button button: SettingViewController.Button) {
+    sideMenu?.toggle(side: .Right)
   }
 }
