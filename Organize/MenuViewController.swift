@@ -3,9 +3,17 @@ import UIKit
 class MenuViewController: UIViewController {
   // MARK: - properties
   var sideMenu: SideMenu?
+  var leftMenu: UIViewController?
+  var rightMenu: UIViewController?
+  var mainMenu: UIViewController?
+  
   
   // MARK: - init
   init() {
+    leftMenu = SearchViewController()
+    rightMenu = SettingViewController()
+    mainMenu = ListViewController()
+    
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -15,16 +23,20 @@ class MenuViewController: UIViewController {
   }
   
   func initialize() {
-    sideMenu = SideMenu(parent: self, child: ListViewController(), left: SearchViewController(), right: SettingViewController())
-    sideMenu?.rightWidth = 160
-    sideMenu?.leftWidth = 250
+    sideMenu = SideMenu(parent: self, child: mainMenu!, left: leftMenu!, right: rightMenu!)
+    sideMenu!.rightWidth = 160
+    sideMenu!.leftWidth = 250
     createNavButtons()
     createNavTitle(title: Config.appName)
+    createDelegates()
   }
   
   // MARK: - deinit
   deinit {
     sideMenu = nil
+    leftMenu = nil
+    rightMenu = nil
+    mainMenu = nil
   }
   
   // MARK: - orientation
@@ -40,6 +52,12 @@ class MenuViewController: UIViewController {
   
   private func createNavTitle(title title: String) {
     navigationItem.title = title
+  }
+  
+  private func createDelegates() {
+    if let rightMenu = rightMenu as? SettingViewController, mainMenu = mainMenu as? SettingsDelegate {
+      rightMenu.delegate = mainMenu
+    }
   }
   
   internal func leftNavButtonPressed(sender: UIBarButtonItem) {

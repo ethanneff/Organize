@@ -1,6 +1,13 @@
 import UIKit
 
+
+protocol SettingsDelegate: class {
+  func settingsButtonPressed(button button: SettingViewController.Button)
+}
+
 class SettingViewController: UIViewController {
+  
+  weak var delegate: SettingsDelegate?
   
   override func loadView() {
     super.loadView()
@@ -55,13 +62,8 @@ class SettingViewController: UIViewController {
   
   func buttonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
-    if let action = Button(rawValue: button.tag) {
-      print(action)
-      switch action {
-      case .Collapse: break
-      case .Uncollapse: break
-      case .Delete: break
-      }
+    if let button = Button(rawValue: button.tag) {
+      delegate?.settingsButtonPressed(button: button)
     }
   }
 }

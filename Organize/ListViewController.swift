@@ -1,6 +1,6 @@
 import UIKit
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate, SettingsDelegate {
   // MARK: - properties
   var notebook: Notebook
   lazy var tableView: UITableView = UITableView()
@@ -63,7 +63,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func applicationWillResignActiveNotification() {
-    Notebook.set(data: notebook)
+    notebook.historyClear()
   }
   
   // MARK: - create
@@ -207,6 +207,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     Notebook.set(data: notebook)
     tableView.reloadData()
     refreshControl.endRefreshing()
+  }
+  
+  
+  // MARK: - buttons
+  func settingsButtonPressed(button button: SettingViewController.Button) {
+    switch button {
+    case .Collapse: notebook.collapseAll(tableView: tableView)
+    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
+    case .Delete: modalDeleteAll()
+    }
   }
   
   // MARK: - gestures
@@ -358,6 +368,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {
       self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
+    }
+  }
+  
+  func modalDeleteAll() {
+    modalActionSheetConfirmation(title: "Delete All") {
+      self.notebook.deleteAll(tableView: self.tableView)
     }
   }
   

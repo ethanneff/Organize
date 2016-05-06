@@ -40,12 +40,19 @@ class Notebook: NSObject, NSCoding, Copying {
     historyLoad(tableView: tableView)
   }
   
+  func historyClear() {
+    Util.threadBackground {
+      self.history.removeAll()
+      Notebook.set(data: self)
+    }
+  }
+  
   private func historySave() {
     // already on background thread
-    while self.history.count >= 20 {
-      self.history.removeFirst()
+    while history.count >= 20 {
+      history.removeFirst()
     }
-    self.history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
+    history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
   }
   
   private func historyLoad(tableView tableView: UITableView) {
@@ -112,6 +119,10 @@ class Notebook: NSObject, NSCoding, Copying {
         Notebook.set(data: self)
       }
     }
+  }
+  
+  func deleteAll(tableView tableView: UITableView) {
+    
   }
   
   
@@ -399,6 +410,18 @@ class Notebook: NSObject, NSCoding, Copying {
           }
         }
       }
+    }
+  }
+  
+  func collapseAll(tableView tableView: UITableView) {
+    for note in self.notes {
+      note.collapsed = true
+    }
+  }
+  
+  func uncollapseAll(tableView tableView: UITableView) {
+    for note in self.notes {
+      note.collapsed = false
     }
   }
   
