@@ -62,6 +62,7 @@ class SettingViewController: UIViewController {
   }
   
   func buttonPressed(button: UIButton) {
+    Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
     if let button = Button(rawValue: button.tag) {
       delegate?.settingsButtonPressed(button: button)
