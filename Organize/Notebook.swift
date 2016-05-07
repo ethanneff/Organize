@@ -123,6 +123,25 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func deleteAll(tableView tableView: UITableView) {
     print("delete all")
+    
+    // notes
+    var index = 0
+    while true {
+      if index >= self.notes.count {
+        break
+      }
+      let note = self.notes[index]
+      print(note.title, note.completed)
+      if note.completed {
+        self.notes.removeAtIndex(index)
+        continue
+      }
+      index += 1
+    }
+    
+    print(self)
+    // display
+    
   }
   
   
@@ -183,7 +202,7 @@ class Notebook: NSObject, NSCoding, Copying {
       var noteChildIndex = self.notes.count
       for i in noteParent.index+1..<self.notes.count {
         let noteChild = self.notes[i]
-        if noteChild.indent < noteParent.note.indent {
+        if noteChild.indent <= noteParent.note.indent {
           noteChildIndex = i
           break
         }
@@ -209,6 +228,8 @@ class Notebook: NSObject, NSCoding, Copying {
           break
         }
       }
+      
+      print(self.notes)
       
       // note relocate
       for _ in noteParent.index..<noteChildIndex {
@@ -253,7 +274,7 @@ class Notebook: NSObject, NSCoding, Copying {
       var noteChildIndex = self.notes.count
       for i in noteParent.index+1..<self.notes.count {
         let noteChild = self.notes[i]
-        if noteChild.indent < noteParent.note.indent {
+        if noteChild.indent <= noteParent.note.indent {
           noteChildIndex = i
           break
         }
