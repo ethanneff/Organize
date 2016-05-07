@@ -6,11 +6,11 @@ class Notebook: NSObject, NSCoding, Copying {
   var display: [Note] = []
   var history: [NotebookHistory] = []
   override var description: String {
-    var output: String = notes.description + "\n" + display.description + "\n history \n"
-    for element in history {
-      output += element.notes.description + "\n" + element.display.description + "\n"
-    }
-    
+    var output: String = notes.description + "\n" + display.description // + "\n history \n"
+    //    for element in history {
+    //      output += element.notes.description + "\n" + element.display.description + "\n"
+    //    }
+    //
     return output
   }
   
@@ -468,37 +468,48 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func uncollapseAll(tableView tableView: UITableView) {
     Util.threadBackground {
-      // history
-      self.historySave()
-      
-      // notes
-      for note in self.notes {
-        note.children = 0
-        note.collapsed = false
-      }
-    
-      // display
-      if self.display.count > 0 {
-        var uncollapsePaths: [NSIndexPath] = []
-        var reloadPaths: [NSIndexPath] = []
-        var parent = self.display[0]
-        var count = 0
-        for i in 0..<self.display.count {
-          let note = self.display[i]
-          if note.indent > parent.indent {
-            let indexPath = NSIndexPath(forRow: i-count, inSection: 0)
-            uncollapsePaths.append(indexPath)
-            count += 1
-          } else {
-            parent = note
-            let indexPath = NSIndexPath(forRow: i, inSection: 0)
-            reloadPaths.append(indexPath)
-          }
+      if self.notes.count > 0 {
+        // history
+        self.historySave()
+        
+        // notes
+        func updateNote(note note: Note) {
+          note.collapsed = false
+          note.children = 0
         }
         
-        // tableview
-        self.reload(indexPaths: reloadPaths, tableView: tableView) {
-          self.remove(indexPaths: uncollapsePaths, tableView: tableView) {
+        var insert = 0
+        var indexPaths: [NSIndexPath] = []
+        var displayNotes: [Note] = []
+        var reloadNotes: [NSIndexPath] = []
+        for i in 0..<self.display.count {
+          let displayParent = self.display[i]
+          let noteParent = self.notes[i + insert]
+          let indexPath = NSIndexPath(forRow: i, inSection: 0)
+          
+          if displayParent === noteParent {
+            reloadNotes.append(indexPath)
+            updateNote(note: noteParent)
+            continue
+          }
+          
+          for j in i..<self.notes.count {
+            let noteParent = self.notes[j]
+            if displayParent === noteParent {
+              break
+            }
+            indexPaths.append(indexPath)
+            displayNotes.insert(noteParent, atIndex: 0)
+            updateNote(note: noteParent)
+            insert += 1
+          }
+        }
+  
+        print(self)
+        
+        // display
+        self.insert(indexPaths: indexPaths, tableView: tableView, data: displayNotes) {
+          self.reload(indexPaths: reloadNotes, tableView: tableView) {
             // save
             Notebook.set(data: self)
           }
@@ -655,8 +666,8 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.notes.append(Note(title: "14", indent: 3))
     notebook.notes.append(Note(title: "15", indent: 0))
     notebook.notes.append(Note(title: "16", indent: 1))
-    notebook.notes.append(Note(title: "17", indent: 2))
-    notebook.notes.append(Note(title: "18", indent: 0))
+    notebook.notes.append(Note(title: "17", indent: 0))
+    notebook.notes.append(Note(title: "18", indent: 1))
     notebook.notes.append(Note(title: "19", indent: 1))
     
     // copy the references to display view
