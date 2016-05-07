@@ -122,26 +122,34 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func deleteAll(tableView tableView: UITableView) {
-    print("delete all")
-    
-    // notes
-    var index = 0
-    while true {
-      if index >= self.notes.count {
-        break
+    Util.threadBackground {
+      // notes
+      var index = 0
+      while true {
+        if index >= self.notes.count {
+          break
+        }
+        let note = self.notes[index]
+        if note.completed {
+          self.notes.removeAtIndex(index)
+          continue
+        }
+        index += 1
       }
-      let note = self.notes[index]
-      print(note.title, note.completed)
-      if note.completed {
-        self.notes.removeAtIndex(index)
-        continue
-      }
-      index += 1
     }
     
-    print(self)
     // display
-    
+    var indexPaths: [NSIndexPath] = []
+    for i in 0..<self.display.count {
+      let display = self.display[i]
+      if display.completed {
+        let indexPath = NSIndexPath(forRow: i, inSection: 0)
+        indexPaths.insert(indexPath, atIndex: 0)
+      }
+    }
+    self.remove(indexPaths: indexPaths, tableView: tableView) {
+      Notebook.set(data: self)
+    }
   }
   
   
@@ -494,7 +502,6 @@ class Notebook: NSObject, NSCoding, Copying {
         self.historySave()
         
         func updateNote(note note: Note) {
-          print(note)
           note.collapsed = false
           note.children = 0
         }
