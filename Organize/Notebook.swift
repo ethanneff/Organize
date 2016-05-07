@@ -6,7 +6,7 @@ class Notebook: NSObject, NSCoding, Copying {
   var display: [Note] = []
   var history: [NotebookHistory] = []
   override var description: String {
-    var output: String = notes.description + "\n" + display.description // + "\n history \n"
+    let output: String = notes.description + "\n" + display.description // + "\n history \n"
     //    for element in history {
     //      output += element.notes.description + "\n" + element.display.description + "\n"
     //    }
@@ -472,44 +472,67 @@ class Notebook: NSObject, NSCoding, Copying {
         // history
         self.historySave()
         
-        // notes
         func updateNote(note note: Note) {
+          print(note)
           note.collapsed = false
           note.children = 0
         }
         
+        // notes
         var insert = 0
         var indexPaths: [NSIndexPath] = []
         var displayNotes: [Note] = []
         var reloadNotes: [NSIndexPath] = []
         for i in 0..<self.display.count {
           let displayParent = self.display[i]
-          let noteParent = self.notes[i + insert]
-          let indexPath = NSIndexPath(forRow: i, inSection: 0)
+          let noteParent = self.notes[i+insert]
           
-          if displayParent === noteParent {
+          // update
+          if displayParent.collapsed {
+            let indexPath = NSIndexPath(forRow: i, inSection: 0)
             reloadNotes.append(indexPath)
-            updateNote(note: noteParent)
+            updateNote(note: displayParent)
+          }
+          
+          // match
+          if displayParent === noteParent {
             continue
           }
           
-          for j in i..<self.notes.count {
+          // mising
+          var displacement = 0
+          let indexPath = NSIndexPath(forRow: i+insert, inSection: 0)
+          for j in i+insert..<self.notes.count {
             let noteParent = self.notes[j]
             if displayParent === noteParent {
               break
             }
             indexPaths.append(indexPath)
-            displayNotes.insert(noteParent, atIndex: 0)
+            displayNotes.insert(noteParent, atIndex: displayNotes.count-displacement)
             updateNote(note: noteParent)
             insert += 1
+            displacement += 1
           }
         }
-  
-        print(self)
+        
+        // end
+        if self.display.count + displayNotes.count < self.notes.count {
+          for i in (0..<self.notes.count).reverse() {
+            let noteParent = self.notes[i]
+            if noteParent == self.display[self.display.count-1] {
+              break
+            }
+            
+            let indexPath = NSIndexPath(forRow: self.display.count+insert, inSection: 0)
+            indexPaths.append(indexPath)
+            displayNotes.append(noteParent)
+            updateNote(note: noteParent)
+          }
+        }
         
         // display
-        self.insert(indexPaths: indexPaths, tableView: tableView, data: displayNotes) {
-          self.reload(indexPaths: reloadNotes, tableView: tableView) {
+        self.reload(indexPaths: reloadNotes, tableView: tableView) {
+          self.insert(indexPaths: indexPaths, tableView: tableView, data: displayNotes) {
             // save
             Notebook.set(data: self)
           }
