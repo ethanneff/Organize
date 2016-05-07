@@ -123,6 +123,9 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func deleteAll(tableView tableView: UITableView) {
     Util.threadBackground {
+      // save
+      self.historySave()
+      
       // notes
       var index = 0
       while true {
