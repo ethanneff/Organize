@@ -343,8 +343,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalReminderDisplay() {
     let controller = ModalReminderViewController()
     controller.delegate = self
-    // pass Task.reminderType
-    // controller.selected = Tasks.reminderType
+    controller.selected = activeNotebookNote?.reminder ?? nil
     controller.modalPresentationStyle = .OverCurrentContext
     presentViewController(controller, animated: false, completion: nil)
   }

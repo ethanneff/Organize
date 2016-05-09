@@ -227,7 +227,6 @@
 			children = (
 				675037D41CD176570061EC6E /* Util.swift */,
 				675037F01CD176600061EC6E /* Config.swift */,
-				675037C11CD176570061EC6E /* Modal.swift */,
 				675037CC1CD176570061EC6E /* UIButton+Config.swift */,
 				675037CD1CD176570061EC6E /* UIColor+Config.swift */,
 				675037CE1CD176570061EC6E /* UINavigationController+Config.swift */,
@@ -291,6 +290,7 @@
 		6750380E1CD1795E0061EC6E /* modals */ = {
 			isa = PBXGroup;
 			children = (
+				675037C11CD176570061EC6E /* Modal.swift */,
 				675037C21CD176570061EC6E /* Modal+DatePicker.swift */,
 				675037C31CD176570061EC6E /* Modal+Reminder.swift */,
 			);

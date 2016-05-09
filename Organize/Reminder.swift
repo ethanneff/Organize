@@ -3,21 +3,26 @@ import UIKit
 class Reminder: NSObject, NSCoding {
   // MARK: - PROPERTIES
   let id: Int
-  var date: NSDate
   var type: ReminderType
+  var date: NSDate
+
+  override var description: String {
+    return "\(id) \(type) \(date)"
+  }
   
   // MARK: - INIT
-  init(id: Int?, date: NSDate, type: ReminderType) {
+  init(id: Int?, type: ReminderType, date: NSDate) {
     self.id = id ?? Int(NSDate().timeIntervalSince1970 * 100000)
-    self.date = date
     self.type = type
+    self.date = date
   }
   
   // MARK: - SAVE
   struct PropertyKey {
     static let id: String = "id"
-    static let date: String = "date"
     static let type: String = "type"
+    static let date: String = "date"
+
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
@@ -28,9 +33,10 @@ class Reminder: NSObject, NSCoding {
   
   required convenience init?(coder aDecoder: NSCoder) {
     let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! Int
-    let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
     let type = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.type) as! Int)!
-    self.init(id: id, date: date, type: type)
+    let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
+    
+    self.init(id: id, type: type, date: date)
   }
 }
 
