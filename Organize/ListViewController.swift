@@ -162,11 +162,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
-  func modalNewNote() -> Note {
-    return Note(title: "hello")
-  }
-  
   func getDisplayItem(cell cell: UITableViewCell) -> Note? {
     if let indexPath = tableView.indexPathForCell(cell) {
       return notebook.display[indexPath.row]
@@ -385,6 +380,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
+  
+  
+  func modalNewNote() -> Note {
+    return Note(title: "hello")
+  }
+  
   
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)

@@ -19,8 +19,8 @@
 		675037D91CD176570061EC6E /* MenuNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037BF1CD176570061EC6E /* MenuNavigationController.swift */; };
 		675037DA1CD176570061EC6E /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C01CD176570061EC6E /* MenuViewController.swift */; };
 		675037DB1CD176570061EC6E /* Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C11CD176570061EC6E /* Modal.swift */; };
-		675037DC1CD176570061EC6E /* ModalDatePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C21CD176570061EC6E /* ModalDatePickerViewController.swift */; };
-		675037DD1CD176570061EC6E /* ModalReminderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C31CD176570061EC6E /* ModalReminderViewController.swift */; };
+		675037DC1CD176570061EC6E /* Modal+DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C21CD176570061EC6E /* Modal+DatePicker.swift */; };
+		675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C31CD176570061EC6E /* Modal+Reminder.swift */; };
 		675037DE1CD176570061EC6E /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C41CD176570061EC6E /* Note.swift */; };
 		675037DF1CD176570061EC6E /* Notebook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C51CD176570061EC6E /* Notebook.swift */; };
 		675037E01CD176570061EC6E /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037C61CD176570061EC6E /* SettingViewController.swift */; };
@@ -64,8 +64,8 @@
 		675037BF1CD176570061EC6E /* MenuNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuNavigationController.swift; sourceTree = "<group>"; };
 		675037C01CD176570061EC6E /* MenuViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		675037C11CD176570061EC6E /* Modal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modal.swift; sourceTree = "<group>"; };
-		675037C21CD176570061EC6E /* ModalDatePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModalDatePickerViewController.swift; sourceTree = "<group>"; };
-		675037C31CD176570061EC6E /* ModalReminderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModalReminderViewController.swift; sourceTree = "<group>"; };
+		675037C21CD176570061EC6E /* Modal+DatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+DatePicker.swift"; sourceTree = "<group>"; };
+		675037C31CD176570061EC6E /* Modal+Reminder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Reminder.swift"; sourceTree = "<group>"; };
 		675037C41CD176570061EC6E /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		675037C51CD176570061EC6E /* Notebook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notebook.swift; sourceTree = "<group>"; };
 		675037C61CD176570061EC6E /* SettingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
@@ -291,8 +291,8 @@
 		6750380E1CD1795E0061EC6E /* modals */ = {
 			isa = PBXGroup;
 			children = (
-				675037C21CD176570061EC6E /* ModalDatePickerViewController.swift */,
-				675037C31CD176570061EC6E /* ModalReminderViewController.swift */,
+				675037C21CD176570061EC6E /* Modal+DatePicker.swift */,
+				675037C31CD176570061EC6E /* Modal+Reminder.swift */,
 			);
 			name = modals;
 			sourceTree = "<group>";
@@ -376,7 +376,7 @@
 				675037ED1CD176570061EC6E /* User.swift in Sources */,
 				675037D81CD176570061EC6E /* SideMenu.swift in Sources */,
 				675037D91CD176570061EC6E /* MenuNavigationController.swift in Sources */,
-				675037DC1CD176570061EC6E /* ModalDatePickerViewController.swift in Sources */,
+				675037DC1CD176570061EC6E /* Modal+DatePicker.swift in Sources */,
 				675037D51CD176570061EC6E /* IntroNavigationController.swift in Sources */,
 				675037E01CD176570061EC6E /* SettingViewController.swift in Sources */,
 				675037EE1CD176570061EC6E /* Util.swift in Sources */,
@@ -396,7 +396,7 @@
 				675038081CD178F30061EC6E /* LoginViewController.swift in Sources */,
 				675037EC1CD176570061EC6E /* UITextField+Config.swift in Sources */,
 				675037F11CD176600061EC6E /* CellSwipe.swift in Sources */,
-				675037DD1CD176570061EC6E /* ModalReminderViewController.swift in Sources */,
+				675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */,
 				675038071CD178F30061EC6E /* Access+Business+Logic.swift in Sources */,
 				675037E51CD176570061EC6E /* ListViewController.swift in Sources */,
 				675037DB1CD176570061EC6E /* Modal.swift in Sources */,
