@@ -44,6 +44,7 @@ class ModalReminderViewController: UIViewController {
   let buttonRows: CGFloat = 3
   let buttonColumns: CGFloat = 3
   let buttonTitleRows: Int = 2
+  let buttonTitleFontSize: CGFloat = 13
   
   // MARK: create
   override func loadView() {
@@ -176,13 +177,14 @@ class ModalReminderViewController: UIViewController {
   
   func configureButton(button button: UIButton, reminderType: ReminderType) {
     button.tag = reminderType.hashValue
-    button.setImage(reminderType.imageView.image, forState: .Normal)
     button.setTitle(reminderType.title, forState: .Normal)
     button.layer.cornerRadius = Modal.radius
     button.tintColor = Config.colorButton
+    button.setImage(reminderType.imageView.image, forState: .Normal)
     button.setTitleColor(Config.colorButton, forState: .Normal)
     button.setTitleColor(Config.colorShadow, forState: .Highlighted)
-    button.titleLabel?.font = reminderType == .None ? .boldSystemFontOfSize(13) : .systemFontOfSize(13)
+    
+    button.titleLabel?.font = reminderType == .None ? .boldSystemFontOfSize(buttonTitleFontSize) : .systemFontOfSize(buttonTitleFontSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
     button.titleLabel?.textAlignment = .Center
     button.titleLabel?.numberOfLines = buttonTitleRows
@@ -193,6 +195,7 @@ class ModalReminderViewController: UIViewController {
   
   // MARK: buttons
   func buttonPressed(button: UIButton) {
+    Util.animateButtonPress(button: button)
     if let type = ReminderType(rawValue: button.tag) {
       close(reminderType: type)
     }

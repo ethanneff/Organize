@@ -1,5 +1,39 @@
 import UIKit
 
+class Reminder: NSObject, NSCoding {
+  // MARK: - PROPERTIES
+  let id: Int
+  var date: NSDate
+  var type: ReminderType
+  
+  // MARK: - INIT
+  init(id: Int?, date: NSDate, type: ReminderType) {
+    self.id = id ?? Int(NSDate().timeIntervalSince1970 * 100000)
+    self.date = date
+    self.type = type
+  }
+  
+  // MARK: - SAVE
+  struct PropertyKey {
+    static let id: String = "id"
+    static let date: String = "date"
+    static let type: String = "type"
+  }
+  
+  func encodeWithCoder(aCoder: NSCoder) {
+    aCoder.encodeObject(id, forKey: PropertyKey.id)
+    aCoder.encodeObject(type.rawValue, forKey: PropertyKey.type)
+    aCoder.encodeObject(date, forKey: PropertyKey.date)
+  }
+  
+  required convenience init?(coder aDecoder: NSCoder) {
+    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! Int
+    let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
+    let type = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.type) as! Int)!
+    self.init(id: id, date: date, type: type)
+  }
+}
+
 enum ReminderType: Int {
   case None
   case Later
@@ -53,9 +87,7 @@ enum ReminderType: Int {
     }
   }
   
-  var imageView: UIImageView  {
-    let imageView = UIImageView(image: self.image)
-    imageView.image = imageView.image!.imageWithRenderingMode(.AlwaysTemplate)
-    return imageView
+  var imageView: UIImageView {
+    return Util.imageViewWithColor(image: self.image, color: Config.colorButton)
   }
 }

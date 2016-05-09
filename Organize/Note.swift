@@ -20,8 +20,7 @@ protocol Collapsable {
 }
 
 protocol Remindable {
-  var reminderType: ReminderType { get set }
-  var reminderDate: NSDate? { get set }
+  var reminder: Reminder? { get set }
 }
 
 class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Collapsable, Remindable {
@@ -32,8 +31,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   var collapsed: Bool = false
   var children: Int = 0
   var indent: Int = 0
-  var reminderType: ReminderType = .None
-  var reminderDate: NSDate?
+  var reminder: Reminder?
   override var description: String {
     return "\(title)"//  \(completed)" // \(collapsed) \(children)"
   }
@@ -63,15 +61,14 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.completed = completed
   }
   
-  convenience init(title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int, reminderType: ReminderType, reminderDate: NSDate?) {
+  convenience init(title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int, reminder: Reminder?) {
     self.init(title: title)
     self.body = body
     self.completed = completed
     self.collapsed = collapsed
     self.children = children
     self.indent = indent
-    self.reminderType = reminderType
-    self.reminderDate = reminderDate
+    self.reminder = reminder
   }
   
   
@@ -83,8 +80,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     collapsed = original.collapsed
     children = original.children
     indent = original.indent
-    reminderType = original.reminderType
-    reminderDate = original.reminderDate
+    reminder = original.reminder
   }
   
   // MARK: - SAVE
@@ -95,8 +91,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     static let collapsed: String = "collapsed"
     static let children: String = "children"
     static let indent: String = "indent"
-    static let reminderType: String = "reminderType"
-    static let reminderDate: String = "reminderDate"
+    static let reminder: String = "reminder"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
@@ -106,8 +101,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     aCoder.encodeObject(collapsed, forKey: PropertyKey.collapsed)
     aCoder.encodeObject(children, forKey: PropertyKey.children)
     aCoder.encodeObject(indent, forKey: PropertyKey.indent)
-    aCoder.encodeObject(reminderType.rawValue, forKey: PropertyKey.reminderType)
-    aCoder.encodeObject(reminderDate, forKey: PropertyKey.reminderDate)
+    aCoder.encodeObject(reminder, forKey: PropertyKey.reminder)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
@@ -117,8 +111,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     let collapsed = aDecoder.decodeObjectForKey(PropertyKey.collapsed) as! Bool
     let children = aDecoder.decodeObjectForKey(PropertyKey.children) as! Int
     let indent = aDecoder.decodeObjectForKey(PropertyKey.indent) as! Int
-    let reminderType = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.reminderType) as! Int)!
-    let reminderDate = aDecoder.decodeObjectForKey(PropertyKey.reminderDate) as? NSDate
-    self.init(title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminderType: reminderType, reminderDate: reminderDate)
+    let reminder = aDecoder.decodeObjectForKey(PropertyKey.reminder) as? Reminder
+    self.init(title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
   }
 }

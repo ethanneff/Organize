@@ -162,7 +162,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
     }
     
     // reminder view
-    if note.reminderDate?.timeIntervalSinceNow > 0 {
+    if note.reminder?.date.timeIntervalSinceNow > 0 {
       reminderView?.backgroundColor = Config.colorButton
     } else {
       reminderView?.backgroundColor = Config.colorBackground

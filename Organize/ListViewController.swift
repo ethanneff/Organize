@@ -3,6 +3,9 @@ import UIKit
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate, SettingsDelegate {
   // MARK: - properties
   var notebook: Notebook
+  var activeNotebookCell: UITableViewCell?
+  var activeNotebookNote: Note?
+  
   lazy var tableView: UITableView = UITableView()
   var gestureDoubleTap: UITapGestureRecognizer?
   var gestureSingleTap: UITapGestureRecognizer?
@@ -173,6 +176,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // cell swiped
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
+      activeNotebookCell = cell
+      activeNotebookNote = notebook.display[indexPath.row]
+      
       switch type {
       case .Complete:
         notebook.complete(indexPath: indexPath, tableView: tableView)
@@ -349,6 +355,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if reminderType == .Date {
       modalDatePickerDisplay()
     } else {
+      if let note = activeNotebookNote {
+        if let reminder = note.reminder where reminderType == reminder.type {
+          LocalNotification.sharedInstance.delete(uid: reminder.id)
+          note.reminder = nil
+        }
+      }
+      
+      print(reminderType)
+      
       // if reminderType == Task.reminderType
       //   LocalNotification.sharedInstance.delete(uid: Task.reminderId)
       //     Task.reminderType = nil
@@ -380,7 +395,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
-  
   
   func modalNewNote() -> Note {
     return Note(title: "hello")
