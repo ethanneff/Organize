@@ -205,6 +205,7 @@ class Notebook: NSObject, NSCoding, Copying {
       }
       
       displayParent.completed = true
+      displayParent.reminder = nil
       
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
@@ -218,6 +219,7 @@ class Notebook: NSObject, NSCoding, Copying {
           break
         }
         noteChild.completed = true
+        noteChild.reminder = nil
       }
       
       // note insert
@@ -578,6 +580,9 @@ class Notebook: NSObject, NSCoding, Copying {
       guard let indexPath = indexPath else {
         return
       }
+      
+      // history
+      self.historySave()
       
       let note = self.display[indexPath.row]
       if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
