@@ -38,8 +38,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
-        self.notebook = data
-        self.tableView.reloadData()
+        Util.threadMain {
+          self.notebook = data
+          self.tableView.reloadData()
+        }
       }
     }
   }
@@ -61,7 +63,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - deinit
   deinit {
     // TODO: dismiss viewcontollor does not call deinit
-    print("deinit")
     dealloc()
   }
   
@@ -232,8 +233,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
-    print(notebook)
-    print(UIApplication.sharedApplication().scheduledLocalNotifications )
     Util.playSound(systemSound: .Tap)
   }
   
@@ -301,9 +300,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
-  // TODO: move to notebook
-  
   func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {
       self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
@@ -342,4 +338,3 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     presentViewController(alert, animated: true, completion:nil)
   }
 }
-

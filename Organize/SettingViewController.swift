@@ -34,22 +34,24 @@ class SettingViewController: UIViewController {
   }
   
   private func setupView() {
-    view.backgroundColor = Config.colorBackground
-    createButtons()
-  }
-  
-  func createButtons() {
     var constraints: [NSLayoutConstraint] = []
+    view.backgroundColor = Config.colorBackground
+    
+    // scroll view
+    let scrollView = UIScrollView()
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(scrollView)
+
+    // buttons
     for i in 0..<Button.count {
       let info = Button(rawValue: i)
-      print(info)
       let button = UIButton()
       button.tag = i
       button.setTitle(info?.title, forState: .Normal)
       button.setTitleColor(Config.colorButton, forState: .Normal)
       button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
       button.translatesAutoresizingMaskIntoConstraints = false
-      view.addSubview(button)
+      scrollView.addSubview(button)
       
       constraints.append(button.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
       constraints.append(button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
@@ -57,8 +59,16 @@ class SettingViewController: UIViewController {
       constraints.append(button.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: CGFloat(i)*Config.buttonHeight+Config.buttonPadding))
     }
     
+    // scroll view
+    constraints.append(scrollView.topAnchor.constraintEqualToAnchor(view.topAnchor))
+    constraints.append(scrollView.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
+    constraints.append(scrollView.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
+    constraints.append(scrollView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor))
+    scrollView.setContentViewSize()
+    
     NSLayoutConstraint.activateConstraints(constraints)
   }
+  
   
   func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)

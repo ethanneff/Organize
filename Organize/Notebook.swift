@@ -72,9 +72,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   
   // MARK: - ADD
-  func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
-    print(note)
-    
+  func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {    
     // history
     self.historySave()
   }
@@ -241,8 +239,6 @@ class Notebook: NSObject, NSCoding, Copying {
           break
         }
       }
-      
-      print(self.notes)
       
       // note relocate
       for _ in noteParent.index..<noteChildIndex {
@@ -588,7 +584,9 @@ class Notebook: NSObject, NSCoding, Copying {
       if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
         // delete
         note.reminder = nil
-        Util.playSound(systemSound: .BeepBoBoopFailure)
+        if let completion = completion {
+          completion(created: false)
+        }
       } else {
         // create
         note.createReminder(controller: controller, reminderType: reminderType, date: date) {
