@@ -24,13 +24,16 @@ class Reminder: NSObject, NSCoding {
     self.init(id: id, type: type, date: date)
   }
   
-  
+  // MARK: - DEINIT
+  deinit {
+    LocalNotification.sharedInstance.delete(uid: id)
+  }
+
   // MARK: - SAVE
   struct PropertyKey {
     static let id: String = "id"
     static let type: String = "type"
     static let date: String = "date"
-    
   }
   
   func encodeWithCoder(aCoder: NSCoder) {

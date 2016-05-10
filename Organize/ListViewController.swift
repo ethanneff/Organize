@@ -233,6 +233,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     print(notebook)
+    print(UIApplication.sharedApplication().scheduledLocalNotifications )
     Util.playSound(systemSound: .Tap)
   }
   
@@ -274,7 +275,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   func modalDatePickerValue(date date: NSDate) {
     Util.playSound(systemSound: .Tap)
-    updateReminder(reminderType: .Date, date: date)
+    notebook.reminder(indexPath: activeNotebookIndexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
+      Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
+    }
   }
   
   func modalReminderDisplay() {
@@ -293,25 +296,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       modalDatePickerDisplay()
       return
     }
-    updateReminder(reminderType: reminderType, date: nil)
+    notebook.reminder(indexPath: activeNotebookIndexPath, controller: self, tableView: tableView, reminderType: reminderType, date: nil) { created in
+      Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
+    }
   }
   
   
   // TODO: move to notebook
-  private func updateReminder(reminderType reminderType: ReminderType, date: NSDate?) {
-    if let indexPath = activeNotebookIndexPath {
-      let note = notebook.display[indexPath.row]
-      if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
-        note.deleteReminder()
-        Util.playSound(systemSound: .BeepBoBoopFailure)
-      } else {
-        note.createReminder(controller: self, reminderType: reminderType, date: date)
-        Util.playSound(systemSound: .BeepBoBoopSuccess)
-      }
-      tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-      Notebook.set(data: notebook)
-    }
-  }
   
   func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {

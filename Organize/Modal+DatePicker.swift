@@ -73,7 +73,7 @@ class ModalDatePickerViewController: UIViewController {
     
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
-    picker.date = selected?.date ?? NSDate()
+    picker.date = selected?.date ?? NSDate().dateByAddingTimeInterval(5*60)
     
     NSLayoutConstraint.activateConstraints([
       modal.widthAnchor.constraintEqualToConstant(modalWidth),

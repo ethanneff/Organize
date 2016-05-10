@@ -71,17 +71,18 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   }
   
   // MARK: - REMINDER
-  func createReminder(controller controller: UIViewController, reminderType: ReminderType, date: NSDate?) {
-    deleteReminder()
-    reminder = Reminder(type: reminderType, date: date)
-    LocalNotification.sharedInstance.create(controller: controller, body: title, action: nil, fireDate: date, soundName: nil, uid: reminder!.id, completion: nil)
-  }
-  
-  func deleteReminder() {
-    if let id = reminder?.id {
-      LocalNotification.sharedInstance.delete(uid: id)
-    }
+  func createReminder(controller controller: UIViewController, reminderType: ReminderType, date: NSDate?, completion: (() -> ())? = nil) {
+    // delete notification
     reminder = nil
+    // create reminder
+    reminder = Reminder(type: reminderType, date: date)
+    // create notification
+    LocalNotification.sharedInstance.create(controller: controller, body: title, action: nil, fireDate: date, soundName: nil, uid: reminder!.id) {
+      success in
+      if let completion = completion where success {
+        completion()
+      }
+    }
   }
   
   // MARK: - COPY

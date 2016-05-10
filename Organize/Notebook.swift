@@ -572,6 +572,36 @@ class Notebook: NSObject, NSCoding, Copying {
     }
   }
   
+  // MARK: - REMINDER
+  func reminder(indexPath indexPath: NSIndexPath?, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: ((created: Bool) -> ())? = nil) {
+    Util.threadBackground {
+      guard let indexPath = indexPath else {
+        return
+      }
+      
+      let note = self.display[indexPath.row]
+      if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
+        // delete
+        note.reminder = nil
+        Util.playSound(systemSound: .BeepBoBoopFailure)
+      } else {
+        // create
+        note.createReminder(controller: controller, reminderType: reminderType, date: date) {
+          if let completion = completion {
+            completion(created: true)
+          }
+        }
+      }
+      
+      // display
+      self.reload(indexPaths: [indexPath], tableView: tableView) {
+        // save
+        Notebook.set(data: self)
+      }
+    }
+  }
+  
+  
   // MARK: - HELPER METHODS
   private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
     var noteParentIndex = 0
