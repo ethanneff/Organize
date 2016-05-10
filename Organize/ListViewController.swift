@@ -3,8 +3,7 @@ import UIKit
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate, SettingsDelegate {
   // MARK: - properties
   var notebook: Notebook
-  var activeNotebookCell: UITableViewCell?
-  var activeNotebookNote: Note?
+  var activeNotebookIndexPath: NSIndexPath?
   
   lazy var tableView: UITableView = UITableView()
   var gestureDoubleTap: UITapGestureRecognizer?
@@ -47,13 +46,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func loadListeners() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationWillResignActiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
+  
+  // MARK: - load
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     // shake
     self.becomeFirstResponder()
   }
+  
   
   // MARK: - deinit
   deinit {
@@ -64,11 +67,18 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func dealloc() {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
   func applicationWillResignActiveNotification() {
     notebook.historyClear()
   }
+  
+  func applicationDidBecomeActiveNotification() {
+    // update reminder icons
+    tableView.reloadData()
+  }
+  
   
   // MARK: - create
   private func createTableView() {
@@ -121,11 +131,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.addGestureRecognizer(gestureSingleTap!)
   }
   
-  // MARK: - load
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  }
-  
+  // MARK: - error
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
   }
@@ -176,8 +182,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // cell swiped
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
-      activeNotebookCell = cell
-      activeNotebookNote = notebook.display[indexPath.row]
+      activeNotebookIndexPath = indexPath
       
       switch type {
       case .Complete:
@@ -203,6 +208,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     notebook = Notebook.getDefault()
@@ -210,6 +216,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.reloadData()
     refreshControl.endRefreshing()
   }
+  
   
   
   // MARK: - buttons
@@ -221,10 +228,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     print(notebook)
     Util.playSound(systemSound: .Tap)
+    tableView.reloadData()
   }
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
@@ -245,74 +255,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
-    
-    print(event?.subtype)
     if let event = event where event.subtype == .MotionShake {
       modalUndo()
     }
-  }
-  
-  
-  
-  func reminder() {
-    let paramLater: Double = 2
-    let paramMorning: Double = 24 + 8
-    let paramEvening: Double = 12 + 6
-    // -1 day because working off tomorrow morning's value
-    let paramWeek: Double = 6
-    let paramMonth: Double = 29
-    let paramSomeday: Double = 59
-    
-    let now: NSDate = NSDate()
-    let today: NSDate = NSCalendar.currentCalendar().startOfDayForDate(NSDate())
-    let dayOfWeek: Double = Double(NSCalendar.currentCalendar().components(.Weekday, fromDate: today).weekday)
-    
-    // 2 hours
-    let later = now.dateByAddingTimeInterval(60*60*(paramLater))
-    
-    // at 6pm or 2 hours from now if already after 6pm
-    let evening = now.compare(today.dateByAddingTimeInterval(60*60*(paramEvening))) == .OrderedDescending ? later : today.dateByAddingTimeInterval(60*60*(paramEvening))
-    
-    // 8am tomorrow
-    let tomorrow = today.dateByAddingTimeInterval(60*60*(paramMorning))
-    
-    // saturday at 8am or 2hours if already on weekend
-    let weekend = (dayOfWeek == 7 || dayOfWeek == 1) ? later : tomorrow.dateByAddingTimeInterval(60*60*24*(6-dayOfWeek))
-    
-    // 7 days from now or monday if weekend
-    let week = tomorrow.dateByAddingTimeInterval(60*60*24*(paramWeek))
-    
-    
-    // 30 days
-    let month = tomorrow.dateByAddingTimeInterval(60*60*24*(paramMonth))
-    
-    // date
-    let someday = tomorrow.dateByAddingTimeInterval(60*60*24*(paramSomeday))
-    
-    print(today)
-    print(now)
-    print(later)
-    print(evening)
-    print(tomorrow)
-    print(weekend)
-    print(week)
-    print(month)
-    print(someday)
-    
-    
-    //
-    //    let id = Int(NSDate().timeIntervalSince1970 * 100000)
-    //    LocalNotification.sharedInstance.create(controller: self, body: "hello", action: "world", fireDate: nil, soundName: nil, uid: id) { success in
-    //      if success {
-    //        let a = Note(title: "asdioansd", description: "asdoiasn")
-    //        a.reminderId = id
-    //        // update cell
-    //      }
-    //
-    //    }
-    //    LocalNotification.sharedInstance.delete(uid: 123)
-    
-    
   }
   
   // MARK: - modals
@@ -343,7 +288,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalReminderDisplay() {
     let controller = ModalReminderViewController()
     controller.delegate = self
-    controller.selected = activeNotebookNote?.reminder ?? nil
+    //    controller.selected = activeNotebookNote?.reminder ?? nil
     controller.modalPresentationStyle = .OverCurrentContext
     presentViewController(controller, animated: false, completion: nil)
   }
@@ -353,25 +298,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     if reminderType == .Date {
       modalDatePickerDisplay()
-    } else {
-      if let note = activeNotebookNote {
-        if let reminder = note.reminder where reminderType == reminder.type {
-          LocalNotification.sharedInstance.delete(uid: reminder.id)
-          note.reminder = nil
-        }
+      return
+    }
+    
+    if let indexPath = activeNotebookIndexPath {
+      let note = notebook.display[indexPath.row]
+      if let reminder = note.reminder where reminderType == reminder.type {
+        note.deleteReminder()
+      } else {
+        note.createReminder(controller: self, reminderType: reminderType, date: nil)
       }
-      
-      print(reminderType)
-      
-      // if reminderType == Task.reminderType
-      //   LocalNotification.sharedInstance.delete(uid: Task.reminderId)
-      //     Task.reminderType = nil
-      //     Task.reminderId = nil
-      // else
-      //   let id = Int(NSDate().timeIntervalSince1970 * 100000)
-      //   LocalNotification.sharedInstance.create(controller: self, body: "hello", action: "world", fireDate: nil, soundName: nil, uid: id) { success in
-      //     Task.reminderId = id
-      //     update cell image
+      tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
     }
   }
   
@@ -398,7 +335,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalNewNote() -> Note {
     return Note(title: "hello")
   }
-  
   
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)

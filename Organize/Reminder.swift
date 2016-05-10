@@ -5,24 +5,32 @@ class Reminder: NSObject, NSCoding {
   let id: Int
   var type: ReminderType
   var date: NSDate
-
+  
   override var description: String {
     return "\(id) \(type) \(date)"
   }
   
   // MARK: - INIT
-  init(id: Int?, type: ReminderType, date: NSDate) {
-    self.id = id ?? Int(NSDate().timeIntervalSince1970 * 100000)
+  init(id: Int, type: ReminderType, date: NSDate) {
+    self.id = id
     self.type = type
     self.date = date
   }
+  
+  convenience init(type: ReminderType, date: NSDate?) {
+    let id = Int(NSDate().timeIntervalSince1970 * 100000)
+    let date = type.date(date: date)
+    
+    self.init(id: id, type: type, date: date)
+  }
+  
   
   // MARK: - SAVE
   struct PropertyKey {
     static let id: String = "id"
     static let type: String = "type"
     static let date: String = "date"
-
+    
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
@@ -50,21 +58,7 @@ enum ReminderType: Int {
   case Month
   case Someday
   case Date
-  
-  var increment: NSDate? {
-    switch self {
-    case .Later: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Evening: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Tomorrow: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Weekend: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Week: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Month: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .Someday: return NSDate().dateByAddingTimeInterval(60*60*2)
-    case .None: return nil
-    case .Date: return NSDate().dateByAddingTimeInterval(60*60*2)
-    }
-  }
-  
+ 
   var title: String {
     switch self {
     case .Later: return "Later Today"
@@ -95,5 +89,53 @@ enum ReminderType: Int {
   
   var imageView: UIImageView {
     return Util.imageViewWithColor(image: self.image, color: Config.colorButton)
+  }
+  
+  func date(date date: NSDate?) -> NSDate {
+    // configurable hours
+    let paramLater: Double = 2
+    let paramMorning: Double = 24 + 8
+    let paramEvening: Double = 12 + 6
+    // -1 day because working off tomorrow morning's value
+    let paramWeek: Double = 6
+    let paramMonth: Double = 29
+    let paramSomeday: Double = 59
+    
+    let now: NSDate = NSDate()
+    let today: NSDate = NSCalendar.currentCalendar().startOfDayForDate(NSDate())
+    let dayOfWeek: Double = Double(NSCalendar.currentCalendar().components(.Weekday, fromDate: today).weekday)
+    
+    // 2 hours
+    let later = now.dateByAddingTimeInterval(60*60*(paramLater))
+    
+    // at 6pm or 2 hours from now if already after 6pm
+    let evening = now.compare(today.dateByAddingTimeInterval(60*60*(paramEvening))) == .OrderedDescending ? later : today.dateByAddingTimeInterval(60*60*(paramEvening))
+    
+    // 8am tomorrow
+    let tomorrow = today.dateByAddingTimeInterval(60*60*(paramMorning))
+    
+    // saturday at 8am or 2hours if already on weekend
+    let weekend = (dayOfWeek == 7 || dayOfWeek == 1) ? later : tomorrow.dateByAddingTimeInterval(60*60*24*(6-dayOfWeek))
+    
+    // 7 days from now or monday if weekend
+    let week = tomorrow.dateByAddingTimeInterval(60*60*24*(paramWeek))
+    
+    // 30 days
+    let month = tomorrow.dateByAddingTimeInterval(60*60*24*(paramMonth))
+    
+    // 60 days
+    let someday = tomorrow.dateByAddingTimeInterval(60*60*24*(paramSomeday))
+    
+    switch self {
+    case .Later: return later
+    case .Evening: return evening
+    case .Tomorrow: return tomorrow
+    case .Weekend: return weekend
+    case .Week: return week
+    case .Month: return month
+    case .Someday: return someday
+    case .None: return now
+    case .Date: return date ?? now
+    }
   }
 }

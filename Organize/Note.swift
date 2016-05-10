@@ -1,5 +1,4 @@
-import Foundation
-
+import UIKit
 
 protocol Nameable {
   var title: String { get set }
@@ -33,7 +32,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   var indent: Int = 0
   var reminder: Reminder?
   override var description: String {
-    return "\(title)"//  \(completed)" // \(collapsed) \(children)"
+    return "\(title) \(reminder?.date)"//  \(completed)" // \(collapsed) \(children)"
   }
   
   // MARK: - INIT
@@ -71,6 +70,20 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.reminder = reminder
   }
   
+  // MARK: - REMINDER
+  func createReminder(controller controller: UIViewController, reminderType: ReminderType, date: NSDate?) {
+    print("create")
+    reminder = Reminder(type: reminderType, date: date)
+    LocalNotification.sharedInstance.create(controller: controller, body: title, action: nil, fireDate: date, soundName: nil, uid: reminder!.id, completion: nil)
+  }
+  
+  func deleteReminder() {
+    print("delete")
+    if let id = reminder?.id {
+      LocalNotification.sharedInstance.delete(uid: id)
+    }
+    reminder = nil
+  }
   
   // MARK: - COPY
   required init(original: Note) {
