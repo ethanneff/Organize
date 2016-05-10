@@ -53,16 +53,20 @@ class Modal {
     title.font = .boldSystemFontOfSize(Modal.textSize)
     title.text = titleText
     title.translatesAutoresizingMaskIntoConstraints = false
-    title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor).active = true
-    title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor).active = true
-    title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Modal.textPadding).active = true
-    title.heightAnchor.constraintEqualToConstant(Modal.textHeight).active = true
     
     modal.backgroundColor = Config.colorBackground
     modal.layer.cornerRadius = Modal.radius
+    modal.layer.masksToBounds = true
     modal.translatesAutoresizingMaskIntoConstraints = false
-    modal.centerXAnchor.constraintEqualToAnchor(background.centerXAnchor).active = true
-    modal.centerYAnchor.constraintEqualToAnchor(background.centerYAnchor).active = true
     
+    NSLayoutConstraint.activateConstraints([
+      title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Modal.textPadding),
+      title.heightAnchor.constraintEqualToConstant(Modal.textHeight),
+      
+      modal.centerXAnchor.constraintEqualToAnchor(background.centerXAnchor),
+      modal.centerYAnchor.constraintEqualToAnchor(background.centerYAnchor),
+      ])
   }
 }

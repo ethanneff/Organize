@@ -234,7 +234,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     print(notebook)
     Util.playSound(systemSound: .Tap)
-    tableView.reloadData()
   }
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
@@ -263,52 +262,54 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - modals
   func modalDatePickerDisplay() {
     // pass Tasks.reminderDate to autoload that date
-    let controller = ModalDatePickerViewController()
-    controller.delegate = self
-    controller.modalPresentationStyle = .OverCurrentContext
-    presentViewController(controller, animated: false, completion: nil)
+    if let indexPath = activeNotebookIndexPath {
+      let note = notebook.display[indexPath.row]
+      let controller = ModalDatePickerViewController()
+      controller.delegate = self
+      controller.selected = note.reminder ?? nil
+      controller.modalPresentationStyle = .OverCurrentContext
+      presentViewController(controller, animated: false, completion: nil)
+    }
   }
   
   func modalDatePickerValue(date date: NSDate) {
     Util.playSound(systemSound: .Tap)
-    print(date)
-    // if Task.reminderId != nil
-    //    LocalNotification.sharedInstance.delete(uid: Task.reminderId)
-    //      let id = Int(NSDate().timeIntervalSince1970 * 100000)
-    //      LocalNotification.sharedInstance.create(controller: self, body: "hello", action: "world", fireDate: nil, soundName: nil, uid: id) { success in
-    //        Task.reminderId = id
-    //        update cell image
-    // else
-    //   let id = Int(NSDate().timeIntervalSince1970 * 100000)
-    //   LocalNotification.sharedInstance.create(controller: self, body: "hello", action: "world", fireDate: nil, soundName: nil, uid: id) { success in
-    //     Task.reminderId = id
-    //     update cell image
+    updateReminder(reminderType: .Date, date: date)
   }
   
   func modalReminderDisplay() {
-    let controller = ModalReminderViewController()
-    controller.delegate = self
-    //    controller.selected = activeNotebookNote?.reminder ?? nil
-    controller.modalPresentationStyle = .OverCurrentContext
-    presentViewController(controller, animated: false, completion: nil)
+    if let indexPath = activeNotebookIndexPath {
+      let note = notebook.display[indexPath.row]
+      let controller = ModalReminderViewController()
+      controller.delegate = self
+      controller.selected = note.reminder ?? nil
+      controller.modalPresentationStyle = .OverCurrentContext
+      presentViewController(controller, animated: false, completion: nil)
+    }
   }
   
   func modalReminderValue(reminderType reminderType: ReminderType) {
-    Util.playSound(systemSound: .Tap)
-    
     if reminderType == .Date {
       modalDatePickerDisplay()
       return
     }
-    
+    updateReminder(reminderType: reminderType, date: nil)
+  }
+  
+  
+  // TODO: move to notebook
+  private func updateReminder(reminderType reminderType: ReminderType, date: NSDate?) {
     if let indexPath = activeNotebookIndexPath {
       let note = notebook.display[indexPath.row]
-      if let reminder = note.reminder where reminderType == reminder.type {
+      if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
         note.deleteReminder()
+        Util.playSound(systemSound: .BeepBoBoopFailure)
       } else {
-        note.createReminder(controller: self, reminderType: reminderType, date: nil)
+        note.createReminder(controller: self, reminderType: reminderType, date: date)
+        Util.playSound(systemSound: .BeepBoBoopSuccess)
       }
       tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+      Notebook.set(data: notebook)
     }
   }
   

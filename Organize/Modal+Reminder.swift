@@ -25,6 +25,7 @@ protocol ModalReminderDelegate: class {
   func modalReminderValue(reminderType reminderType: ReminderType)
 }
 
+
 class ModalReminderViewController: UIViewController {
   // MARK: - properties
   weak var delegate: ModalReminderDelegate?
@@ -170,16 +171,15 @@ class ModalReminderViewController: UIViewController {
       midSeparatorTwo.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
       midSeparatorTwo.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
       midSeparatorTwo.widthAnchor.constraintEqualToConstant(Modal.separator),
-
+      
       ])
-     }
+  }
   
   func createButton(reminderType reminderType: ReminderType) -> UIButton {
     let button = UIButton()
     
     button.tag = reminderType.hashValue
     button.setTitle(reminderType.title, forState: .Normal)
-    button.layer.cornerRadius = Modal.radius
     button.tintColor = Config.colorButton
     button.setImage(reminderType.imageView.image, forState: .Normal)
     button.setTitleColor(Config.colorButton, forState: .Normal)
@@ -191,6 +191,10 @@ class ModalReminderViewController: UIViewController {
     button.titleLabel?.numberOfLines = buttonTitleRows
     button.alignImageAndTitleVertically(spacing: 0)
     button.translatesAutoresizingMaskIntoConstraints = false
+    
+    if selected?.type == reminderType {
+      button.backgroundColor = Config.colorShadow
+    }
     
     return button
   }
@@ -205,6 +209,7 @@ class ModalReminderViewController: UIViewController {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
+    Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
     if let type = ReminderType(rawValue: button.tag) {
       close(reminderType: type)
@@ -221,7 +226,9 @@ class ModalReminderViewController: UIViewController {
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
-      self.delegate?.modalReminderValue(reminderType: reminderType)
+      if reminderType != .None {
+        self.delegate?.modalReminderValue(reminderType: reminderType)
+      }
     }
   }
 }
