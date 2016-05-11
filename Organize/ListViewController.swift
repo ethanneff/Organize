@@ -168,8 +168,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
         modalNoteDetailDisplay(create: true)
-        //        let note = modalNewNote()
-        //        notebook.add(indexPath: indexPath, tableView: tableView, note: note)
       }
       Util.playSound(systemSound: .Tap)
     }
@@ -332,7 +330,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if let indexPath = activeNotebookIndexPath {
       let controller = ModalNoteDetailViewController()
       controller.delegate = self
-      controller.data = notebook.display[indexPath.row]
+      controller.data = create ? nil : notebook.display[indexPath.row]
       modalPresent(controller: controller)
     }
   }

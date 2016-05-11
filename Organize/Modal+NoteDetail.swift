@@ -19,6 +19,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   let modal: UIView = UIView()
   
   var titleTextView: UITextView?
+  var titleTextViewPlaceHolder: UILabel?
   let modalWidth: CGFloat = 290
   let modalHeight: CGFloat = 140
   var tapGesture: UITapGestureRecognizer?
@@ -70,7 +71,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     
     titleTextView = createTextView()
     titleTextView!.becomeFirstResponder()
-    createPlaceHolderLabel(textView: titleTextView!)
+    titleTextViewPlaceHolder = createPlaceHolderLabel(textView: titleTextView!)
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     
@@ -132,14 +133,18 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   private func createPlaceHolderLabel(textView textView: UITextView) -> UILabel {
     let label = UILabel()
-    label.text = "Note title.."
+    label.text = "Title"
+    let labelWidth = label.intrinsicContentSize().width
+    let textViewTextSize = textView.font!.pointSize
     label.font = .boldSystemFontOfSize(textView.font!.pointSize)
     label.sizeToFit()
-    label.frame.origin = CGPointMake(modalWidth/2-label.intrinsicContentSize().width/2, textView.font!.pointSize / 2)
+    label.frame.origin = CGPointMake(modalWidth/2-labelWidth/2, textViewTextSize/2)
     label.textColor = Config.colorBorder
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
     textView.addSubview(label)
+    label.hidden = !textView.text.isEmpty
+    textView.textContainerInset = UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0)
     
     return label
   }
@@ -183,11 +188,12 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   func textViewDidChange(textView: UITextView) {
-    for v in textView.subviews {
-      if let _ = v as? UILabel {
-        v.hidden = !textView.text.isEmpty
-        break
-      }
+    if let placeholder = titleTextViewPlaceHolder, title = titleTextView {
+      let labelWidth = placeholder.intrinsicContentSize().width
+      let textViewTextSize = title.font!.pointSize
+      
+      placeholder.hidden = !textView.text.isEmpty
+      title.textContainerInset = textView.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
     }
   }
   
@@ -203,7 +209,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     default: return true
     }
   }
-
+  
   
   
   // MARK: - buttons
