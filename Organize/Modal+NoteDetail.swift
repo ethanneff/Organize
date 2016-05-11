@@ -63,7 +63,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   private func setupView() {
-    let yes = createButton(title: data == nil ? "Create" : "Edit", confirm: true)
+    let yes = createButton(title: Modal.textYes, confirm: true)
     let no = createButton(title: Modal.textNo, confirm: false)
     let topSeparator = Modal.createSeparator()
     let midSeparator = Modal.createSeparator()
@@ -132,7 +132,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   private func createPlaceHolderLabel(textView textView: UITextView) -> UILabel {
     let label = UILabel()
-    label.text = "Title"
+    label.text = "Note title.."
     label.font = .boldSystemFontOfSize(textView.font!.pointSize)
     label.sizeToFit()
     label.frame.origin = CGPointMake(modalWidth/2-label.intrinsicContentSize().width/2, textView.font!.pointSize / 2)

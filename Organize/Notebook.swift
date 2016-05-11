@@ -596,20 +596,40 @@ class Notebook: NSObject, NSCoding, Copying {
       // history
       self.historySave()
       
-      let note = self.display[indexPath.row]
-      if let reminder = note.reminder where reminderType == reminder.type && reminderType != .Date {
-        // delete
-        note.reminder = nil
-        if let completion = completion {
-          completion(created: false)
-        }
-      } else {
+      // helper functions
+      func create(note note: Note) {
         // create
         note.createReminder(controller: controller, reminderType: reminderType, date: date) {
           if let completion = completion {
             completion(created: true)
           }
         }
+      }
+      
+      func delete(note note: Note) {
+        // delete
+        note.reminder = nil
+        if let completion = completion {
+          completion(created: false)
+        }
+      }
+      
+      // reminder
+      let note = self.display[indexPath.row]
+      if let reminder = note.reminder where reminderType == reminder.type {
+        // had a reminder
+          if reminderType != .Date {
+            delete(note: note)
+          } else {
+            if reminder.date == date {
+              delete(note: note)
+            } else {
+              create(note: note)
+            }
+          }
+      } else {
+        // has no reminder
+        create(note: note)
       }
       
       // display
@@ -619,6 +639,7 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     }
   }
+  
   
   
   // MARK: - HELPER METHODS

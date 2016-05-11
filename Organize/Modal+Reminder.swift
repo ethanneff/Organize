@@ -29,7 +29,7 @@ protocol ModalReminderDelegate: class {
 class ModalReminderViewController: UIViewController {
   // MARK: - properties
   weak var delegate: ModalReminderDelegate?
-  weak var selected: Reminder?
+  weak var data: Reminder?
   
   let modal: UIView = UIView()
   
@@ -51,7 +51,7 @@ class ModalReminderViewController: UIViewController {
   
   private func dealloc() {
     delegate = nil
-    selected = nil
+    data = nil
     Modal.clear(background: view)
   }
   
@@ -193,7 +193,7 @@ class ModalReminderViewController: UIViewController {
     button.alignImageAndTitleVertically(spacing: 0)
     button.translatesAutoresizingMaskIntoConstraints = false
     
-    if selected?.type == reminderType && selected?.date.timeIntervalSinceNow > 0  {
+    if data?.type == reminderType && data?.date.timeIntervalSinceNow > 0  {
       button.backgroundColor = Config.colorShadow
     }
     

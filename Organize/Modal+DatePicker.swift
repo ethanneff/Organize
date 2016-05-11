@@ -28,7 +28,7 @@ protocol ModalDatePickerDelegate: class {
 class ModalDatePickerViewController: UIViewController {
   // MARK: - properties
   weak var delegate: ModalDatePickerDelegate?
-  weak var selected: Reminder?
+  weak var data: Reminder?
   
   let modal: UIView = UIView()
   let picker: UIDatePicker = UIDatePicker()
@@ -46,7 +46,7 @@ class ModalDatePickerViewController: UIViewController {
   
   private func dealloc() {
     delegate = nil
-    selected = nil
+    data = nil
     Modal.clear(background: view)
   }
   
@@ -73,7 +73,7 @@ class ModalDatePickerViewController: UIViewController {
     
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
-    picker.date = selected?.date ?? NSDate().dateByAddingTimeInterval(5*60)
+    picker.date = data?.date ?? NSDate().dateByAddingTimeInterval(5*60)
     
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),

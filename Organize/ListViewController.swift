@@ -267,19 +267,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal date picker
   func modalDatePickerDisplay() {
-    // pass Tasks.reminderDate to autoload that date
     if let indexPath = activeNotebookIndexPath {
-      let note = notebook.display[indexPath.row]
       let controller = ModalDatePickerViewController()
       controller.delegate = self
-      controller.selected = note.reminder ?? nil
-      controller.modalPresentationStyle = .OverCurrentContext
-      presentViewController(controller, animated: false, completion: nil)
+      controller.data = notebook.display[indexPath.row].reminder ?? nil
+      modalPresent(controller: controller)
     }
   }
   
   func modalDatePickerValue(date date: NSDate) {
     Util.playSound(systemSound: .Tap)
+    
     notebook.reminder(indexPath: activeNotebookIndexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
       Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
     }
@@ -288,12 +286,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - modal reminder
   func modalReminderDisplay() {
     if let indexPath = activeNotebookIndexPath {
-      let note = notebook.display[indexPath.row]
       let controller = ModalReminderViewController()
       controller.delegate = self
-      controller.selected = note.reminder ?? nil
-      controller.modalPresentationStyle = .OverCurrentContext
-      presentViewController(controller, animated: false, completion: nil)
+      controller.data = notebook.display[indexPath.row].reminder ?? nil
+      modalPresent(controller: controller)
     }
   }
   
@@ -330,16 +326,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
   // MARK: - modal note detail
   func modalNoteDetailDisplay(create create: Bool) {
     if let indexPath = activeNotebookIndexPath {
-      let note = notebook.display[indexPath.row]
       let controller = ModalNoteDetailViewController()
       controller.delegate = self
-      controller.data = note
-      controller.modalPresentationStyle = .OverCurrentContext
-      presentViewController(controller, animated: false, completion: nil)
+      controller.data = notebook.display[indexPath.row]
+      modalPresent(controller: controller)
     }
   }
   
@@ -347,6 +340,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if let indexPath = activeNotebookIndexPath {
       notebook.update(indexPath: indexPath, tableView: tableView, note: note)
     }
+  }
+  
+  // MARK: - modal helper functions
+  private func modalPresent(controller controller: UIViewController) {
+    controller.modalPresentationStyle = .OverCurrentContext
+    presentViewController(controller, animated: false, completion: nil)
   }
   
   

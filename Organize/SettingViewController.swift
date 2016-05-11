@@ -28,7 +28,7 @@ class SettingViewController: UIViewController {
       switch self {
       case .Collapse: return "Collapse all"
       case .Uncollapse: return "Expand all"
-      case .Delete: return "Delete collapsed"
+      case .Delete: return "Delete completed"
       }
     }
   }
