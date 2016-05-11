@@ -18,12 +18,13 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   let modal: UIView = UIView()
   
+  var titleTextView: UITextView?
   let modalWidth: CGFloat = 290
   let modalHeight: CGFloat = 140
   var tapGesture: UITapGestureRecognizer?
   var panGesture: UIPanGestureRecognizer?
   var modalCenterYConstraint: NSLayoutConstraint?
-
+  
   
   // MARK: - deinit
   deinit {
@@ -31,6 +32,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   private func dealloc() {
+    titleTextView = nil
     delegate = nil
     data = nil
     tapGesture = nil
@@ -66,12 +68,13 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     let topSeparator = Modal.createSeparator()
     let midSeparator = Modal.createSeparator()
     
-    let title = createTextView()
-    createPlaceHolderLabel(textView: title)
+    titleTextView = createTextView()
+    titleTextView!.becomeFirstResponder()
+    createPlaceHolderLabel(textView: titleTextView!)
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     
-    modal.addSubview(title)
+    modal.addSubview(titleTextView!)
     modal.addSubview(yes)
     modal.addSubview(no)
     modal.addSubview(topSeparator)
@@ -85,10 +88,10 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
       modal.widthAnchor.constraintEqualToConstant(modalWidth),
       modal.heightAnchor.constraintEqualToConstant(modalHeight),
       
-      title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
-      title.heightAnchor.constraintEqualToConstant(Config.buttonHeight*2),
+      titleTextView!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      titleTextView!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      titleTextView!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
+      titleTextView!.heightAnchor.constraintEqualToConstant(Config.buttonHeight*2),
       
       no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
       no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -140,7 +143,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     
     return label
   }
-
+  
   private func createButton(title title: String, confirm: Bool) -> UIButton {
     let button = UIButton()
     button.tag = Int(confirm)
@@ -189,14 +192,16 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+    
+    if text == "\n" {
+      textView.resignFirstResponder()
+      submitNote(confirm: true)
+    }
+    
     switch textView.tag {
     case 1: return textView.text.length + (text.length - range.length) <= 80
     default: return true
     }
-  }
-  
-  func textViewDidEndEditing(textView: UITextView) {
-    print("End")
   }
 
   
@@ -205,7 +210,29 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   internal func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
-    close(confirm: Bool(button.tag))
+    submitNote(confirm: Bool(button.tag))
+  }
+  
+  // MARK: - validation
+  private func submitNote(confirm confirm: Bool) {
+    if confirm {
+      updateNote()
+    }
+    close(confirm: confirm)
+  }
+  
+  private func updateNote() {
+    // title > 0
+    guard let title = titleTextView?.text where title.length > 0 else {
+      submitNote(confirm: false)
+      return
+    }
+    
+    if let note = data {
+      note.title = title
+    } else {
+      data = Note(title: title)
+    }
   }
   
   // MARK: - open/close
@@ -218,8 +245,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
-      if confirm {
-        self.delegate?.modalNoteDetailValue(note: Note(title: "bob"))
+      if let note = self.data where confirm {
+        self.delegate?.modalNoteDetailValue(note: note)
       }
     }
   }

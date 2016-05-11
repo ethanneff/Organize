@@ -167,8 +167,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
         modalNoteDetailDisplay(create: true)
-//        let note = modalNewNote()
-//        notebook.add(indexPath: indexPath, tableView: tableView, note: note)
+        //        let note = modalNewNote()
+        //        notebook.add(indexPath: indexPath, tableView: tableView, note: note)
       }
       Util.playSound(systemSound: .Tap)
     }
@@ -237,7 +237,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
     activeNotebookIndexPath = tableView.indexPathForRowAtPoint(location)
-
+    
     modalNoteDetailDisplay(create: false)
     Util.playSound(systemSound: .Tap)
   }
@@ -344,10 +344,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalNoteDetailValue(note note: Note) {
-    print(note)
+    if let indexPath = activeNotebookIndexPath {
+      notebook.update(indexPath: indexPath, tableView: tableView, note: note)
+    }
   }
   
-
+  
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: title, style: .Default) { action in

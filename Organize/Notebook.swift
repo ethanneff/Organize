@@ -72,9 +72,25 @@ class Notebook: NSObject, NSCoding, Copying {
   
   
   // MARK: - ADD
-  func add(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {    
+  func create(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
     // history
     self.historySave()
+  }
+  
+  // MARK: - UPDATE
+  func update(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // display parent
+      self.display[indexPath.row] = note
+      self.reload(indexPaths: [indexPath], tableView: tableView) {
+        // save
+        Notebook.set(data: self)
+      }
+      print(self)
+    }
   }
   
   
