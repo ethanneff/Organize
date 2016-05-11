@@ -182,9 +182,10 @@ class ModalReminderViewController: UIViewController {
     button.tag = reminderType.hashValue
     button.setTitle(reminderType.title, forState: .Normal)
     button.tintColor = Config.colorButton
-    button.setImage(reminderType.imageView.image, forState: .Normal)
+    button.setImage(reminderType.imageView(color: Config.colorButton).image, forState: .Normal)
+    button.setImage(reminderType.imageView(color: Config.colorBorder).image, forState: .Highlighted)
     button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorShadow, forState: .Highlighted)
+    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
     
     button.titleLabel?.font = reminderType == .None ? .boldSystemFontOfSize(buttonTitleFontSize) : .systemFontOfSize(buttonTitleFontSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)

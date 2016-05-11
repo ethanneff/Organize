@@ -90,8 +90,8 @@ enum ReminderType: Int {
     }
   }
   
-  var imageView: UIImageView {
-    return Util.imageViewWithColor(image: self.image, color: Config.colorButton)
+  func imageView(color color: UIColor) ->  UIImageView {
+    return Util.imageViewWithColor(image: self.image, color: color)
   }
   
   func date(date date: NSDate?) -> NSDate {

@@ -6,6 +6,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   var activeNotebookIndexPath: NSIndexPath?
   
   lazy var tableView: UITableView = UITableView()
+  var addButton: UIButton?
   var gestureDoubleTap: UITapGestureRecognizer?
   var gestureSingleTap: UITapGestureRecognizer?
   weak var menuDelegate: MenuViewController?
@@ -32,6 +33,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     loadNotebook()
     loadListeners()
     createTableView()
+    createAddButton()
     createGestures()
   }
   
@@ -67,6 +69,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func dealloc() {
+    addButton = nil
+    gestureDoubleTap = nil
+    gestureSingleTap = nil
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
@@ -118,6 +123,33 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       ])
   }
   
+  private func createAddButton() {
+    let button = UIButton()
+    let buttonSize = Config.buttonHeight*1.5
+    let image = UIImage(named: "icon-add")!
+    let imageView = Util.imageViewWithColor(image: image, color: Config.colorBackground)
+    view.addSubview(button)
+    button.layer.cornerRadius = buttonSize/2
+    button.backgroundColor = Config.colorButton
+    button.tintColor = Config.colorBackground
+    button.setImage(imageView.image, forState: .Normal)
+    button.setImage(imageView.image, forState: .Highlighted)
+    button.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
+    button.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activateConstraints([
+      button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor, constant: -Config.buttonPadding*2),
+      button.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -Config.buttonPadding*2),
+      button.heightAnchor.constraintEqualToConstant(buttonSize),
+      button.widthAnchor.constraintEqualToConstant(buttonSize),
+      ])
+    addButton = button
+  }
+  
+  func addButtonPressed(button: UIButton) {
+    Util.animateButtonPress(button: button)
+    modalNoteDetailDisplay(create: true)
+  }
+  
   private func createGestures() {
     // double tap
     gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
@@ -144,6 +176,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    addButton?.hidden = notebook.display.count > 0
     return notebook.display.count
   }
   
@@ -327,12 +360,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(create create: Bool) {
-    if let indexPath = activeNotebookIndexPath {
+//    if let indexPath = activeNotebookIndexPath {
       let controller = ModalNoteDetailViewController()
       controller.delegate = self
-      controller.data = create ? nil : notebook.display[indexPath.row]
+      controller.data = create ? nil : notebook.display[activeNotebookIndexPath!.row]
       modalPresent(controller: controller)
-    }
   }
   
   func modalNoteDetailValue(note note: Note, create: Bool) {
@@ -342,6 +374,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       } else {
         notebook.update(indexPath: indexPath, tableView: tableView, note: note)
       }
+    } else {
+      notebook.create(indexPath: nil, tableView: tableView, note: note)
     }
   }
   
