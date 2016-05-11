@@ -34,6 +34,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   private func dealloc() {
     titleTextView = nil
+    titleTextViewPlaceHolder = nil
     delegate = nil
     data = nil
     tapGesture = nil
