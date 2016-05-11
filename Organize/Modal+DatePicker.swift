@@ -21,14 +21,15 @@
 import UIKit
 
 protocol ModalDatePickerDelegate: class {
-  func modalDatePickerDisplay()
-  func modalDatePickerValue(date date: NSDate)
+  func modalDatePickerDisplay(indexPath indexPath: NSIndexPath)
+  func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate)
 }
 
 class ModalDatePickerViewController: UIViewController {
   // MARK: - properties
   weak var delegate: ModalDatePickerDelegate?
   weak var data: Reminder?
+  var indexPath: NSIndexPath?
   
   let modal: UIView = UIView()
   let picker: UIDatePicker = UIDatePicker()
@@ -142,8 +143,8 @@ class ModalDatePickerViewController: UIViewController {
   private func close(date date: NSDate?) {
     Modal.animateOut(modal: modal, background: view) {
       self.dismissViewControllerAnimated(false, completion: nil)
-      if let date = date {
-        self.delegate?.modalDatePickerValue(date: date)
+      if let date = date, indexPath = self.indexPath {
+        self.delegate?.modalDatePickerValue(indexPath: indexPath, date: date)
       }
     }
   }

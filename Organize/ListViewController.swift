@@ -3,7 +3,6 @@ import UIKit
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate {
   // MARK: - properties
   var notebook: Notebook
-  var activeNotebookIndexPath: NSIndexPath?
   
   lazy var tableView: UITableView = UITableView()
   var addButton: UIButton?
@@ -147,7 +146,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   func addButtonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
-    modalNoteDetailDisplay(create: true)
+    modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
   }
   
   private func createGestures() {
@@ -195,12 +194,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // cell accessory button
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
-      activeNotebookIndexPath = indexPath
       let item = notebook.display[indexPath.row]
       if item.collapsed {
         notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
-        modalNoteDetailDisplay(create: true)
+        modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
       }
       Util.playSound(systemSound: .Tap)
     }
@@ -217,7 +215,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // cell swiped
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
-      activeNotebookIndexPath = indexPath
       
       switch type {
       case .Complete:
@@ -227,7 +224,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         notebook.indent(indexPath: indexPath, tableView: tableView)
         Util.playSound(systemSound: .SMSSent)
       case .Reminder:
-        modalReminderDisplay()
+        modalReminderDisplay(indexPath: indexPath)
         Util.playSound(systemSound: .BeepBoBoopSuccess)
       case .Uncomplete:
         notebook.uncomplete(indexPath: indexPath, tableView: tableView)
@@ -268,10 +265,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
-    activeNotebookIndexPath = tableView.indexPathForRowAtPoint(location)
-    
-    modalNoteDetailDisplay(create: false)
-    Util.playSound(systemSound: .Tap)
+    if let indexPath = tableView.indexPathForRowAtPoint(location) {
+      modalNoteDetailDisplay(indexPath: indexPath, create: false)
+      Util.playSound(systemSound: .Tap)
+    }
   }
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
@@ -298,39 +295,37 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   // MARK: - modal date picker
-  func modalDatePickerDisplay() {
-    if let indexPath = activeNotebookIndexPath {
-      let controller = ModalDatePickerViewController()
-      controller.delegate = self
-      controller.data = notebook.display[indexPath.row].reminder ?? nil
-      modalPresent(controller: controller)
-    }
+  func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
+    let controller = ModalDatePickerViewController()
+    controller.delegate = self
+    controller.data = notebook.display[indexPath.row].reminder ?? nil
+    controller.indexPath = indexPath
+    modalPresent(controller: controller)
   }
   
-  func modalDatePickerValue(date date: NSDate) {
+  func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
     Util.playSound(systemSound: .Tap)
     
-    notebook.reminder(indexPath: activeNotebookIndexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
+    notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
       Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
     }
   }
   
   // MARK: - modal reminder
-  func modalReminderDisplay() {
-    if let indexPath = activeNotebookIndexPath {
-      let controller = ModalReminderViewController()
-      controller.delegate = self
-      controller.data = notebook.display[indexPath.row].reminder ?? nil
-      modalPresent(controller: controller)
-    }
+  func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
+    let controller = ModalReminderViewController()
+    controller.delegate = self
+    controller.data = notebook.display[indexPath.row].reminder ?? nil
+    controller.indexPath = indexPath
+    modalPresent(controller: controller)
   }
   
-  func modalReminderValue(reminderType reminderType: ReminderType) {
+  func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType) {
     if reminderType == .Date {
-      modalDatePickerDisplay()
+      modalDatePickerDisplay(indexPath: indexPath)
       return
     }
-    notebook.reminder(indexPath: activeNotebookIndexPath, controller: self, tableView: tableView, reminderType: reminderType, date: nil) { created in
+    notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: reminderType, date: nil) { created in
       Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
     }
   }
@@ -359,22 +354,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   // MARK: - modal note detail
-  func modalNoteDetailDisplay(create create: Bool) {
-      let controller = ModalNoteDetailViewController()
-      controller.delegate = self
-      controller.data = create ? nil : notebook.display[activeNotebookIndexPath!.row]
-      modalPresent(controller: controller)
+  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
+    let controller = ModalNoteDetailViewController()
+    controller.delegate = self
+    controller.indexPath = indexPath
+    controller.data = create ? nil : notebook.display[indexPath.row]
+    modalPresent(controller: controller)
   }
   
-  func modalNoteDetailValue(note note: Note, create: Bool) {
-    if let indexPath = activeNotebookIndexPath {
-      if create {
-        notebook.create(indexPath: indexPath, tableView: tableView, note: note)
-      } else {
-        notebook.update(indexPath: indexPath, tableView: tableView, note: note)
-      }
+  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool) {
+    print(indexPath, note, create)
+    if create {
+      notebook.create(indexPath: indexPath, tableView: tableView, note: note)
     } else {
-      notebook.create(indexPath: nil, tableView: tableView, note: note)
+      notebook.update(indexPath: indexPath, tableView: tableView, note: note)
     }
   }
   

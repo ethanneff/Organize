@@ -2,8 +2,8 @@ import UIKit
 
 
 protocol ModalNoteDetailDelegate: ModalDelegate {
-  func modalNoteDetailDisplay(create create: Bool)
-  func modalNoteDetailValue(note note: Note, create: Bool)
+  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool)
+  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
 }
 
 protocol ModalDelegate: class {
@@ -15,6 +15,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   // MARK: - properties
   weak var delegate: ModalNoteDetailDelegate?
   weak var data: Note?
+  var indexPath: NSIndexPath?
   
   let modal: UIView = UIView()
   
@@ -252,8 +253,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
     Modal.animateOut(modal: modal, background: view) {
       self.dismissViewControllerAnimated(false, completion: nil)
-      if let note = note, create = create where confirm {
-        self.delegate?.modalNoteDetailValue(note: note, create: create)
+      if let note = note, create = create, indexPath = self.indexPath where confirm {
+        self.delegate?.modalNoteDetailValue(indexPath: indexPath, note: note, create: create)
       }
     }
   }

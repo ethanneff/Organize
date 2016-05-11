@@ -21,8 +21,8 @@
 import UIKit
 
 protocol ModalReminderDelegate: class {
-  func modalReminderDisplay()
-  func modalReminderValue(reminderType reminderType: ReminderType)
+  func modalReminderDisplay(indexPath indexPath: NSIndexPath)
+  func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType)
 }
 
 
@@ -30,6 +30,7 @@ class ModalReminderViewController: UIViewController {
   // MARK: - properties
   weak var delegate: ModalReminderDelegate?
   weak var data: Reminder?
+  var indexPath: NSIndexPath?
   
   let modal: UIView = UIView()
   
@@ -220,8 +221,8 @@ class ModalReminderViewController: UIViewController {
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
-      if reminderType != .None {
-        self.delegate?.modalReminderValue(reminderType: reminderType)
+      if let indexPath = self.indexPath where reminderType != .None {
+        self.delegate?.modalReminderValue(indexPath: indexPath, reminderType: reminderType)
       }
     }
   }

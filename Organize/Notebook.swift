@@ -72,25 +72,16 @@ class Notebook: NSObject, NSCoding, Copying {
   
   
   // MARK: - CREATE
-  func create(indexPath indexPath: NSIndexPath?, tableView: UITableView, note: Note) {
+  func create(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
     Util.threadBackground {
       // history
       self.historySave()
       
-      var next = 0
-      var indent = 0
-      if let indexPath = indexPath {
-        let displayParent = self.display[indexPath.row]
-        next = indexPath.row+1
-        indent = displayParent.indent+1
-      }
-      
       // note
-      note.indent = indent
-      self.notes.insert(note, atIndex: next)
+      note.indent = indexPath.row == 0 ? 0 : self.display[indexPath.row-1].indent+1
+      self.notes.insert(note, atIndex: indexPath.row)
     
       // display
-      let indexPath = NSIndexPath(forRow: next, inSection: 0)
       self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
         // save
         Notebook.set(data: self)
