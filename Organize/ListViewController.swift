@@ -360,7 +360,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(create create: Bool) {
-//    if let indexPath = activeNotebookIndexPath {
       let controller = ModalNoteDetailViewController()
       controller.delegate = self
       controller.data = create ? nil : notebook.display[activeNotebookIndexPath!.row]
