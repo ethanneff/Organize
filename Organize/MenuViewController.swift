@@ -23,7 +23,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
   }
   
   func initialize() {
-    sideMenu = SideMenu(parent: self, child: mainMenu!, left: leftMenu!, right: rightMenu!)
+    sideMenu = SideMenu(parent: self, child: mainMenu!, left: nil, right: rightMenu!)
     sideMenu!.rightWidth = 160
     sideMenu!.leftWidth = 250
     createNavButtons()
@@ -46,7 +46,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
   
   // MARK: - create
   private func createNavButtons() {
-    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Search, target: self, action: #selector(leftNavButtonPressed(_:)))
+//    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Search, target: self, action: #selector(leftNavButtonPressed(_:)))
     navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Organize, target: self, action: #selector(rightNavButtonPressed(_:)))
   }
   
