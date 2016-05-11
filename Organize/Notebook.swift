@@ -71,10 +71,25 @@ class Notebook: NSObject, NSCoding, Copying {
   
   
   
-  // MARK: - ADD
+  // MARK: - CREATE
   func create(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
-    // history
-    self.historySave()
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // note
+      let next = indexPath.row+1
+      self.notes.insert(note, atIndex: next)
+      
+      // display
+      let indexPath = NSIndexPath(forRow: next, inSection: indexPath.section)
+      self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
+        // save
+        Notebook.set(data: self)
+        print(self)
+      }
+      
+    }
   }
   
   // MARK: - UPDATE
@@ -89,7 +104,6 @@ class Notebook: NSObject, NSCoding, Copying {
         // save
         Notebook.set(data: self)
       }
-      print(self)
     }
   }
   
@@ -618,15 +632,15 @@ class Notebook: NSObject, NSCoding, Copying {
       let note = self.display[indexPath.row]
       if let reminder = note.reminder where reminderType == reminder.type {
         // had a reminder
-          if reminderType != .Date {
+        if reminderType != .Date {
+          delete(note: note)
+        } else {
+          if reminder.date == date {
             delete(note: note)
           } else {
-            if reminder.date == date {
-              delete(note: note)
-            } else {
-              create(note: note)
-            }
+            create(note: note)
           }
+        }
       } else {
         // has no reminder
         create(note: note)

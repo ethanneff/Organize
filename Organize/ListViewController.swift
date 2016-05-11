@@ -335,9 +335,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  func modalNoteDetailValue(note note: Note) {
+  func modalNoteDetailValue(note note: Note, create: Bool) {
     if let indexPath = activeNotebookIndexPath {
-      notebook.update(indexPath: indexPath, tableView: tableView, note: note)
+      if create {
+        notebook.create(indexPath: indexPath, tableView: tableView, note: note)
+      } else {
+        notebook.update(indexPath: indexPath, tableView: tableView, note: note)
+      }
     }
   }
   

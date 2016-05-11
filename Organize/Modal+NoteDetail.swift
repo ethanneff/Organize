@@ -3,7 +3,7 @@ import UIKit
 
 protocol ModalNoteDetailDelegate: ModalDelegate {
   func modalNoteDetailDisplay(create create: Bool)
-  func modalNoteDetailValue(note note: Note)
+  func modalNoteDetailValue(note note: Note, create: Bool)
 }
 
 protocol ModalDelegate: class {
@@ -73,6 +73,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     titleTextView = createTextView()
     titleTextView!.becomeFirstResponder()
     titleTextViewPlaceHolder = createPlaceHolderLabel(textView: titleTextView!)
+    handleTitlePlaceholderAndCursor()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     
@@ -144,8 +145,6 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
     textView.addSubview(label)
-    label.hidden = !textView.text.isEmpty
-    textView.textContainerInset = UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0)
     
     return label
   }
@@ -189,12 +188,16 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   func textViewDidChange(textView: UITextView) {
+    handleTitlePlaceholderAndCursor()
+  }
+  
+  private func handleTitlePlaceholderAndCursor() {
     if let placeholder = titleTextViewPlaceHolder, title = titleTextView {
       let labelWidth = placeholder.intrinsicContentSize().width
       let textViewTextSize = title.font!.pointSize
       
-      placeholder.hidden = !textView.text.isEmpty
-      title.textContainerInset = textView.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
+      placeholder.hidden = !title.text.isEmpty
+      title.textContainerInset = title.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
     }
   }
   
@@ -223,24 +226,22 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   // MARK: - validation
   private func submitNote(confirm confirm: Bool) {
     if confirm {
-      updateNote()
-    }
-    close(confirm: confirm)
-  }
-  
-  private func updateNote() {
-    // title > 0
-    guard let title = titleTextView?.text where title.length > 0 else {
-      submitNote(confirm: false)
+      guard let title = titleTextView?.text where title.length > 0 else {
+        close(confirm: false, note: nil, create: nil)
+        return
+      }
+      
+      let create = data == nil ? true : false
+      let note = data ?? Note(title: title)
+      note.title = title.trim
+      
+      close(confirm: true, note: note, create: create)
       return
     }
     
-    if let note = data {
-      note.title = title
-    } else {
-      data = Note(title: title)
-    }
+    close(confirm: false, note: nil, create: nil)
   }
+  
   
   // MARK: - open/close
   override func viewWillAppear(animated: Bool) {
@@ -248,12 +249,11 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     Modal.animateIn(modal: modal, background: view, completion: nil)
   }
   
-  func close(confirm confirm: Bool) {
+  private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
     Modal.animateOut(modal: modal, background: view) {
-      // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
-      if let note = self.data where confirm {
-        self.delegate?.modalNoteDetailValue(note: note)
+      if let note = note, create = create where confirm {
+        self.delegate?.modalNoteDetailValue(note: note, create: create)
       }
     }
   }
