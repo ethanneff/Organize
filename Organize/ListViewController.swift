@@ -72,6 +72,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func applicationWillResignActiveNotification() {
+    // remove undo
     notebook.historyClear()
   }
   

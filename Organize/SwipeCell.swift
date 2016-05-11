@@ -1,22 +1,22 @@
 import UIKit
 
 // delegate
-protocol CellSwipeDelegate: class {
+protocol SwipeCellDelegate: class {
   func tableViewCellDidStartSwiping(cell cell: UITableViewCell)
   func tableViewCellDidEndSwiping(cell cell: UITableViewCell)
   func tableViewCell(cell cell: UITableViewCell, didSwipeWithPercentage percentage: CGFloat)
 }
 
 // make optional functions
-extension CellSwipeDelegate {
+extension SwipeCellDelegate {
   func tableViewCellDidStartSwiping(cell cell: UITableViewCell) {}
   func tableViewCellDidEndSwiping(cell cell: UITableViewCell) {}
   func tableViewCell(cell cell: UITableViewCell, didSwipeWithPercentage percentage: CGFloat) {}
 }
 
 // cell swipe feature
-// view controller to incapsulate for gestures
-class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
+// view controller to encapsulate for gestures
+class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
   // MARK: - PROPERTIES
   
   // required
@@ -24,7 +24,7 @@ class CellSwipe: UIViewController, UIGestureRecognizerDelegate {
   private let cell: UITableViewCell
   
   // optional
-  weak var delegate: CellSwipeDelegate?
+  weak var delegate: SwipeCellDelegate?
   
   // constants
   let kDurationLowLimit: NSTimeInterval = 0.25

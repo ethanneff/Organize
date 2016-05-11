@@ -5,7 +5,7 @@ protocol ListTableViewCellDelegate: class {
   func cellSwiped(type type: SwipeType, cell: UITableViewCell)
 }
 
-class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
+class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   
   // MARK: properties
   static let identifier: String = "cell"
@@ -21,7 +21,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   
   weak var delegate: ListTableViewCellDelegate?
   // TODO: figure out why to make a property... swipe gets deinit otherwise
-  var swipe: CellSwipe?
+  var swipe: SwipeCell?
   
   // MARK: init
   override func awakeFromNib() {
@@ -111,7 +111,7 @@ class ListTableViewCell: UITableViewCell, CellSwipeDelegate {
   }
   
   func setupSwipe(cell cell: UITableViewCell) {
-    swipe = CellSwipe(cell: cell)
+    swipe = SwipeCell(cell: cell)
     if let swipe = swipe {
       swipe.delegate = self
       swipe.firstTrigger = 0.15

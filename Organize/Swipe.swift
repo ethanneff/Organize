@@ -12,7 +12,7 @@ enum SwipeType: Int {
     return SwipeType.Delete.hashValue + 1
   }
   
-  var animation: CellSwipe.Animation {
+  var animation: SwipeCell.Animation {
     switch self {
     case .Indent, .Unindent: return .Bounce
     default: return .Slide
@@ -31,7 +31,7 @@ enum SwipeType: Int {
     }
   }
   
-  var position: CellSwipe.Position {
+  var position: SwipeCell.Position {
     switch self {
     case .Complete: return .Left1
     case .Indent: return .Left2
