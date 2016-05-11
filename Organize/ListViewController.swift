@@ -337,21 +337,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       let note = notebook.display[indexPath.row]
       let controller = ModalNoteDetailViewController()
       controller.delegate = self
-      controller.selected = note.reminder ?? nil
+      controller.data = note
       controller.modalPresentationStyle = .OverCurrentContext
       presentViewController(controller, animated: false, completion: nil)
     }
   }
   
   func modalNoteDetailValue(note note: Note) {
+    print(note)
+  }
+  
 
-  }
-  
-  
-  func modalNewNote() -> Note {
-    return Note(title: "hello")
-  }
-  
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: title, style: .Default) { action in

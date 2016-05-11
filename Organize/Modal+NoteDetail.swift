@@ -1,14 +1,20 @@
 import UIKit
 
-protocol ModalNoteDetailDelegate: class {
+
+protocol ModalNoteDetailDelegate: ModalDelegate {
   func modalNoteDetailDisplay(create create: Bool)
   func modalNoteDetailValue(note note: Note)
 }
 
-class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
+protocol ModalDelegate: class {
+  
+}
+
+
+class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
   // MARK: - properties
   weak var delegate: ModalNoteDetailDelegate?
-  weak var selected: Reminder?
+  weak var data: Note?
   
   let modal: UIView = UIView()
   
@@ -26,7 +32,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
   
   private func dealloc() {
     delegate = nil
-    selected = nil
+    data = nil
     tapGesture = nil
     panGesture = nil
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
@@ -55,8 +61,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
   }
   
   private func setupView() {
-    let yes = createButton(title: Modal.textYes, bold: false)
-    let no = createButton(title: Modal.textNo, bold: true)
+    let yes = createButton(title: data == nil ? "Create" : "Edit", confirm: true)
+    let no = createButton(title: Modal.textNo, confirm: false)
     let topSeparator = Modal.createSeparator()
     let midSeparator = Modal.createSeparator()
     
@@ -109,8 +115,10 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
   
   private func createTextView() -> UITextView {
     let textView = UITextView()
+    textView.text = data?.title
     textView.tag = 1
     textView.delegate = self
+    textView.returnKeyType = .Done
     textView.textAlignment = .Center
     textView.font = UIFont.boldSystemFontOfSize(Modal.textSize)
     textView.translatesAutoresizingMaskIntoConstraints = false
@@ -133,14 +141,14 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
     return label
   }
 
-  private func createButton(title title: String, bold: Bool) -> UIButton {
+  private func createButton(title title: String, confirm: Bool) -> UIButton {
     let button = UIButton()
-    button.tag = Int(bold)
+    button.tag = Int(confirm)
     button.layer.cornerRadius = Modal.radius
     button.setTitle(title, forState: .Normal)
     button.setTitleColor(Config.colorButton, forState: .Normal)
     button.setTitleColor(Config.colorBorder, forState: .Highlighted)
-    button.titleLabel?.font = bold ? .boldSystemFontOfSize(Modal.textSize) : .systemFontOfSize(Modal.textSize)
+    button.titleLabel?.font = confirm ? .systemFontOfSize(Modal.textSize) : .boldSystemFontOfSize(Modal.textSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false
     
@@ -187,11 +195,17 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
     }
   }
   
+  func textViewDidEndEditing(textView: UITextView) {
+    print("End")
+  }
+
+  
+  
   // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
-    close()
+    close(confirm: Bool(button.tag))
   }
   
   // MARK: - open/close
@@ -200,10 +214,13 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
     Modal.animateIn(modal: modal, background: view, completion: nil)
   }
   
-  func close() {
+  func close(confirm confirm: Bool) {
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
+      if confirm {
+        self.delegate?.modalNoteDetailValue(note: Note(title: "bob"))
+      }
     }
   }
 }
