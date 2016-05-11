@@ -61,7 +61,7 @@ class ModalReminderViewController: UIViewController {
     setupView()
   }
   
-  func setupView() {
+  private func setupView() {
     let buttonOne = createButton(reminderType: ReminderType.Later)
     let buttonTwo = createButton(reminderType: ReminderType.Evening)
     let buttonThree = createButton(reminderType: ReminderType.Tomorrow)
@@ -72,12 +72,12 @@ class ModalReminderViewController: UIViewController {
     let buttonEight = createButton(reminderType: ReminderType.None)
     let buttonNine = createButton(reminderType: ReminderType.Date)
     
-    let topSeparatorOne = createSeparator()
-    let topSeparatorTwo = createSeparator()
-    let topSeparatorThree = createSeparator()
+    let topSeparatorOne = Modal.createSeparator()
+    let topSeparatorTwo = Modal.createSeparator()
+    let topSeparatorThree = Modal.createSeparator()
     
-    let midSeparatorOne = createSeparator()
-    let midSeparatorTwo = createSeparator()
+    let midSeparatorOne = Modal.createSeparator()
+    let midSeparatorTwo = Modal.createSeparator()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: modalTitleText)
     
@@ -99,6 +99,8 @@ class ModalReminderViewController: UIViewController {
     modal.addSubview(midSeparatorTwo)
     
     NSLayoutConstraint.activateConstraints([
+      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
+      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
       modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: buttonMultiplier*buttonColumns, constant: modalWidthPadding),
       modal.heightAnchor.constraintGreaterThanOrEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier*buttonRows, constant: modalHeightPadding),
       
@@ -171,11 +173,10 @@ class ModalReminderViewController: UIViewController {
       midSeparatorTwo.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
       midSeparatorTwo.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
       midSeparatorTwo.widthAnchor.constraintEqualToConstant(Modal.separator),
-      
       ])
   }
   
-  func createButton(reminderType reminderType: ReminderType) -> UIButton {
+  private func createButton(reminderType reminderType: ReminderType) -> UIButton {
     let button = UIButton()
     
     button.tag = reminderType.hashValue
@@ -192,19 +193,11 @@ class ModalReminderViewController: UIViewController {
     button.alignImageAndTitleVertically(spacing: 0)
     button.translatesAutoresizingMaskIntoConstraints = false
     
-    if selected?.type == reminderType {
+    if selected?.type == reminderType && selected?.date.timeIntervalSinceNow > 0  {
       button.backgroundColor = Config.colorShadow
     }
     
     return button
-  }
-  
-  private func createSeparator() -> UIView {
-    let separator = UIView()
-    separator.backgroundColor = Config.colorBorder
-    separator.translatesAutoresizingMaskIntoConstraints = false
-    
-    return separator
   }
   
   // MARK: - buttons
@@ -222,7 +215,7 @@ class ModalReminderViewController: UIViewController {
     Modal.animateIn(modal: modal, background: view, completion: nil)
   }
   
-  func close(reminderType reminderType: ReminderType) {
+  private func close(reminderType reminderType: ReminderType) {
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)

@@ -26,7 +26,7 @@ protocol ModalDatePickerDelegate: class {
 }
 
 class ModalDatePickerViewController: UIViewController {
-  // MARK: properties
+  // MARK: - properties
   weak var delegate: ModalDatePickerDelegate?
   weak var selected: Reminder?
   
@@ -51,7 +51,7 @@ class ModalDatePickerViewController: UIViewController {
   }
   
   
-  // MARK: create
+  // MARK: - create
   override func loadView() {
     super.loadView()
     setupView()
@@ -60,8 +60,8 @@ class ModalDatePickerViewController: UIViewController {
   private func setupView() {
     let yes = createButton(title: Modal.textYes, bold: false)
     let no = createButton(title: Modal.textNo, bold: true)
-    let topSeparator = createSeparator()
-    let midSeparator = createSeparator()
+    let topSeparator = Modal.createSeparator()
+    let midSeparator = Modal.createSeparator()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: modalTitleText)
     
@@ -76,23 +76,25 @@ class ModalDatePickerViewController: UIViewController {
     picker.date = selected?.date ?? NSDate().dateByAddingTimeInterval(5*60)
     
     NSLayoutConstraint.activateConstraints([
+      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
+      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
       modal.widthAnchor.constraintEqualToConstant(modalWidth),
       modal.heightAnchor.constraintEqualToConstant(modalHeight),
       
       picker.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       picker.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      picker.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Modal.textHeight),
+      picker.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonHeight),
       picker.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
       
       no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
       no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      no.heightAnchor.constraintEqualToConstant(Modal.textHeight),
+      no.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       
       yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
       yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      yes.heightAnchor.constraintEqualToConstant(Modal.textHeight),
+      yes.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
       
       topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -106,15 +108,7 @@ class ModalDatePickerViewController: UIViewController {
       midSeparator.widthAnchor.constraintEqualToConstant(Modal.separator),
       ])
   }
-  
-  private func createSeparator() -> UIView {
-    let separator = UIView()
-    separator.backgroundColor = Config.colorBorder
-    separator.translatesAutoresizingMaskIntoConstraints = false
-    
-    return separator
-  }
-  
+
   private func createButton(title title: String, bold: Bool) -> UIButton {
     let button = UIButton()
     button.tag = Int(bold)
@@ -129,7 +123,7 @@ class ModalDatePickerViewController: UIViewController {
     return button
   }
   
-  // MARK: buttons
+  // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
@@ -139,7 +133,7 @@ class ModalDatePickerViewController: UIViewController {
     }
   }
   
-  // MARK: open/close
+  // MARK: - open/close
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
     Modal.animateIn(modal: modal, background: view, completion: nil)

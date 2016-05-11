@@ -5,8 +5,6 @@ class Modal {
   static let radius: CGFloat = 15
   static let separator: CGFloat = 0.5
   static let textSize: CGFloat = 17
-  static let textHeight: CGFloat = Config.buttonHeight
-  static let textPadding: CGFloat = Config.buttonPadding
   static let textYes: String = "Done"
   static let textNo: String = "Cancel"
   
@@ -41,32 +39,41 @@ class Modal {
     background.removeFromSuperview()
   }
   
-  static func createModalTemplate(background background: UIView, modal: UIView, titleText: String) {
-    background.backgroundColor = Config.colorBackdrop
+  static func createModalTemplate(background background: UIView, modal: UIView, titleText: String?) {
+    var constraints: [NSLayoutConstraint] = []
     
+    // background
+    background.backgroundColor = Config.colorBackdrop
     background.addSubview(modal)
     
-    let title = UILabel()
-    modal.addSubview(title)
-    
-    title.textAlignment = .Center
-    title.font = .boldSystemFontOfSize(Modal.textSize)
-    title.text = titleText
-    title.translatesAutoresizingMaskIntoConstraints = false
-    
+    // modal
     modal.backgroundColor = Config.colorBackground
     modal.layer.cornerRadius = Modal.radius
     modal.layer.masksToBounds = true
     modal.translatesAutoresizingMaskIntoConstraints = false
     
-    NSLayoutConstraint.activateConstraints([
-      title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Modal.textPadding),
-      title.heightAnchor.constraintEqualToConstant(Modal.textHeight),
+    if let titleText = titleText {
+      let title = UILabel()
+      modal.addSubview(title)
       
-      modal.centerXAnchor.constraintEqualToAnchor(background.centerXAnchor),
-      modal.centerYAnchor.constraintEqualToAnchor(background.centerYAnchor),
-      ])
+      title.textAlignment = .Center
+      title.font = .boldSystemFontOfSize(Modal.textSize)
+      title.text = titleText
+      title.translatesAutoresizingMaskIntoConstraints = false
+      constraints.append(title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor))
+      constraints.append(title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor))
+      constraints.append(title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding))
+      constraints.append(title.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
+    }
+
+    NSLayoutConstraint.activateConstraints(constraints)
+  }
+  
+  static func createSeparator() -> UIView {
+    let separator = UIView()
+    separator.backgroundColor = Config.colorBorder
+    separator.translatesAutoresizingMaskIntoConstraints = false
+    
+    return separator
   }
 }

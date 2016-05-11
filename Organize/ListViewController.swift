@@ -1,6 +1,6 @@
 import UIKit
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ListTableViewCellDelegate, SettingsDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate {
   // MARK: - properties
   var notebook: Notebook
   var activeNotebookIndexPath: NSIndexPath?
@@ -62,7 +62,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - deinit
   deinit {
-    // TODO: dismiss viewcontollor does not call deinit
+    // FIXME: dismiss viewcontollor does not call deinit (reference cycle)
     dealloc()
   }
   
@@ -161,12 +161,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // cell accessory button
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
+      activeNotebookIndexPath = indexPath
       let item = notebook.display[indexPath.row]
       if item.collapsed {
         notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
-        let note = modalNewNote()
-        notebook.add(indexPath: indexPath, tableView: tableView, note: note)
+        modalNoteDetailDisplay(create: true)
+//        let note = modalNewNote()
+//        notebook.add(indexPath: indexPath, tableView: tableView, note: note)
       }
       Util.playSound(systemSound: .Tap)
     }
@@ -233,6 +235,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
+    let location = gesture.locationInView(tableView)
+    activeNotebookIndexPath = tableView.indexPathForRowAtPoint(location)
+
+    modalNoteDetailDisplay(create: false)
     Util.playSound(systemSound: .Tap)
   }
   
@@ -259,7 +265,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  // MARK: - modals
+  // MARK: - modal date picker
   func modalDatePickerDisplay() {
     // pass Tasks.reminderDate to autoload that date
     if let indexPath = activeNotebookIndexPath {
@@ -279,6 +285,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  // MARK: - modal reminder
   func modalReminderDisplay() {
     if let indexPath = activeNotebookIndexPath {
       let note = notebook.display[indexPath.row]
@@ -300,6 +307,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  // MARK: - modal delete
   func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {
       self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
@@ -312,6 +321,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  // MARK: - modal undo
   func modalUndo() {
     if notebook.history.count > 0 {
       modalActionSheetConfirmation(title: "Undo") {
@@ -319,6 +329,24 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
+  
+  
+  // MARK: - modal note detail
+  func modalNoteDetailDisplay(create create: Bool) {
+    if let indexPath = activeNotebookIndexPath {
+      let note = notebook.display[indexPath.row]
+      let controller = ModalNoteDetailViewController()
+      controller.delegate = self
+      controller.selected = note.reminder ?? nil
+      controller.modalPresentationStyle = .OverCurrentContext
+      presentViewController(controller, animated: false, completion: nil)
+    }
+  }
+  
+  func modalNoteDetailValue(note note: Note) {
+
+  }
+  
   
   func modalNewNote() -> Note {
     return Note(title: "hello")

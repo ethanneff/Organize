@@ -1,28 +1,23 @@
 import UIKit
 
 protocol ModalNoteDetailDelegate: class {
-  func modalReminderDisplay()
-  func modalReminderValue(reminderType reminderType: ReminderType)
+  func modalNoteDetailDisplay(create create: Bool)
+  func modalNoteDetailValue(note note: Note)
 }
 
-
-class ModalNoteDetailViewController: UIViewController {
+class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
   // MARK: - properties
   weak var delegate: ModalNoteDetailDelegate?
   weak var selected: Reminder?
   
   let modal: UIView = UIView()
   
-  let modalTitleText: String = "Pick a reminder"
-  let modalHeightPadding: CGFloat = 60
-  let modalWidthPadding: CGFloat = 100
-  
-  let buttonHeight: CGFloat = 75
-  let buttonMultiplier: CGFloat = 0.18
-  let buttonRows: CGFloat = 3
-  let buttonColumns: CGFloat = 3
-  let buttonTitleRows: Int = 2
-  let buttonTitleFontSize: CGFloat = 13
+  let modalWidth: CGFloat = 290
+  let modalHeight: CGFloat = 140
+  var tapGesture: UITapGestureRecognizer?
+  var panGesture: UIPanGestureRecognizer?
+  var modalCenterYConstraint: NSLayoutConstraint?
+
   
   // MARK: - deinit
   deinit {
@@ -31,6 +26,11 @@ class ModalNoteDetailViewController: UIViewController {
   
   private func dealloc() {
     delegate = nil
+    selected = nil
+    tapGesture = nil
+    panGesture = nil
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
     Modal.clear(background: view)
   }
   
@@ -38,161 +38,160 @@ class ModalNoteDetailViewController: UIViewController {
   override func loadView() {
     super.loadView()
     setupView()
+    createGestures()
+    createListeners()
   }
   
-  func setupView() {
-    let buttonOne = createButton(reminderType: ReminderType.Later)
-    let buttonTwo = createButton(reminderType: ReminderType.Evening)
-    let buttonThree = createButton(reminderType: ReminderType.Tomorrow)
-    let buttonFour = createButton(reminderType: ReminderType.Weekend)
-    let buttonFive = createButton(reminderType: ReminderType.Week)
-    let buttonSix = createButton(reminderType: ReminderType.Month)
-    let buttonSeven = createButton(reminderType: ReminderType.Someday)
-    let buttonEight = createButton(reminderType: ReminderType.None)
-    let buttonNine = createButton(reminderType: ReminderType.Date)
+  private func createGestures() {
+    tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapPressed(_:)))
+    panGesture = UIPanGestureRecognizer(target: self, action: #selector(panPressed(_:)))
+    view.addGestureRecognizer(panGesture!)
+    view.addGestureRecognizer(tapGesture!)
+  }
+  
+  private func createListeners() {
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+  }
+  
+  private func setupView() {
+    let yes = createButton(title: Modal.textYes, bold: false)
+    let no = createButton(title: Modal.textNo, bold: true)
+    let topSeparator = Modal.createSeparator()
+    let midSeparator = Modal.createSeparator()
     
-    let topSeparatorOne = createSeparator()
-    let topSeparatorTwo = createSeparator()
-    let topSeparatorThree = createSeparator()
+    let title = createTextView()
+    createPlaceHolderLabel(textView: title)
     
-    let midSeparatorOne = createSeparator()
-    let midSeparatorTwo = createSeparator()
+    Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     
-    Modal.createModalTemplate(background: view, modal: modal, titleText: modalTitleText)
+    modal.addSubview(title)
+    modal.addSubview(yes)
+    modal.addSubview(no)
+    modal.addSubview(topSeparator)
+    modal.addSubview(midSeparator)
     
-    modal.addSubview(buttonOne)
-    modal.addSubview(buttonTwo)
-    modal.addSubview(buttonThree)
-    modal.addSubview(buttonFour)
-    modal.addSubview(buttonFive)
-    modal.addSubview(buttonSix)
-    modal.addSubview(buttonSeven)
-    modal.addSubview(buttonEight)
-    modal.addSubview(buttonNine)
-    
-    modal.addSubview(topSeparatorOne)
-    modal.addSubview(topSeparatorTwo)
-    modal.addSubview(topSeparatorThree)
-    
-    modal.addSubview(midSeparatorOne)
-    modal.addSubview(midSeparatorTwo)
+    modalCenterYConstraint = modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor)
     
     NSLayoutConstraint.activateConstraints([
-      modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: buttonMultiplier*buttonColumns, constant: modalWidthPadding),
-      modal.heightAnchor.constraintGreaterThanOrEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier*buttonRows, constant: modalHeightPadding),
+      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
+      modalCenterYConstraint!,
+      modal.widthAnchor.constraintEqualToConstant(modalWidth),
+      modal.heightAnchor.constraintEqualToConstant(modalHeight),
       
-      buttonOne.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonOne.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonOne.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
+      title.heightAnchor.constraintEqualToConstant(Config.buttonHeight*2),
       
-      buttonTwo.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonTwo.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonTwo.widthAnchor.constraintEqualToAnchor(buttonOne.widthAnchor),
-      buttonTwo.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
+      no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
+      no.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       
-      buttonThree.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonThree.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonThree.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonThree.widthAnchor.constraintEqualToAnchor(buttonOne.widthAnchor),
-      buttonThree.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
+      yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
+      yes.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
       
-      buttonFour.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonFour.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonFour.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      topSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      topSeparator.bottomAnchor.constraintEqualToAnchor(yes.topAnchor),
+      topSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
       
-      buttonFive.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonFive.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonFive.widthAnchor.constraintEqualToAnchor(buttonFour.widthAnchor),
-      buttonFive.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
-      
-      buttonSix.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonSix.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonSix.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonSix.widthAnchor.constraintEqualToAnchor(buttonFour.widthAnchor),
-      buttonSix.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
-      
-      buttonSeven.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonSeven.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonSeven.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
-      
-      buttonEight.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonEight.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonEight.widthAnchor.constraintEqualToAnchor(buttonSeven.widthAnchor),
-      buttonEight.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
-      
-      buttonNine.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonNine.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonNine.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonNine.widthAnchor.constraintEqualToAnchor(buttonSeven.widthAnchor),
-      buttonNine.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
-      
-      topSeparatorOne.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorOne.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorOne.bottomAnchor.constraintEqualToAnchor(buttonOne.topAnchor),
-      topSeparatorOne.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      topSeparatorTwo.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorTwo.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorTwo.bottomAnchor.constraintEqualToAnchor(buttonFour.topAnchor),
-      topSeparatorTwo.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      topSeparatorThree.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorThree.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorThree.bottomAnchor.constraintEqualToAnchor(buttonSeven.topAnchor),
-      topSeparatorThree.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      midSeparatorOne.leadingAnchor.constraintEqualToAnchor(buttonSeven.trailingAnchor),
-      midSeparatorOne.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparatorOne.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
-      midSeparatorOne.widthAnchor.constraintEqualToConstant(Modal.separator),
-      
-      midSeparatorTwo.leadingAnchor.constraintEqualToAnchor(buttonEight.trailingAnchor),
-      midSeparatorTwo.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparatorTwo.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
-      midSeparatorTwo.widthAnchor.constraintEqualToConstant(Modal.separator),
-      
+      midSeparator.leadingAnchor.constraintEqualToAnchor(no.trailingAnchor),
+      midSeparator.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
+      midSeparator.heightAnchor.constraintEqualToAnchor(no.heightAnchor),
+      midSeparator.widthAnchor.constraintEqualToConstant(Modal.separator),
       ])
   }
   
-  func createButton(reminderType reminderType: ReminderType) -> UIButton {
+  private func createTextView() -> UITextView {
+    let textView = UITextView()
+    textView.tag = 1
+    textView.delegate = self
+    textView.textAlignment = .Center
+    textView.font = UIFont.boldSystemFontOfSize(Modal.textSize)
+    textView.translatesAutoresizingMaskIntoConstraints = false
+    textView.tintColor = Config.colorButton
+    
+    return textView
+  }
+  
+  private func createPlaceHolderLabel(textView textView: UITextView) -> UILabel {
+    let label = UILabel()
+    label.text = "Title"
+    label.font = .boldSystemFontOfSize(textView.font!.pointSize)
+    label.sizeToFit()
+    label.frame.origin = CGPointMake(modalWidth/2-label.intrinsicContentSize().width/2, textView.font!.pointSize / 2)
+    label.textColor = Config.colorBorder
+    label.hidden = !textView.text.isEmpty
+    label.textAlignment = textView.textAlignment
+    textView.addSubview(label)
+    
+    return label
+  }
+
+  private func createButton(title title: String, bold: Bool) -> UIButton {
     let button = UIButton()
-    
-    button.tag = reminderType.hashValue
-    button.setTitle(reminderType.title, forState: .Normal)
-    button.tintColor = Config.colorButton
-    button.setImage(reminderType.imageView.image, forState: .Normal)
+    button.tag = Int(bold)
+    button.layer.cornerRadius = Modal.radius
+    button.setTitle(title, forState: .Normal)
     button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorShadow, forState: .Highlighted)
-    
-    button.titleLabel?.font = reminderType == .None ? .boldSystemFontOfSize(buttonTitleFontSize) : .systemFontOfSize(buttonTitleFontSize)
+    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
+    button.titleLabel?.font = bold ? .boldSystemFontOfSize(Modal.textSize) : .systemFontOfSize(Modal.textSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
-    button.titleLabel?.textAlignment = .Center
-    button.titleLabel?.numberOfLines = buttonTitleRows
-    button.alignImageAndTitleVertically(spacing: 0)
     button.translatesAutoresizingMaskIntoConstraints = false
-    
-    if selected?.type == reminderType {
-      button.backgroundColor = Config.colorShadow
-    }
     
     return button
   }
   
-  private func createSeparator() -> UIView {
-    let separator = UIView()
-    separator.backgroundColor = Config.colorBorder
-    separator.translatesAutoresizingMaskIntoConstraints = false
-    
-    return separator
+  // MARK: - gestures
+  func tapPressed(gesture: UITapGestureRecognizer) {
+    view.endEditing(true)
+  }
+  
+  func panPressed(gesture: UIPanGestureRecognizer) {
+    view.endEditing(true)
+  }
+  
+  
+  // MARK: - keybaord
+  func keyboardWillShow(notification: NSNotification) {
+    moveModalWithKeyboard(constant: -85)
+  }
+  
+  func keyboardWillHide(notification: NSNotification) {
+    moveModalWithKeyboard(constant: 0)
+  }
+  
+  private func moveModalWithKeyboard(constant constant: CGFloat) {
+    modalCenterYConstraint?.constant = constant
+    view.layoutIfNeeded()
+  }
+  
+  func textViewDidChange(textView: UITextView) {
+    for v in textView.subviews {
+      if let _ = v as? UILabel {
+        v.hidden = !textView.text.isEmpty
+        break
+      }
+    }
+  }
+  
+  func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+    switch textView.tag {
+    case 1: return textView.text.length + (text.length - range.length) <= 80
+    default: return true
+    }
   }
   
   // MARK: - buttons
-  func buttonPressed(button: UIButton) {
+  internal func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
-    if let type = ReminderType(rawValue: button.tag) {
-      close(reminderType: type)
-    }
+    close()
   }
   
   // MARK: - open/close
@@ -201,13 +200,10 @@ class ModalNoteDetailViewController: UIViewController {
     Modal.animateIn(modal: modal, background: view, completion: nil)
   }
   
-  func close(reminderType reminderType: ReminderType) {
+  func close() {
     Modal.animateOut(modal: modal, background: view) {
       // calls deinit
       self.dismissViewControllerAnimated(false, completion: nil)
-      if reminderType != .None {
-        self.delegate?.modalReminderValue(reminderType: reminderType)
-      }
     }
   }
 }
