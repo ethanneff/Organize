@@ -33,7 +33,6 @@ class LoginViewController: UIViewController {
   
   // MARK: buttons
   func attemptLogin(button: UIButton) {
-    print("login")
     dismissViewControllerAnimated(true, completion: nil)
   }
   

@@ -17,9 +17,5 @@ class ForgotViewController: UIViewController {
   }
   
   func attemptForgot(button: UIButton) {
-    print("signup")
-    
   }
-
-  
 }

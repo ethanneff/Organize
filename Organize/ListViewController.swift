@@ -375,8 +375,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     controller.modalPresentationStyle = .OverCurrentContext
     presentViewController(controller, animated: false, completion: nil)
   }
-  
-  
+
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: title, style: .Default) { action in
