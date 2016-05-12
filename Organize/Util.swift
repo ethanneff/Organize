@@ -91,7 +91,8 @@ class Util {
   
   // sounds
   enum SystemSounds: UInt32 {
-    case Tap = 1104 // tick
+    case Type = 1104
+    case Tap = 1103 // tick
     case Positive = 1054 // vibrate
     case Negative = 1053 // vibrate
     

@@ -1,5 +1,3 @@
-// TODO: able to complete the task from the notifcation center (with Notification Action swipe buttons)
-
 import UIKit
 
 class LocalNotification {
@@ -30,23 +28,27 @@ class LocalNotification {
   }
   
   private func displayPrePremission(controller controller: UIViewController) {
-    // alert before requesting premission
-    let ac = UIAlertController(title: displayTitle, message: displayMessage, preferredStyle: .Alert)
-    ac.addAction(UIAlertAction(title: displayButtonYes, style: .Default) { action in
-      self.registerPermission()
-      })
-    ac.addAction(UIAlertAction(title: displayButtonNo, style: .Cancel, handler: nil))
-    controller.presentViewController(ac, animated: true, completion: nil)
+    Util.threadMain {
+      // alert before requesting premission
+      let ac = UIAlertController(title: self.displayTitle, message: self.displayMessage, preferredStyle: .Alert)
+      ac.addAction(UIAlertAction(title: self.displayButtonYes, style: .Default) { action in
+        self.registerPermission()
+        })
+      ac.addAction(UIAlertAction(title: self.displayButtonNo, style: .Cancel, handler: nil))
+      controller.presentViewController(ac, animated: true, completion: nil)
+    }
   }
   
   private func displayPostPremission(controller controller: UIViewController) {
-    // alert after premission has been asked but rejected
-    let ac = UIAlertController(title: displayTitle, message: displayMessage, preferredStyle: .Alert)
-    ac.addAction(UIAlertAction(title: displayButtonYes, style: .Default) { action in
-      self.navigateToAppleSettings()
-      })
-    ac.addAction(UIAlertAction(title: displayButtonNo, style: .Cancel, handler: nil))
-    controller.presentViewController(ac, animated: true, completion: nil)
+    Util.threadMain {
+      // alert after premission has been asked but rejected
+      let ac = UIAlertController(title: self.displayTitle, message: self.displayMessage, preferredStyle: .Alert)
+      ac.addAction(UIAlertAction(title: self.displayButtonYes, style: .Default) { action in
+        self.navigateToAppleSettings()
+        })
+      ac.addAction(UIAlertAction(title: self.displayButtonNo, style: .Cancel, handler: nil))
+      controller.presentViewController(ac, animated: true, completion: nil)
+    }
   }
   
   private func registerPermission() {
@@ -62,7 +64,7 @@ class LocalNotification {
     }
   }
   
-  func create(controller controller: UIViewController, body: String, action: String?, fireDate: NSDate?, soundName: String?, uid: Int, completion: completionHandler) {
+  func create(controller controller: UIViewController, body: String, action: String?, fireDate: NSDate?, soundName: String?, uid: Double, completion: completionHandler) {
     // check ability to send
     let hasPermission = checkPermission(controller: controller)
     
@@ -95,12 +97,12 @@ class LocalNotification {
     }
   }
   
-  func delete(uid uid:Int) {
+  func delete(uid uid: Double) {
     // delete notification based on uid from userInfo object
     let app = UIApplication.sharedApplication()
     if let notifications = app.scheduledLocalNotifications {
       for notification in notifications {
-        if let userInfo = notification.userInfo, let userId = userInfo["uid"] as? Int {
+        if let userInfo = notification.userInfo, let userId = userInfo["uid"] as? Double {
           if userId == uid {
             app.cancelLocalNotification(notification)
             break

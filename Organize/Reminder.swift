@@ -2,7 +2,7 @@ import UIKit
 
 class Reminder: NSObject, NSCoding {
   // MARK: - PROPERTIES
-  let id: Int
+  let id: Double
   var type: ReminderType
   var date: NSDate
   
@@ -11,14 +11,14 @@ class Reminder: NSObject, NSCoding {
   }
   
   // MARK: - INIT
-  init(id: Int, type: ReminderType, date: NSDate) {
+  init(id: Double, type: ReminderType, date: NSDate) {
     self.id = id
     self.type = type
     self.date = date
   }
   
   convenience init(type: ReminderType, date: NSDate?) {
-    let id = Int(NSDate().timeIntervalSince1970 * 100000)
+    let id = Double(NSDate().timeIntervalSince1970 * 100000)
     let date = type.date(date: date)
     
     self.init(id: id, type: type, date: date)
@@ -43,7 +43,7 @@ class Reminder: NSObject, NSCoding {
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
-    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! Int
+    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! Double
     let type = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.type) as! Int)!
     let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
     

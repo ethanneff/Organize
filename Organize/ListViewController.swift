@@ -124,11 +124,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func createAddButton() {
     let button = UIButton()
-    let buttonSize = Config.buttonHeight*1.5
+    let buttonSize = Config.buttonHeight*1.33
     let image = UIImage(named: "icon-add")!
     let imageView = Util.imageViewWithColor(image: image, color: Config.colorBackground)
     view.addSubview(button)
     button.layer.cornerRadius = buttonSize/2
+    // TODO: make shadow same as menu
+    button.layer.shadowColor = UIColor.blackColor().CGColor
+    button.layer.shadowOffset = CGSizeMake(0, 2)
+    button.layer.shadowOpacity = 0.4
+    button.layer.shadowRadius = 2
+    button.layer.masksToBounds = false
     button.backgroundColor = Config.colorButton
     button.tintColor = Config.colorBackground
     button.setImage(imageView.image, forState: .Normal)
@@ -147,6 +153,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func addButtonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
     modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
+    Util.playSound(systemSound: .Tap)
   }
   
   private func createGestures() {
@@ -187,7 +194,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     let cell = tableView.dequeueReusableCellWithIdentifier(ListTableViewCell.identifier, forIndexPath: indexPath) as! ListTableViewCell
     cell.delegate = self
     cell.updateCell(note: notebook.display[indexPath.row])
-    
     return cell
   }
   
@@ -200,7 +206,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       } else {
         modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
       }
-      Util.playSound(systemSound: .Tap)
     }
   }
   
@@ -222,19 +227,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         Util.playSound(systemSound: .BeepBeepSuccess)
       case .Indent:
         notebook.indent(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .SMSSent)
+        Util.playSound(systemSound: .Tap)
       case .Reminder:
         modalReminderDisplay(indexPath: indexPath)
-        Util.playSound(systemSound: .BeepBoBoopSuccess)
+        Util.playSound(systemSound: .Tap)
       case .Uncomplete:
         notebook.uncomplete(indexPath: indexPath, tableView: tableView)
         Util.playSound(systemSound: .BeepBeepFailure)
       case .Unindent:
         notebook.unindent(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .SMSSent)
+        Util.playSound(systemSound: .Tap)
       case .Delete:
         modalDelete(indexPath: indexPath)
-        Util.playSound(systemSound: .BeepBeepFailure)
+        Util.playSound(systemSound: .Tap)
       }
     }
   }
@@ -261,7 +266,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
@@ -280,8 +284,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       } else {
         notebook.collapse(indexPath: indexPath, tableView: tableView)
       }
+      Util.playSound(systemSound: .Tap)
     }
-    Util.playSound(systemSound: .Tap)
   }
   
   override func canBecomeFirstResponder() -> Bool {
@@ -304,11 +308,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
-    Util.playSound(systemSound: .Tap)
-    
     notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
       Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
     }
+    Util.playSound(systemSound: .Tap)
   }
   
   // MARK: - modal reminder
@@ -375,7 +378,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     controller.modalPresentationStyle = .OverCurrentContext
     presentViewController(controller, animated: false, completion: nil)
   }
-
+  
   func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: title, style: .Default) { action in
