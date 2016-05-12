@@ -80,7 +80,7 @@ class Notebook: NSObject, NSCoding, Copying {
       // note
       note.indent = indexPath.row == 0 ? 0 : self.display[indexPath.row-1].indent+1
       self.notes.insert(note, atIndex: indexPath.row)
-    
+      
       // display
       self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
         // save
@@ -598,7 +598,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   // MARK: - REMINDER
-  func reminder(indexPath indexPath: NSIndexPath?, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: ((created: Bool) -> ())? = nil) {
+  func reminder(indexPath indexPath: NSIndexPath?, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
     Util.threadBackground {
       guard let indexPath = indexPath else {
         return
@@ -607,31 +607,47 @@ class Notebook: NSObject, NSCoding, Copying {
       // history
       self.historySave()
       
+      
+      func update(create create: Bool) {
+        // display
+        self.reload(indexPaths: [indexPath], tableView: tableView) {
+          // save
+          Notebook.set(data: self)
+          completion(success: true, create: create)
+        }
+      }
+      
       // helper functions
       func create(note note: Note) {
-        // create
-        note.createReminder(controller: controller, reminderType: reminderType, date: date) {
-          if let completion = completion {
-            completion(created: true)
+        // delete and create reminder
+        note.reminder = nil
+        note.reminder = Reminder(type: reminderType, date: date)
+        
+        // create notification
+        LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: date, soundName: nil, uid: note.reminder!.id) { success in
+          if success {
+            update(create: true)
+          } else {
+            note.reminder = nil
+            completion(success: success, create: true)
           }
         }
       }
       
       func delete(note note: Note) {
-        // delete
+        // delete reminder and notification
         note.reminder = nil
-        if let completion = completion {
-          completion(created: false)
-        }
+        update(create: false)
       }
       
       // reminder
       let note = self.display[indexPath.row]
       if let reminder = note.reminder where reminderType == reminder.type {
-        // had a reminder
+        // has same reminder
         if reminderType != .Date {
           delete(note: note)
         } else {
+          // remove same date
           if reminder.date == date {
             delete(note: note)
           } else {
@@ -641,12 +657,6 @@ class Notebook: NSObject, NSCoding, Copying {
       } else {
         // has no reminder
         create(note: note)
-      }
-      
-      // display
-      self.reload(indexPaths: [indexPath], tableView: tableView) {
-        // save
-        Notebook.set(data: self)
       }
     }
   }

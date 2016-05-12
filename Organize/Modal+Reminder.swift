@@ -204,8 +204,8 @@ class ModalReminderViewController: UIViewController {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
     if let type = ReminderType(rawValue: button.tag) {
       close(reminderType: type)
     }

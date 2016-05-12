@@ -197,7 +197,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return cell
   }
   
-  // cell accessory button
+  // MARK - cell accessory button
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
       let item = notebook.display[indexPath.row]
@@ -209,15 +209,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  func getDisplayItem(cell cell: UITableViewCell) -> Note? {
-    if let indexPath = tableView.indexPathForCell(cell) {
-      return notebook.display[indexPath.row]
-    }
-    return nil
-  }
-  
-  
-  // cell swiped
+  // MARK - swipe
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
       
@@ -308,10 +300,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
-    notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: .Date, date: date) { created in
-      Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
-    }
-    Util.playSound(systemSound: .Tap)
+    createReminder(indexPath: indexPath, type: .Date, date: date)
   }
   
   // MARK: - modal reminder
@@ -328,27 +317,32 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       modalDatePickerDisplay(indexPath: indexPath)
       return
     }
-    notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: reminderType, date: nil) { created in
-      Util.playSound(systemSound: created ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
+    createReminder(indexPath: indexPath, type: reminderType, date: nil)
+  }
+  
+  private func createReminder(indexPath indexPath: NSIndexPath, type: ReminderType, date: NSDate?) {
+    notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: type, date: date) { success, create in
+      if success {
+        Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
+      }
     }
   }
   
-  
   // MARK: - modal delete
-  func modalDelete(indexPath indexPath: NSIndexPath) {
+  private func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {
       self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
     }
   }
   
-  func modalDeleteAll() {
+  private func modalDeleteAll() {
     modalActionSheetConfirmation(title: "Delete completed") {
       self.notebook.deleteAll(tableView: self.tableView)
     }
   }
   
   // MARK: - modal undo
-  func modalUndo() {
+  private func modalUndo() {
     if notebook.history.count > 0 {
       modalActionSheetConfirmation(title: "Undo") {
         self.notebook.undo(tableView: self.tableView)
@@ -379,7 +373,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     presentViewController(controller, animated: false, completion: nil)
   }
   
-  func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
+  private func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
     let delete = UIAlertAction(title: title, style: .Default) { action in
       Util.playSound(systemSound: .BeepBoBoopFailure)

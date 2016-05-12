@@ -1,3 +1,6 @@
+// TODO: able to complete the task from the notifcation center (with Notification Action swipe buttons)
+// TODO: unable to complete the task the first time when accepting notifications (because unknown user selection and the timing of that selection)
+
 import UIKit
 
 class LocalNotification {

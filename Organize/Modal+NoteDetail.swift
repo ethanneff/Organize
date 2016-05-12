@@ -219,8 +219,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
-    Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
     submitNote(confirm: Bool(button.tag))
   }
   
