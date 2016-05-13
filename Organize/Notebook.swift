@@ -203,7 +203,7 @@ class Notebook: NSObject, NSCoding, Copying {
         let noteParent = self.getNoteParent(displayParent: displayParent)
         
         // note children
-        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, collapsed: nil, children: nil, completed: nil)
+        self.setNoteChild(noteParent: noteParent, indent: true, increase: increase, completed: nil)
       }
       
       // display parent
@@ -399,7 +399,6 @@ class Notebook: NSObject, NSCoding, Copying {
         
         // display child
         temp.removeAtIndex(next.row)
-        displayChild.collapsed = true
         count += 1
         count += displayChild.children
         
@@ -447,18 +446,33 @@ class Notebook: NSObject, NSCoding, Copying {
       let noteParent = self.getNoteParent(displayParent: displayParent)
       
       // note children
-      let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, collapsed: false, children: 0, completed: nil)
+      let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, completed: nil)
       
       // display children
       var indexPaths: [NSIndexPath] = []
       var children: [Note] = []
-      for child in noteChildren.reverse() {
+      var parent: (found: Bool, indent: Int) = (false, 0)
+      for child in noteChildren {
+        // don't unindent sub collapsed sections
+        if parent.found {
+          if child.note.indent > parent.indent {
+            continue
+          } else {
+            parent.found = false
+          }
+        }
+        
+        if child.note.collapsed {
+          parent = (true, child.note.indent)
+        }
+      
+        // add
         let next = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
         indexPaths.append(next)
         children.append(child.note)
       }
       
-      self.insert(indexPaths: indexPaths, tableView: tableView, data: children) {
+      self.insert(indexPaths: indexPaths, tableView: tableView, data: children.reverse()) {
         self.reload(indexPaths: [indexPath], tableView: tableView) {
           if let completion = completion {
             // handle uncomplete
@@ -676,7 +690,7 @@ class Notebook: NSObject, NSCoding, Copying {
     return (index: noteParentIndex, note: self.notes[noteParentIndex])
   }
   
-  private func setNoteChild(noteParent noteParent: (note: Note, index: Int), indent: Bool? = nil, increase: Bool? = nil, collapsed: Bool? = nil, children: Int? = nil, completed: Bool? = nil) -> [(note: Note, index: Int)] {
+  private func setNoteChild(noteParent noteParent: (note: Note, index: Int), indent: Bool? = nil, increase: Bool? = nil, completed: Bool? = nil) -> [(note: Note, index: Int)] {
     var noteChildren: [(note: Note, index: Int)] = []
     for i in noteParent.index+1..<self.notes.count {
       let noteChild = (note: self.notes[i], index: i)
@@ -685,12 +699,6 @@ class Notebook: NSObject, NSCoding, Copying {
       }
       if let _ = indent, increase = increase {
         noteChild.note.indent += (increase) ? 1 : (noteParent.note.indent == 0) ? 0 : -1
-      }
-      if let collapsed = collapsed {
-        noteChild.note.collapsed = collapsed
-      }
-      if let children = children {
-        noteChild.note.children = children
       }
       if let completed = completed {
         noteChild.note.completed = completed
@@ -795,25 +803,25 @@ class Notebook: NSObject, NSCoding, Copying {
   static func getDefault() -> Notebook {
     let notebook = Notebook(notes: [])
     notebook.notes.append(Note(title: "0", indent: 0))
-//    notebook.notes.append(Note(title: "1", indent: 1))
-//    notebook.notes.append(Note(title: "2", indent: 1))
-//    notebook.notes.append(Note(title: "3", indent: 2))
-//    notebook.notes.append(Note(title: "4", indent: 3))
-//    notebook.notes.append(Note(title: "5", indent: 0))
-//    notebook.notes.append(Note(title: "6", indent: 1))
-//    notebook.notes.append(Note(title: "7", indent: 2))
-//    notebook.notes.append(Note(title: "8", indent: 2))
-//    notebook.notes.append(Note(title: "9", indent: 0))
-//    notebook.notes.append(Note(title: "10", indent: 0))
-//    notebook.notes.append(Note(title: "11", indent: 1))
-//    notebook.notes.append(Note(title: "12", indent: 1))
-//    notebook.notes.append(Note(title: "13", indent: 2))
-//    notebook.notes.append(Note(title: "14", indent: 3))
-//    notebook.notes.append(Note(title: "15", indent: 0))
-//    notebook.notes.append(Note(title: "16", indent: 1))
-//    notebook.notes.append(Note(title: "17", indent: 0))
-//    notebook.notes.append(Note(title: "18", indent: 1))
-//    notebook.notes.append(Note(title: "19", indent: 1))
+    notebook.notes.append(Note(title: "1", indent: 1))
+    notebook.notes.append(Note(title: "2", indent: 1))
+    notebook.notes.append(Note(title: "3", indent: 2))
+    notebook.notes.append(Note(title: "4", indent: 3))
+    notebook.notes.append(Note(title: "5", indent: 0))
+    notebook.notes.append(Note(title: "6", indent: 1))
+    notebook.notes.append(Note(title: "7", indent: 2))
+    notebook.notes.append(Note(title: "8", indent: 2))
+    notebook.notes.append(Note(title: "9", indent: 0))
+    notebook.notes.append(Note(title: "10", indent: 0))
+    notebook.notes.append(Note(title: "11", indent: 1))
+    notebook.notes.append(Note(title: "12", indent: 1))
+    notebook.notes.append(Note(title: "13", indent: 2))
+    notebook.notes.append(Note(title: "14", indent: 3))
+    notebook.notes.append(Note(title: "15", indent: 0))
+    notebook.notes.append(Note(title: "16", indent: 1))
+    notebook.notes.append(Note(title: "17", indent: 0))
+    notebook.notes.append(Note(title: "18", indent: 1))
+    notebook.notes.append(Note(title: "19", indent: 1))
     
     // copy the references to display view
     notebook.display = notebook.notes
