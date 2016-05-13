@@ -465,7 +465,7 @@ class Notebook: NSObject, NSCoding, Copying {
         if child.note.collapsed {
           parent = (true, child.note.indent)
         }
-      
+        
         // add
         let next = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
         indexPaths.append(next)
@@ -493,17 +493,27 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // notes
       if self.notes.count > 0 {
-        var parent = self.notes[0]
-        var children = 0
-        for note in self.notes {
-          if note.indent <= parent.indent {
-            parent.children = children
-            parent = note
-            children = 0
-          } else {
+        for i in 0..<self.notes.count {
+          let note = self.notes[i]
+          // n^2 find children
+          var children = 0
+          for j in i+1..<self.notes.count {
+            let child = self.notes[j]
+            if child.indent <= note.indent {
+              break
+            }
             children += 1
           }
-          note.collapsed = true
+          note.children = children
+          
+          // collapse only if children
+          let next = i+1
+          if next < self.notes.count {
+            let nextNote = self.notes[next]
+            if nextNote.indent > note.indent {
+              note.collapsed = true
+            }
+          }
         }
       }
       
@@ -804,24 +814,24 @@ class Notebook: NSObject, NSCoding, Copying {
     let notebook = Notebook(notes: [])
     notebook.notes.append(Note(title: "0", indent: 0))
     notebook.notes.append(Note(title: "1", indent: 1))
-    notebook.notes.append(Note(title: "2", indent: 1))
-    notebook.notes.append(Note(title: "3", indent: 2))
-    notebook.notes.append(Note(title: "4", indent: 3))
-    notebook.notes.append(Note(title: "5", indent: 0))
+    notebook.notes.append(Note(title: "2", indent: 2))
+    notebook.notes.append(Note(title: "3", indent: 1))
+    notebook.notes.append(Note(title: "4", indent: 2))
+    notebook.notes.append(Note(title: "5", indent: 3))
     notebook.notes.append(Note(title: "6", indent: 1))
-    notebook.notes.append(Note(title: "7", indent: 2))
-    notebook.notes.append(Note(title: "8", indent: 2))
-    notebook.notes.append(Note(title: "9", indent: 0))
-    notebook.notes.append(Note(title: "10", indent: 0))
-    notebook.notes.append(Note(title: "11", indent: 1))
-    notebook.notes.append(Note(title: "12", indent: 1))
-    notebook.notes.append(Note(title: "13", indent: 2))
-    notebook.notes.append(Note(title: "14", indent: 3))
-    notebook.notes.append(Note(title: "15", indent: 0))
-    notebook.notes.append(Note(title: "16", indent: 1))
-    notebook.notes.append(Note(title: "17", indent: 0))
-    notebook.notes.append(Note(title: "18", indent: 1))
-    notebook.notes.append(Note(title: "19", indent: 1))
+    notebook.notes.append(Note(title: "7", indent: 0))
+    notebook.notes.append(Note(title: "8", indent: 1))
+    //    notebook.notes.append(Note(title: "9", indent: 0))
+    //    notebook.notes.append(Note(title: "10", indent: 0))
+    //    notebook.notes.append(Note(title: "11", indent: 1))
+    //    notebook.notes.append(Note(title: "12", indent: 1))
+    //    notebook.notes.append(Note(title: "13", indent: 2))
+    //    notebook.notes.append(Note(title: "14", indent: 3))
+    //    notebook.notes.append(Note(title: "15", indent: 0))
+    //    notebook.notes.append(Note(title: "16", indent: 1))
+    //    notebook.notes.append(Note(title: "17", indent: 0))
+    //    notebook.notes.append(Note(title: "18", indent: 1))
+    //    notebook.notes.append(Note(title: "19", indent: 1))
     
     // copy the references to display view
     notebook.display = notebook.notes
