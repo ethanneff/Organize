@@ -373,6 +373,8 @@ class Notebook: NSObject, NSCoding, Copying {
       // display parent
       let displayParent = self.display[indexPath.row]
       
+      
+      // return if already collapsed
       if displayParent.collapsed {
         if let completion = completion {
           completion(children: 0)
@@ -380,29 +382,43 @@ class Notebook: NSObject, NSCoding, Copying {
         return
       }
       
+      let noteParent = self.getNoteParent(displayParent: displayParent)
+      let next = noteParent.index+1
+      if next >= self.notes.count {
+        // return collapsing on last note
+        return
+      } else {
+        // return if no children
+        let child = self.notes[next]
+        if child.indent <= noteParent.note.indent {
+          return
+        }
+      }
+      
+      // collapse
       displayParent.collapsed = true
       
       // temp for background threading
       var temp = self.display
       var count = 0
-      let next = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
+      let nextIndexPath = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
       var children: [NSIndexPath] = []
       // while because removing
       while true {
-        if next.row >= temp.count {
+        if nextIndexPath.row >= temp.count {
           break
         }
-        let displayChild = temp[next.row]
+        let displayChild = temp[nextIndexPath.row]
         if displayChild.indent <= displayParent.indent {
           break
         }
         
         // display child
-        temp.removeAtIndex(next.row)
+        temp.removeAtIndex(nextIndexPath.row)
         count += 1
         count += displayChild.children
         
-        children.append(next)
+        children.append(nextIndexPath)
       }
       
       // display child
