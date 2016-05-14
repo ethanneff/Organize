@@ -6,7 +6,7 @@ class Notebook: NSObject, NSCoding, Copying {
   var display: [Note] = []
   var history: [NotebookHistory] = []
   override var description: String {
-    let output: String = notes.description + "\n" + display.description // + "\n history \n"
+    let output: String = notes.description + "\n" + display.description + "\n" // + "\n history \n"
     //    for element in history {
     //      output += element.notes.description + "\n" + element.display.description + "\n"
     //    }
@@ -361,6 +361,80 @@ class Notebook: NSObject, NSCoding, Copying {
     }
   }
   
+  // MARK: - REORDER
+  func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    Util.threadBackground {
+      // history
+      self.historySave()
+      
+      // collapse
+      self.collapse(indexPath: indexPath, tableView: tableView) { children in
+        // FIXME: does not always work (if cell is collapsed and whatnot
+        // because background thread, snapshot gets taken before collapse
+        if let cell = tableView.cellForRowAtIndexPath(indexPath) {
+          cell.hidden = true
+        }
+      }
+    }
+  }
+  
+  func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+    Util.threadBackground {
+      // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
+      swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
+    }
+  }
+  
+  
+  
+  func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView) {
+    Util.threadBackground {
+      // uncollapse
+      self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
+        
+        print (toIndexPath.row, fromIndexPath.row)
+        // display parent
+        let displayParent = self.display[toIndexPath.row]
+        
+        // note parent
+        let noteParent = self.getNoteParent(displayParent: displayParent)
+        
+        // remove section
+        var section: [Note] = []
+        let parent = self.notes.removeAtIndex(noteParent.index)
+        section.append(parent)
+        while true {
+          let next = noteParent.index
+          if next >= self.notes.count {
+            break
+          }
+          let child = self.notes[next]
+          if child.indent <= noteParent.note.indent {
+            break
+          }
+          section.append(self.notes.removeAtIndex(next))
+        }
+        
+        // insert section
+        if toIndexPath.row == 0 {
+          self.notes.insertContentsOf(section, at: 0)
+          return
+        }
+        
+        let displayInsert = self.display[toIndexPath.row-1]
+        
+        
+        print(section)
+        print(self.notes)
+
+        
+        print("\n")
+        print(self)
+        // save
+      }
+    }
+  }
+  
   
   // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
@@ -372,7 +446,6 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // display parent
       let displayParent = self.display[indexPath.row]
-      
       
       // return if already collapsed
       if displayParent.collapsed {
@@ -837,17 +910,17 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.notes.append(Note(title: "6", indent: 1))
     notebook.notes.append(Note(title: "7", indent: 0))
     notebook.notes.append(Note(title: "8", indent: 1))
-    //    notebook.notes.append(Note(title: "9", indent: 0))
-    //    notebook.notes.append(Note(title: "10", indent: 0))
-    //    notebook.notes.append(Note(title: "11", indent: 1))
-    //    notebook.notes.append(Note(title: "12", indent: 1))
-    //    notebook.notes.append(Note(title: "13", indent: 2))
-    //    notebook.notes.append(Note(title: "14", indent: 3))
-    //    notebook.notes.append(Note(title: "15", indent: 0))
-    //    notebook.notes.append(Note(title: "16", indent: 1))
-    //    notebook.notes.append(Note(title: "17", indent: 0))
-    //    notebook.notes.append(Note(title: "18", indent: 1))
-    //    notebook.notes.append(Note(title: "19", indent: 1))
+    notebook.notes.append(Note(title: "9", indent: 1))
+    notebook.notes.append(Note(title: "10", indent: 0))
+    notebook.notes.append(Note(title: "11", indent: 1))
+    notebook.notes.append(Note(title: "12", indent: 1))
+    notebook.notes.append(Note(title: "13", indent: 2))
+    notebook.notes.append(Note(title: "14", indent: 3))
+    notebook.notes.append(Note(title: "15", indent: 4))
+    notebook.notes.append(Note(title: "16", indent: 5))
+    notebook.notes.append(Note(title: "17", indent: 6))
+    notebook.notes.append(Note(title: "18", indent: 5))
+    notebook.notes.append(Note(title: "19", indent: 4))
     
     // copy the references to display view
     notebook.display = notebook.notes

@@ -3,14 +3,16 @@
 import UIKit
 
 protocol ReorderTableViewDelegate: class {
+  // protocol to interact with reorder tableview
   func reorderBeforeLift(fromIndexPath: NSIndexPath)
   func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
   func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
   func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
   func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
 }
-// TODO: don't force onto tableviewcontroller, extend the delegate instead and import the protcol with the controller
-extension UITableViewController: ReorderTableViewDelegate {
+
+extension ReorderTableViewDelegate {
+  // make functions optionals
   func reorderBeforeLift(fromIndexPath: NSIndexPath) {}
   func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
   func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
@@ -84,10 +86,8 @@ class ReorderTableView: UITableView {
       reorderGesture.minimumPressDuration = 0.3
       addGestureRecognizer(reorderGesture)
     }
-    
     //    registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
   }
-  
   
   
   // MARK: - DEALLOC
@@ -178,8 +178,8 @@ class ReorderTableView: UITableView {
     cell.layer.renderInContext(UIGraphicsGetCurrentContext()!)
     let image = UIGraphicsGetImageFromCurrentImageContext() as UIImage
     UIGraphicsEndImageContext()
-    reorderSnapshot = UIImageView(image: image)
-    if let reorderSnapshot = reorderSnapshot {
+    self.reorderSnapshot = UIImageView(image: image)
+    if let reorderSnapshot = self.reorderSnapshot {
       reorderSnapshot.layer.masksToBounds = false
       reorderSnapshot.layer.cornerRadius = 0.0
       reorderSnapshot.layer.shadowOffset = CGSizeMake(-5.0, 0.0)
@@ -187,7 +187,7 @@ class ReorderTableView: UITableView {
       reorderSnapshot.layer.shadowOpacity = 0.4
       reorderSnapshot.center = cell.center
       reorderSnapshot.alpha = 0.0
-      addSubview(reorderSnapshot)
+      self.addSubview(reorderSnapshot)
     }
   }
   

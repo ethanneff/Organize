@@ -1,10 +1,10 @@
 import UIKit
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate {
   // MARK: - properties
   var notebook: Notebook
   
-  lazy var tableView: UITableView = UITableView()
+  lazy var tableView: UITableView = ReorderTableView()
   var addButton: UIButton?
   var gestureDoubleTap: UITapGestureRecognizer?
   var gestureSingleTap: UITapGestureRecognizer?
@@ -94,6 +94,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     // delegates
     tableView.delegate = self
     tableView.dataSource = self
+    if let tableView = tableView as? ReorderTableView {
+      tableView.reorderDelegate = self
+    }
     
     // cell
     tableView.registerClass(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
@@ -247,6 +250,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  // MARK: - reorder
+  func reorderBeforeLift(fromIndexPath: NSIndexPath) {
+    notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView)
+  }
+  
+  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+    notebook.reorderDuringMove(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath)
+  }
+  
+  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+    notebook.reorderAfterDrop(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath, tableView: tableView)
+  }
+  
+  
   
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
@@ -260,11 +277,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
-    let location = gesture.locationInView(tableView)
-    if let indexPath = tableView.indexPathForRowAtPoint(location) {
-      modalNoteDetailDisplay(indexPath: indexPath, create: false)
-      Util.playSound(systemSound: .Tap)
-    }
+    print(notebook)
+    //    let location = gesture.locationInView(tableView)
+    //    if let indexPath = tableView.indexPathForRowAtPoint(location) {
+    //      modalNoteDetailDisplay(indexPath: indexPath, create: false)
+    //      Util.playSound(systemSound: .Tap)
+    //    }
   }
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {

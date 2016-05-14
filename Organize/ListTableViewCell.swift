@@ -9,7 +9,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   
   // MARK: properties
   static let identifier: String = "cell"
-  static let height: CGFloat = 40
+  static let height: CGFloat = 34
   
   private var titleLabel: UILabel?
   private var accessoryButton: UIButton?
