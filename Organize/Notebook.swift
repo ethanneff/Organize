@@ -370,6 +370,7 @@ class Notebook: NSObject, NSCoding, Copying {
       // collapse
       self.collapse(indexPath: indexPath, tableView: tableView) { children in
         // callback to prevent saving until after the reorder finishes
+        Notebook.set(data: self)
       }
     }
   }
@@ -380,8 +381,6 @@ class Notebook: NSObject, NSCoding, Copying {
       swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
     }
   }
-  
-  
   
   func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView) {
     Util.threadBackground {
@@ -415,35 +414,33 @@ class Notebook: NSObject, NSCoding, Copying {
           // insert and save
           self.notes.insertContentsOf(section, at: index)
           Notebook.set(data: self)
+          print(self)
         }
         
-        // insert section at start
+        // insert section at first
         if toIndexPath.row == 0 {
+          print("first")
           insert(section: section, index: 0)
           return
         }
         
-        // insert section at end
-        let displayPrev = self.display[toIndexPath.row-1]
+        // insert section at last
+        let prev = toIndexPath.row-1
+        let displayPrev = self.display[prev]
         var notePrev = self.getNoteParent(displayParent: displayPrev)
-        if notePrev.index+1 >= self.notes.count {
-          insert(section: section, index: notePrev.index+1)
-          return
-        }
         
-        // insert section at mid
-        let next = notePrev.index+1
-        if next > notePrev.note.indent {
-          // find last child
-          for i in next..<self.notes.count {
+        if displayPrev.collapsed {
+          // find children for last one
+          for i in prev+1..<self.notes.count {
             let child = self.notes[i]
+            print(child)
             if child.indent <= notePrev.note.indent {
               break
             }
             notePrev.index = i
           }
         }
-
+        
         insert(section: section, index: notePrev.index+1)
       }
     }
