@@ -132,6 +132,9 @@ class ReorderTableView: UITableView {
     case UIGestureRecognizerState.Changed:
       // changed
       reorderUpdateScrollRateForTableViewScrolling(location: location)
+      if let previousIndexPath = reorderPreviousIndexPath, let cell = cellForRowAtIndexPath(previousIndexPath) {
+        reorderHideBackgroundCell(cell: cell)
+      }
     default:
       // ended
       if let initialIndexPath = reorderInitalIndexPath,
@@ -211,6 +214,11 @@ class ReorderTableView: UITableView {
   
   
   // MARK: - CHANGED
+  private func reorderHideBackgroundCell(cell cell: UITableViewCell) {
+    // FIXME: hot fix because the reorderBeforeLift() delegate happens on a background thread so it doesn't update in time for createSnapshot
+    cell.hidden = true
+  }
+  
   private func reorderCorrectDraggingBounds(location location: CGPoint) {
     // update position of the drag view so it wont go past the top or the bottom too far
     if let reorderSnapshot = reorderSnapshot where location.y >= 0 && location.y <= contentSize.height + kReorderScrollTableViewPadding {
