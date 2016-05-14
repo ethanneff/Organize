@@ -369,11 +369,7 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // collapse
       self.collapse(indexPath: indexPath, tableView: tableView) { children in
-        // FIXME: does not always work (if cell is collapsed and whatnot
-        // because background thread, snapshot gets taken before collapse
-        if let cell = tableView.cellForRowAtIndexPath(indexPath) {
-          cell.hidden = true
-        }
+        // callback to prevent saving until after the reorder finishes
       }
     }
   }
@@ -391,15 +387,13 @@ class Notebook: NSObject, NSCoding, Copying {
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
-        
-        print (toIndexPath.row, fromIndexPath.row)
         // display parent
         let displayParent = self.display[toIndexPath.row]
         
         // note parent
         let noteParent = self.getNoteParent(displayParent: displayParent)
         
-        // remove section
+        // note section
         var section: [Note] = []
         let parent = self.notes.removeAtIndex(noteParent.index)
         section.append(parent)
@@ -412,25 +406,45 @@ class Notebook: NSObject, NSCoding, Copying {
           if child.indent <= noteParent.note.indent {
             break
           }
+          // remove
           section.append(self.notes.removeAtIndex(next))
         }
         
-        // insert section
+        // insert
+        func insert(section section: [Note], index: Int) {
+          // insert and save
+          self.notes.insertContentsOf(section, at: index)
+          Notebook.set(data: self)
+        }
+        
+        // insert section at start
         if toIndexPath.row == 0 {
-          self.notes.insertContentsOf(section, at: 0)
+          insert(section: section, index: 0)
           return
         }
         
-        let displayInsert = self.display[toIndexPath.row-1]
+        // insert section at end
+        let displayPrev = self.display[toIndexPath.row-1]
+        var notePrev = self.getNoteParent(displayParent: displayPrev)
+        if notePrev.index+1 >= self.notes.count {
+          insert(section: section, index: notePrev.index+1)
+          return
+        }
         
-        
-        print(section)
-        print(self.notes)
+        // insert section at mid
+        let next = notePrev.index+1
+        if next > notePrev.note.indent {
+          // find last child
+          for i in next..<self.notes.count {
+            let child = self.notes[i]
+            if child.indent <= notePrev.note.indent {
+              break
+            }
+            notePrev.index = i
+          }
+        }
 
-        
-        print("\n")
-        print(self)
-        // save
+        insert(section: section, index: notePrev.index+1)
       }
     }
   }
@@ -441,6 +455,7 @@ class Notebook: NSObject, NSCoding, Copying {
     Util.threadBackground {
       // history
       if let _ = completion {} else {
+        // don't save on complete or reorder because more processing needs to happen first
         self.historySave()
       }
       
@@ -500,7 +515,7 @@ class Notebook: NSObject, NSCoding, Copying {
         displayParent.children = count
         self.reload(indexPaths: [indexPath], tableView: tableView) {
           if let completion = completion {
-            // handle complete
+            // handle complete and reorder
             completion(children: count)
           } else {
             // save
