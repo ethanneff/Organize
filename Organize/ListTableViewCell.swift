@@ -17,7 +17,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   private let titleLabelPadding: CGFloat = Config.buttonPadding
   private let accessoryButtonWidth: CGFloat = Config.buttonHeight
   private let reminderViewWidth: CGFloat = 3
-  private let titleIndentSpace: String = "     "
+  private let titleIndentSpace: String = "      "
   
   weak var delegate: ListTableViewCellDelegate?
   // TODO: figure out why to make a property... swipe gets deinit otherwise
@@ -68,10 +68,12 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   // MARK: create
   private func setupView() {
     titleLabel = UILabel()
+            titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     addSubview(titleLabel!)
     
     accessoryButton = UIButton()
     addSubview(accessoryButton!)
+    accessoryButton?.titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     accessoryButton?.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
     
     reminderView = UIView()
@@ -135,6 +137,12 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     var title = note.title
     for _ in 0..<note.indent {
       title = titleIndentSpace + title
+    }
+    // TODO: make important flag
+    if note.indent == 0 {
+      titleLabel?.font = UIFont.boldSystemFontOfSize(UIFont.systemFontSize())
+    } else {
+      titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     }
     titleLabel?.text = title
     
