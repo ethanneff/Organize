@@ -281,12 +281,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
-    print(notebook)
-    //    let location = gesture.locationInView(tableView)
-    //    if let indexPath = tableView.indexPathForRowAtPoint(location) {
-    //      modalNoteDetailDisplay(indexPath: indexPath, create: false)
-    //      Util.playSound(systemSound: .Tap)
-    //    }
+    let location = gesture.locationInView(tableView)
+    if let indexPath = tableView.indexPathForRowAtPoint(location) {
+      modalNoteDetailDisplay(indexPath: indexPath, create: false)
+      Util.playSound(systemSound: .Tap)
+    }
   }
   
   func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
