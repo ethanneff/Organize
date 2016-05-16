@@ -4,20 +4,20 @@ import UIKit
 
 protocol ReorderTableViewDelegate: class {
   // protocol to interact with reorder tableview
-  func reorderBeforeLift(fromIndexPath: NSIndexPath)
-  func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
-  func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
-  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
-  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath)
+  func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ())
+  func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ())
+  func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ())
+  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ())
+  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ())
 }
 
 extension ReorderTableViewDelegate {
   // make functions optionals
-  func reorderBeforeLift(fromIndexPath: NSIndexPath) {}
-  func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
-  func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
-  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
-  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {}
+  func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ()) { completion() }
+  func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) { completion() }
+  func reorderBeforeDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) { completion() }
+  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) { completion() }
+  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) { completion() }
 }
 
 class ReorderTableView: UITableView {
@@ -52,14 +52,14 @@ class ReorderTableView: UITableView {
     case DuringMove
   }
   
-  private func reorderNotifyDelegate(notification notification: ReorderDelegateNotifications, fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath?) {
+  private func reorderNotifyDelegate(notification notification: ReorderDelegateNotifications, fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath?, completion: () -> ()) {
     // notify the parent controller
     switch notification {
-    case .BeforeLift: reorderDelegate?.reorderBeforeLift(fromIndexPath)
-    case .AfterLift: reorderDelegate?.reorderAfterLift(fromIndexPath, toIndexPath: toIndexPath!)
-    case .BeforeDrop: reorderDelegate?.reorderBeforeDrop(fromIndexPath, toIndexPath: toIndexPath!)
-    case .AfterDrop: reorderDelegate?.reorderAfterDrop(fromIndexPath, toIndexPath: toIndexPath!)
-    case .DuringMove: reorderDelegate?.reorderDuringMove(fromIndexPath, toIndexPath: toIndexPath!)
+    case .BeforeLift: reorderDelegate?.reorderBeforeLift(fromIndexPath) { completion() }
+    case .AfterLift: reorderDelegate?.reorderAfterLift(fromIndexPath, toIndexPath: toIndexPath!) { completion() }
+    case .BeforeDrop: reorderDelegate?.reorderBeforeDrop(fromIndexPath, toIndexPath: toIndexPath!) { completion() }
+    case .AfterDrop: reorderDelegate?.reorderAfterDrop(fromIndexPath, toIndexPath: toIndexPath!) { completion() }
+    case .DuringMove: reorderDelegate?.reorderDuringMove(fromIndexPath, toIndexPath: toIndexPath!) { completion() }
     }
   }
   
@@ -91,6 +91,10 @@ class ReorderTableView: UITableView {
   
   
   // MARK: - DEALLOC
+  deinit {
+    reorderDealloc()
+  }
+  
   private func reorderDealloc() {
     reorderScrollRate = 0
     if let scrollLink = reorderScrollLink {
@@ -117,36 +121,36 @@ class ReorderTableView: UITableView {
     case UIGestureRecognizerState.Began:
       // began
       if let indexPath = indexPathForRowAtPoint(location) {
-        reorderGesturePressed = true
-        reorderLoopToDetectScrolling()
-        reorderNotifyDelegate(notification: .BeforeLift, fromIndexPath: indexPath, toIndexPath: nil)
-        reorderHandleDelegateIndexChange(gesture: gesture, location: location, indexPath: indexPath)
-        
-        if let previousIndexPath = reorderPreviousIndexPath, let cell = cellForRowAtIndexPath(previousIndexPath) {
-          reorderInitialCellCenter = cell.center
-          reorderCreateSnapshotCell(cell: cell)
-          reorderLiftSnapshotCell(location: location, cell: cell)
-          reorderNotifyDelegate(notification: .AfterLift, fromIndexPath: indexPath, toIndexPath: previousIndexPath)
+        reorderNotifyDelegate(notification: .BeforeLift, fromIndexPath: indexPath, toIndexPath: nil) {
+          self.reorderGesturePressed = true
+          self.reorderLoopToDetectScrolling()
+          self.reorderHandleDelegateIndexChange(gesture: gesture, location: location, indexPath: indexPath)
+          
+          if let previousIndexPath = self.reorderPreviousIndexPath, let cell = self.cellForRowAtIndexPath(previousIndexPath) {
+            self.reorderInitialCellCenter = cell.center
+            self.reorderCreateSnapshotCell(cell: cell)
+            self.reorderLiftSnapshotCell(location: location, cell: cell)
+            self.reorderNotifyDelegate(notification: .AfterLift, fromIndexPath: indexPath, toIndexPath: previousIndexPath) {}
+          }
         }
       }
     case UIGestureRecognizerState.Changed:
       // changed
       reorderUpdateScrollRateForTableViewScrolling(location: location)
-      if let previousIndexPath = reorderPreviousIndexPath, let cell = cellForRowAtIndexPath(previousIndexPath) {
-        reorderHideBackgroundCell(cell: cell)
-      }
     default:
       // ended
       if let initialIndexPath = reorderInitalIndexPath,
         let previousIndexPath = reorderPreviousIndexPath,
         let previousCell = cellForRowAtIndexPath(previousIndexPath) {
-        reorderNotifyDelegate(notification: .BeforeDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath)
-        let cell = reorderPreventReorderOnSameCellCenterOffset(initialIndexPath: initialIndexPath, previousIndexPath: previousIndexPath, previousCell: previousCell)
-        reorderGesturePressed = false
-        reorderDropSnapshotCell(cell: cell) { finished in
-          self.reorderNotifyDelegate(notification: .AfterDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath)
-          self.reorderDealloc()
+        reorderNotifyDelegate(notification: .BeforeDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {
+          let cell = self.reorderPreventReorderOnSameCellCenterOffset(initialIndexPath: initialIndexPath, previousIndexPath: previousIndexPath, previousCell: previousCell)
+          self.reorderGesturePressed = false
+          self.reorderDropSnapshotCell(cell: cell) { finished in
+            self.reorderNotifyDelegate(notification: .AfterDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {}
+            self.reorderDealloc()
+          }
         }
+        
       }
     }
   }
@@ -214,11 +218,6 @@ class ReorderTableView: UITableView {
   
   
   // MARK: - CHANGED
-  private func reorderHideBackgroundCell(cell cell: UITableViewCell) {
-    // FIXME: hot fix because the reorderBeforeLift() delegate happens on a background thread so it doesn't update in time for createSnapshot
-    cell.hidden = true
-  }
-  
   private func reorderCorrectDraggingBounds(location location: CGPoint) {
     // update position of the drag view so it wont go past the top or the bottom too far
     if let reorderSnapshot = reorderSnapshot where location.y >= 0 && location.y <= contentSize.height + kReorderScrollTableViewPadding {
@@ -282,9 +281,10 @@ class ReorderTableView: UITableView {
     // reorder the tableview cells on drag
     if let nextIndexPath = indexPathForRowAtPoint(location), let prevIndexPath = reorderPreviousIndexPath {
       if nextIndexPath != prevIndexPath {
-        moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
-        reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath)
-        reorderPreviousIndexPath = nextIndexPath
+        reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath) {
+          self.moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
+          self.reorderPreviousIndexPath = nextIndexPath
+        }
       }
     }
   }

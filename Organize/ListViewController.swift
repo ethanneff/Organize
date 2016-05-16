@@ -249,16 +249,22 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   
   // MARK: - reorder
-  func reorderBeforeLift(fromIndexPath: NSIndexPath) {
-    notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView)
+  func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ()) {
+    notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView) {
+      completion()
+    }
   }
   
-  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-    notebook.reorderDuringMove(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath)
+  func reorderDuringMove(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
+    notebook.reorderDuringMove(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath) {
+      completion()
+    }
   }
   
-  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-    notebook.reorderAfterDrop(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath, tableView: tableView)
+  func reorderAfterDrop(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
+    notebook.reorderAfterDrop(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath, tableView: tableView) {
+      completion()
+    }
   }
   
   

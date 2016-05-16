@@ -6,14 +6,14 @@ class Notebook: NSObject, NSCoding, Copying {
   var display: [Note] = []
   var history: [NotebookHistory] = []
   override var description: String {
-    let output: String = notes.description + "\n" + display.description + "\n" // + "\n history \n"
+    var output: String = notes.description + "\n" + display.description
+    output += "\n"
     //    for element in history {
     //      output += element.notes.description + "\n" + element.display.description + "\n"
     //    }
     //
     return output
   }
-  
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -362,27 +362,36 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   // MARK: - REORDER
-  func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+  func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
     Util.threadBackground {
       // history
       self.historySave()
       
       // collapse
-      self.collapse(indexPath: indexPath, tableView: tableView) { children in
-        // callback to prevent saving until after the reorder finishes
+      self.collapse(indexPath: indexPath, tableView: tableView)
+      { children in
+        //  callback to prevent saving until after the reorder finishes
         Notebook.set(data: self)
+        // has to be main thread
+        Util.threadMain {
+          completion()
+        }
       }
     }
   }
   
-  func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+  func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
     Util.threadBackground {
       // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
       swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
+      // has to be main thread
+      Util.threadMain {
+        completion()
+      }
     }
   }
   
-  func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView) {
+  func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
@@ -409,18 +418,22 @@ class Notebook: NSObject, NSCoding, Copying {
           section.append(self.notes.removeAtIndex(next))
         }
         
-        // insert
-        func insert(section section: [Note], index: Int) {
-          // insert and save
+        // complete
+        func complete(section section: [Note], index: Int) {
+          // insert
           self.notes.insertContentsOf(section, at: index)
+          // save
           Notebook.set(data: self)
+          // has to be main thread
+          Util.threadMain {
+            completion()
+          }
           print(self)
         }
         
         // insert section at first
         if toIndexPath.row == 0 {
-          print("first")
-          insert(section: section, index: 0)
+          complete(section: section, index: 0)
           return
         }
         
@@ -441,7 +454,8 @@ class Notebook: NSObject, NSCoding, Copying {
           }
         }
         
-        insert(section: section, index: notePrev.index+1)
+        complete(section: section, index: notePrev.index+1)
+        return
       }
     }
   }
@@ -459,28 +473,38 @@ class Notebook: NSObject, NSCoding, Copying {
       // display parent
       let displayParent = self.display[indexPath.row]
       
-      // return if already collapsed
-      if displayParent.collapsed {
+      // complete
+      func complete(children children: Int) {
         if let completion = completion {
-          completion(children: 0)
+          // handle complete swipe and reorder lift
+          completion(children: children)
+        } else {
+          // save
+          Notebook.set(data: self)
         }
-        return
+      }
+      
+      // early exit
+      if displayParent.collapsed {
+        complete(children: 0)
       }
       
       let noteParent = self.getNoteParent(displayParent: displayParent)
       let next = noteParent.index+1
       if next >= self.notes.count {
         // return collapsing on last note
+        complete(children: 0)
         return
       } else {
         // return if no children
         let child = self.notes[next]
         if child.indent <= noteParent.note.indent {
+          complete(children: 0)
           return
         }
       }
       
-      // collapse
+      // display parent
       displayParent.collapsed = true
       
       // temp for background threading
@@ -511,13 +535,8 @@ class Notebook: NSObject, NSCoding, Copying {
         // display parent
         displayParent.children = count
         self.reload(indexPaths: [indexPath], tableView: tableView) {
-          if let completion = completion {
-            // handle complete and reorder
-            completion(children: count)
-          } else {
-            // save
-            Notebook.set(data: self)
-          }
+          complete(children: count)
+          return
         }
       }
     }
@@ -533,13 +552,24 @@ class Notebook: NSObject, NSCoding, Copying {
       // display parent
       let displayParent = self.display[indexPath.row]
       
-      if !displayParent.collapsed {
+      // complete
+      func complete() {
         if let completion = completion {
+          // handle uncomplete swipe and reorder drop
           completion()
+        } else {
+          // save
+          Notebook.set(data: self)
         }
+      }
+      
+      // early exit
+      if !displayParent.collapsed {
+        complete()
         return
       }
       
+      // display parent
       displayParent.collapsed = false
       displayParent.children = 0
       
@@ -575,13 +605,8 @@ class Notebook: NSObject, NSCoding, Copying {
       
       self.insert(indexPaths: indexPaths, tableView: tableView, data: children.reverse()) {
         self.reload(indexPaths: [indexPath], tableView: tableView) {
-          if let completion = completion {
-            // handle uncomplete
-            completion()
-          } else {
-            // save
-            Notebook.set(data: self)
-          }
+          complete()
+          return
         }
       }
     }
@@ -723,11 +748,8 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   // MARK: - REMINDER
-  func reminder(indexPath indexPath: NSIndexPath?, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
+  func reminder(indexPath indexPath: NSIndexPath, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
     Util.threadBackground {
-      guard let indexPath = indexPath else {
-        return
-      }
       
       // history
       self.historySave()
@@ -933,6 +955,18 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.notes.append(Note(title: "17", indent: 6))
     notebook.notes.append(Note(title: "18", indent: 5))
     notebook.notes.append(Note(title: "19", indent: 4))
+    //    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    //    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    //    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    //    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    //    notebook.notes.append(Note(title: "Motivational quotes", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Meeting notes", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    
     
     // copy the references to display view
     notebook.display = notebook.notes
@@ -940,5 +974,3 @@ class Notebook: NSObject, NSCoding, Copying {
     return notebook
   }
 }
-
-
