@@ -150,7 +150,6 @@ class ReorderTableView: UITableView {
             self.reorderDealloc()
           }
         }
-        
       }
     }
   }
@@ -280,7 +279,7 @@ class ReorderTableView: UITableView {
   private func reorderUpdateCurrentLocation(gesture gesture: UILongPressGestureRecognizer, location: CGPoint ) {
     // reorder the tableview cells on drag
     if let nextIndexPath = indexPathForRowAtPoint(location), let prevIndexPath = reorderPreviousIndexPath {
-      if nextIndexPath != prevIndexPath {
+      if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1  {
         reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath) {
           self.moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
           self.reorderPreviousIndexPath = nextIndexPath
