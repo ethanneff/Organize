@@ -201,7 +201,6 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
-      noteParent.note.indent += (increase) ? 1 : (displayParent.indent == 0) ? 0 : -1
       
       // note children
       if noteParent.note.collapsed {
@@ -209,6 +208,7 @@ class Notebook: NSObject, NSCoding, Copying {
       }
       
       // display parent
+      displayParent.indent += (increase) ? 1 : (displayParent.indent == 0) ? 0 : -1
       self.reload(indexPaths: [indexPath], tableView: tableView) {
         // save
         Notebook.set(data: self)
@@ -584,7 +584,6 @@ class Notebook: NSObject, NSCoding, Copying {
       for child in noteChildren {
         // prevent collapse parent, indent below grab
         if child.note == displayNext {
-          print("AIDONAOIDAIOD")
           break
         }
         
