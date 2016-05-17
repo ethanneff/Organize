@@ -14,6 +14,7 @@ class Notebook: NSObject, NSCoding, Copying {
     //
     return output
   }
+  let logging: Bool = true
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -48,6 +49,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func historySave() {
+    print("history save")
     // already on background thread
     while history.count >= 20 {
       history.removeFirst()
@@ -290,6 +292,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncomplete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    print("uncomplete")
     Util.threadBackground {
       // history
       self.historySave()
@@ -351,10 +354,11 @@ class Notebook: NSObject, NSCoding, Copying {
         self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent]) {
           let newIndexPath = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
           self.remove(indexPaths: [newIndexPath], tableView: tableView) {
-            self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
-              // save
-              Notebook.set(data: self)
-            }
+            print(self)
+//            self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
+//              // save
+//              Notebook.set(data: self)
+//            }
           }
         }
       }
@@ -367,11 +371,9 @@ class Notebook: NSObject, NSCoding, Copying {
       // history
       self.historySave()
       
-      // collapse
+      // collapse (callback to prevent saving until after the reorder finishes)
       self.collapse(indexPath: indexPath, tableView: tableView)
       { children in
-        //  callback to prevent saving until after the reorder finishes
-        Notebook.set(data: self)
         // has to be main thread
         Util.threadMain {
           completion()
@@ -427,9 +429,7 @@ class Notebook: NSObject, NSCoding, Copying {
           // has to be main thread
           Util.threadMain {
             completion()
-          }
-          print(self)
-        }
+          }        }
         
         // insert section at first
         if toIndexPath.row == 0 {
@@ -446,7 +446,6 @@ class Notebook: NSObject, NSCoding, Copying {
           // find children for last one
           for i in prev+1..<self.notes.count {
             let child = self.notes[i]
-            print(child)
             if child.indent <= notePrev.note.indent {
               break
             }
@@ -917,6 +916,8 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   static func set(data data: Notebook, completion: ((success: Bool) -> ())? = nil) {
+    print("data save")
+    print(data)
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), {
       let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(data, toFile: Notebook.ArchiveURL.path!)
       if !isSuccessfulSave {
@@ -935,72 +936,78 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - DEFAULT
   static func getDefault() -> Notebook {
     let notebook = Notebook(notes: [])
-    //    notebook.notes.append(Note(title: "0", indent: 0))
-    //    notebook.notes.append(Note(title: "1", indent: 1))
-    //    notebook.notes.append(Note(title: "2", indent: 2))
-    //    notebook.notes.append(Note(title: "3", indent: 1))
-    //    notebook.notes.append(Note(title: "4", indent: 2))
-    //    notebook.notes.append(Note(title: "5", indent: 3))
-    //    notebook.notes.append(Note(title: "6", indent: 1))
-    //    notebook.notes.append(Note(title: "7", indent: 0))
-    //    notebook.notes.append(Note(title: "8", indent: 1))
-    //    notebook.notes.append(Note(title: "9", indent: 1))
-    //    notebook.notes.append(Note(title: "10", indent: 0))
-    //    notebook.notes.append(Note(title: "11", indent: 1))
-    //    notebook.notes.append(Note(title: "12", indent: 1))
-    //    notebook.notes.append(Note(title: "13", indent: 2))
-    //    notebook.notes.append(Note(title: "14", indent: 3))
-    //    notebook.notes.append(Note(title: "15", indent: 4))
-    //    notebook.notes.append(Note(title: "16", indent: 5))
-    //    notebook.notes.append(Note(title: "17", indent: 6))
-    //    notebook.notes.append(Note(title: "18", indent: 5))
-    //    notebook.notes.append(Note(title: "19", indent: 4))
-    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    notebook.notes.append(Note(title: "Performance metrics", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "MMR", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Churn", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "CLV", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "CPM", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
- 
-        notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Monospaced", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Ubuntu Mono", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Courier", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Courier New", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    
-    notebook.notes.append(Note(title: "General", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Helvetica", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Roboto", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Audiowide", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Lucida Grande", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Trebuchet MS", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Myriad (iPod)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Garamond", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Merriweather", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Gothem", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Avant Garde (avicii)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Din Light (elevate app)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    
-    notebook.notes.append(Note(title: "Default", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Calibri", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Arial", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Times New Romans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    
+        notebook.notes.append(Note(title: "0", indent: 0))
+        notebook.notes.append(Note(title: "1", indent: 1))
+        notebook.notes.append(Note(title: "2", indent: 2))
+        notebook.notes.append(Note(title: "3", indent: 1))
+        notebook.notes.append(Note(title: "4", indent: 2))
+        notebook.notes.append(Note(title: "5", indent: 3))
+        notebook.notes.append(Note(title: "6", indent: 1))
+        notebook.notes.append(Note(title: "7", indent: 0))
+        notebook.notes.append(Note(title: "8", indent: 1))
+        notebook.notes.append(Note(title: "9", indent: 1))
+        notebook.notes.append(Note(title: "10", indent: 0))
+        notebook.notes.append(Note(title: "11", indent: 1))
+        notebook.notes.append(Note(title: "12", indent: 1))
+        notebook.notes.append(Note(title: "13", indent: 2))
+        notebook.notes.append(Note(title: "14", indent: 3))
+        notebook.notes.append(Note(title: "15", indent: 4))
+        notebook.notes.append(Note(title: "16", indent: 5))
+        notebook.notes.append(Note(title: "17", indent: 6))
+        notebook.notes.append(Note(title: "18", indent: 5))
+        notebook.notes.append(Note(title: "19", indent: 4))
+//    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+//    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+//    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+//    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+//    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+//    notebook.notes.append(Note(title: "Performance metrics", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+//    notebook.notes.append(Note(title: "MMR", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Churn", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "CLV", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "CPM", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+// 
+//        notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+//    notebook.notes.append(Note(title: "Monospaced", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Ubuntu Mono", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Courier", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Courier New", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    
+//    notebook.notes.append(Note(title: "General", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Helvetica", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Roboto", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Audiowide", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Lucida Grande", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Trebuchet MS", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Myriad (iPod)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Garamond", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Merriweather", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Gothem", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Avant Garde (avicii)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Din Light (elevate app)", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    
+//    notebook.notes.append(Note(title: "Default", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+//    notebook.notes.append(Note(title: "Calibri", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Arial", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    notebook.notes.append(Note(title: "Times New Romans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+//    
 
    
     // copy the references to display view
     notebook.display = notebook.notes
     notebook.history.removeAll()
     return notebook
+  }
+  
+  private func log(output:String){
+    if logging {
+      print("notebook: " + output)
+    }
   }
 }
