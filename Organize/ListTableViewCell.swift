@@ -17,7 +17,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   private let titleLabelPadding: CGFloat = Config.buttonPadding
   private let accessoryButtonWidth: CGFloat = Config.buttonHeight
   private let reminderViewWidth: CGFloat = 3
-  private let titleIndentSpace: String = "      "
+  private let titleIndentSpace: String = "       "
   
   weak var delegate: ListTableViewCellDelegate?
   // TODO: figure out why to make a property... swipe gets deinit otherwise

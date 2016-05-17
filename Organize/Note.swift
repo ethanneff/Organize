@@ -32,7 +32,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   var indent: Int = 0
   var reminder: Reminder?
   override var description: String {
-    return "\(title) \(indent)"
+    return "\(title)"
   }
   
   // MARK: - INIT
