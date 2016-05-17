@@ -27,14 +27,12 @@ class Notebook: NSObject, NSCoding, Copying {
     self.history = history
   }
   
-  
   // MARK: - COPY
   required init(original: Notebook) {
     notes = original.notes
     display = original.display
     history = original.history
   }
-  
   
   // MARK: - UNDO
   func undo(tableView tableView: UITableView) {
@@ -70,8 +68,6 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     }
   }
-  
-  
   
   // MARK: - CREATE
   func create(indexPath indexPath: NSIndexPath, tableView: UITableView, note: Note) {
@@ -219,8 +215,7 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     }
   }
-  
-  
+
   // MARK: - COMPLETE
   func complete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
     log("complete")
@@ -465,7 +460,6 @@ class Notebook: NSObject, NSCoding, Copying {
     }
   }
   
-  
   // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
     Util.threadBackground {
@@ -583,12 +577,17 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // note children
       let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, completed: nil)
-      
-      // display children
+      let displayNext = indexPath.row+1 >= self.display.count ? displayParent : self.display[indexPath.row+1]
       var indexPaths: [NSIndexPath] = []
       var children: [Note] = []
       var parent: (found: Bool, indent: Int) = (false, 0)
       for child in noteChildren {
+        // prevent collapse parent, indent below grab
+        if child.note == displayNext {
+          print("AIDONAOIDAIOD")
+          break
+        }
+        
         // don't unindent sub collapsed sections
         if parent.found {
           if child.note.indent > parent.indent {
@@ -608,6 +607,8 @@ class Notebook: NSObject, NSCoding, Copying {
         children.append(child.note)
       }
       
+      
+      // display children
       self.insert(indexPaths: indexPaths, tableView: tableView, data: children.reverse()) {
         self.reload(indexPaths: [indexPath], tableView: tableView) {
           complete()
