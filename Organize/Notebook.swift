@@ -49,7 +49,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func historySave() {
-    print("history save")
+    log("history save")
     // already on background thread
     while history.count >= 20 {
       history.removeFirst()
@@ -105,8 +105,6 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     }
   }
-  
-  
   
   // MARK: - DELETE
   func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
@@ -220,22 +218,23 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - COMPLETE
   func complete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    log("complete")
     Util.threadBackground {
-      // history
-      self.historySave()
-      
       // display parent
       let displayParent = self.display[indexPath.row]
       
+      // early exit
       if displayParent.completed {
         return
       }
       
-      displayParent.completed = true
-      displayParent.reminder = nil
+      // history
+      self.historySave()
       
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
+      noteParent.note.completed = true
+      noteParent.note.reminder = nil
       
       // note child
       var noteChildIndex = self.notes.count
@@ -292,22 +291,22 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncomplete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
-    print("uncomplete")
+    log("uncomplete")
     Util.threadBackground {
-      // history
-      self.historySave()
-      
       // display parent
       let displayParent = self.display[indexPath.row]
       
+      // early exit
       if !displayParent.completed {
         return
       }
       
-      displayParent.completed = false
+      // history
+      self.historySave()
       
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
+      noteParent.note.completed = false
       
       // note child
       var noteChildIndex = self.notes.count
@@ -353,6 +352,7 @@ class Notebook: NSObject, NSCoding, Copying {
         let displayIndexPath = NSIndexPath(forRow: displayInsertIndex, inSection: indexPath.section)
         self.insert(indexPaths: [displayIndexPath], tableView: tableView, data: [displayParent]) {
           let newIndexPath = NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section)
+          print(self.display[newIndexPath.row])
           self.remove(indexPaths: [newIndexPath], tableView: tableView) {
             print(self)
 //            self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
@@ -367,6 +367,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - REORDER
   func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
+    log("reorderBeforeLift")
     Util.threadBackground {
       // history
       self.historySave()
@@ -383,6 +384,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
+    log("reorderDuringMove")
     Util.threadBackground {
       // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
       swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
@@ -394,6 +396,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
+    log("reorderAfterDrop")
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
@@ -463,12 +466,6 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
     Util.threadBackground {
-      // history
-      if let _ = completion {} else {
-        // don't save on complete or reorder because more processing needs to happen first
-        self.historySave()
-      }
-      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -488,7 +485,17 @@ class Notebook: NSObject, NSCoding, Copying {
         complete(children: 0)
       }
       
+      // history
+      if let _ = completion {} else {
+        // don't save on complete or reorder because more processing needs to happen first
+        self.historySave()
+      }
+      
+      // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
+      noteParent.note.collapsed = true
+      
+      // note children
       let next = noteParent.index+1
       if next >= self.notes.count {
         // return collapsing on last note
@@ -502,9 +509,6 @@ class Notebook: NSObject, NSCoding, Copying {
           return
         }
       }
-      
-      // display parent
-      displayParent.collapsed = true
       
       // temp for background threading
       var temp = self.display
@@ -543,11 +547,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
     Util.threadBackground {
-      // history
-      if let _ = completion {} else {
-        self.historySave()
-      }
-      
       // display parent
       let displayParent = self.display[indexPath.row]
       
@@ -568,12 +567,15 @@ class Notebook: NSObject, NSCoding, Copying {
         return
       }
       
-      // display parent
-      displayParent.collapsed = false
-      displayParent.children = 0
+      // history
+      if let _ = completion {} else {
+        self.historySave()
+      }
       
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
+      noteParent.note.collapsed = false
+      noteParent.note.children = 0
       
       // note children
       let noteChildren = self.setNoteChild(noteParent: noteParent, indent: nil, increase: nil, completed: nil)
@@ -613,11 +615,11 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func collapseAll(tableView tableView: UITableView) {
     Util.threadBackground {
-      // history
-      self.historySave()
-      
-      // notes
+      // notes (if statements b/c buttons outside of cells)
       if self.notes.count > 0 {
+        // history
+        self.historySave()
+        
         for i in 0..<self.notes.count {
           let note = self.notes[i]
           // n^2 find children
@@ -749,11 +751,10 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - REMINDER
   func reminder(indexPath indexPath: NSIndexPath, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
     Util.threadBackground {
-      
       // history
       self.historySave()
       
-      
+      // update
       func update(create create: Bool) {
         // display
         self.reload(indexPaths: [indexPath], tableView: tableView) {
@@ -763,7 +764,7 @@ class Notebook: NSObject, NSCoding, Copying {
         }
       }
       
-      // helper functions
+      // create
       func create(note note: Note) {
         // delete and create reminder
         note.reminder = nil
@@ -780,6 +781,7 @@ class Notebook: NSObject, NSCoding, Copying {
         }
       }
       
+      // delete
       func delete(note note: Note) {
         // delete reminder and notification
         note.reminder = nil
@@ -806,8 +808,6 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     }
   }
-  
-  
   
   // MARK: - HELPER METHODS
   private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
