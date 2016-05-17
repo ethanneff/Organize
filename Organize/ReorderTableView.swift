@@ -279,6 +279,7 @@ class ReorderTableView: UITableView {
   private func reorderUpdateCurrentLocation(gesture gesture: UILongPressGestureRecognizer, location: CGPoint ) {
     // reorder the tableview cells on drag
     if let nextIndexPath = indexPathForRowAtPoint(location), let prevIndexPath = reorderPreviousIndexPath {
+      // prevents spamming and fast scrolling bug where the order is incorrect
       if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1  {
         reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath) {
           self.moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
