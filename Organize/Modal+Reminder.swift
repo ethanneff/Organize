@@ -62,6 +62,24 @@ class ModalReminderViewController: UIViewController {
     setupView()
   }
   
+  // MARK: - open
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    Modal.animateIn(modal: modal, background: view, completion: nil)
+    updateSelected()
+  }
+  
+  // MARK: - close
+  private func close(reminderType reminderType: ReminderType) {
+    Modal.animateOut(modal: modal, background: view) {
+      // calls deinit
+      self.dismissViewControllerAnimated(false, completion: nil)
+      if let indexPath = self.indexPath where reminderType != .None {
+        self.delegate?.modalReminderValue(indexPath: indexPath, reminderType: reminderType)
+      }
+    }
+  }
+  
   private func setupView() {
     let buttonOne = createButton(reminderType: ReminderType.Later)
     let buttonTwo = createButton(reminderType: ReminderType.Evening)
@@ -195,11 +213,19 @@ class ModalReminderViewController: UIViewController {
     button.alignImageAndTitleVertically(spacing: 0)
     button.translatesAutoresizingMaskIntoConstraints = false
     
-    if data?.type == reminderType && data?.date.timeIntervalSinceNow > 0  {
-      button.backgroundColor = Config.colorShadow
-    }
-    
     return button
+  }
+  
+  private func updateSelected() {
+    for view in modal.subviews {
+      if let button = view as? UIButton, reminder = ReminderType(rawValue: button.tag) {
+        if data?.type == reminder && data?.date.timeIntervalSinceNow > 0  {
+          button.backgroundColor = Config.colorShadow
+        } else {
+          button.backgroundColor = Config.colorBackground
+        }
+      }
+    }
   }
   
   // MARK: - buttons
@@ -208,22 +234,6 @@ class ModalReminderViewController: UIViewController {
     Util.playSound(systemSound: .Tap)
     if let type = ReminderType(rawValue: button.tag) {
       close(reminderType: type)
-    }
-  }
-  
-  // MARK: - open/close
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-    Modal.animateIn(modal: modal, background: view, completion: nil)
-  }
-  
-  private func close(reminderType reminderType: ReminderType) {
-    Modal.animateOut(modal: modal, background: view) {
-      // calls deinit
-      self.dismissViewControllerAnimated(false, completion: nil)
-      if let indexPath = self.indexPath where reminderType != .None {
-        self.delegate?.modalReminderValue(indexPath: indexPath, reminderType: reminderType)
-      }
     }
   }
 }
