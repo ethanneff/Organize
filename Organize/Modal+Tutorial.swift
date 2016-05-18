@@ -85,9 +85,11 @@ class ModalTutorialViewController: UIViewController {
     progress = createProgress()
     let next = createButton(title: "Next", confirm: true)
     let topSeparator = Modal.createSeparator()
+    let messageSeparator = Modal.createSeparator()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     modal.addSubview(message!)
+    modal.addSubview(messageSeparator)
     modal.addSubview(image!)
     modal.addSubview(progress!)
     modal.addSubview(topSeparator)
@@ -98,17 +100,22 @@ class ModalTutorialViewController: UIViewController {
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
       modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
-      modal.widthAnchor.constraintEqualToConstant(modalWidth),
-      modal.heightAnchor.constraintEqualToConstant(modalHeight),
+      modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: 0.7, constant: 50),
+      modal.heightAnchor.constraintLessThanOrEqualToAnchor(view.heightAnchor, multiplier: 0.6, constant: 100),
       
       message!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       message!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       message!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
       message!.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       
+      messageSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      messageSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      messageSeparator.topAnchor.constraintEqualToAnchor(message!.bottomAnchor, constant: Config.buttonPadding/2),
+      messageSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
+      
       image!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       image!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      image!.topAnchor.constraintEqualToAnchor(message!.bottomAnchor),
+      image!.topAnchor.constraintEqualToAnchor(messageSeparator.bottomAnchor, constant: Config.buttonPadding),
       image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor),
       
       progressTrailingConstraint!,
