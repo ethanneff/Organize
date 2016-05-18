@@ -22,7 +22,6 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   var panGesture: UIPanGestureRecognizer?
   var modalCenterYConstraint: NSLayoutConstraint?
   
-  
   // MARK: - deinit
   deinit {
     dealloc()
@@ -39,6 +38,28 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
     Modal.clear(background: view)
   }
+  
+  
+  // MARK: - open
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    Modal.animateIn(modal: modal, background: view, completion: nil)
+    titleTextView?.text = data?.title
+    titleTextView?.becomeFirstResponder()
+    handleTitlePlaceholderAndCursor()
+  }
+  
+  
+  // MARK: - close
+  private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
+    Modal.animateOut(modal: modal, background: view) {
+      self.dismissViewControllerAnimated(false, completion: nil)
+      if let note = note, create = create, indexPath = self.indexPath where confirm {
+        self.delegate?.modalNoteDetailValue(indexPath: indexPath, note: note, create: create)
+      }
+    }
+  }
+  
   
   // MARK: - create
   override func loadView() {
@@ -67,9 +88,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     let midSeparator = Modal.createSeparator()
     
     titleTextView = createTextView()
-    titleTextView!.becomeFirstResponder()
     titleTextViewPlaceHolder = createPlaceHolderLabel(textView: titleTextView!)
-    handleTitlePlaceholderAndCursor()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
     
@@ -117,7 +136,6 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   private func createTextView() -> UITextView {
     let textView = UITextView()
-    textView.text = data?.title
     textView.tag = 1
     textView.delegate = self
     textView.returnKeyType = .Done
@@ -198,7 +216,6 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
-    
     if text == "\n" {
       textView.resignFirstResponder()
       submitNote(confirm: true)
@@ -211,13 +228,13 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   
-  
   // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
     Util.playSound(systemSound: .Tap)
     submitNote(confirm: Bool(button.tag))
   }
+  
   
   // MARK: - validation
   private func submitNote(confirm confirm: Bool) {
@@ -236,21 +253,5 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     }
     
     close(confirm: false, note: nil, create: nil)
-  }
-  
-  
-  // MARK: - open/close
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-    Modal.animateIn(modal: modal, background: view, completion: nil)
-  }
-  
-  private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
-    Modal.animateOut(modal: modal, background: view) {
-      self.dismissViewControllerAnimated(false, completion: nil)
-      if let note = note, create = create, indexPath = self.indexPath where confirm {
-        self.delegate?.modalNoteDetailValue(indexPath: indexPath, note: note, create: create)
-      }
-    }
   }
 }

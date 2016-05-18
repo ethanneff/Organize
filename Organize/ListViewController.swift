@@ -18,11 +18,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return refreshControl
   }()
   
-  
+  // properties to reload the modals faster (instead of creating each time) - lazy for rare modals
+  let modalNoteDetail: ModalNoteDetailViewController = ModalNoteDetailViewController()
+  lazy var modalReminder: ModalReminderViewController = ModalReminderViewController()
+  lazy var modalDatePicker: ModalDatePickerViewController = ModalDatePickerViewController()
   
   // MARK: - init
   init() {
-    notebook = Notebook.getDefault()
+    //    notebook = Notebook.getDefault()
+    notebook = Notebook(notes: [], display: [], history: [])
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -254,7 +258,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    notebook = Notebook.getDefault()
+    //    notebook = Notebook.getDefault()
+    notebook.display = notebook.notes
     Notebook.set(data: notebook)
     tableView.reloadData()
     refreshControl.endRefreshing()
@@ -332,7 +337,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
       // TODO: v2
-      //      modalUndo()
+      // modalUndo()
     }
   }
   
@@ -340,11 +345,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal date picker
   func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
-    let controller = ModalDatePickerViewController()
-    controller.delegate = self
-    controller.data = notebook.display[indexPath.row].reminder ?? nil
-    controller.indexPath = indexPath
-    modalPresent(controller: controller)
+    modalDatePicker.delegate = self
+    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
+    modalDatePicker.indexPath = indexPath
+    modalPresent(controller: modalDatePicker)
   }
   
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
@@ -355,11 +359,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal reminder
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
-    let controller = ModalReminderViewController()
-    controller.delegate = self
-    controller.data = notebook.display[indexPath.row].reminder ?? nil
-    controller.indexPath = indexPath
-    modalPresent(controller: controller)
+    modalReminder.delegate = self
+    modalReminder.data = notebook.display[indexPath.row].reminder ?? nil
+    modalReminder.indexPath = indexPath
+    modalPresent(controller: modalReminder)
   }
   
   func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType) {
@@ -388,8 +391,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func modalDeleteAll() {
-    modalActionSheetConfirmation(title: "Delete completed") {
-      self.notebook.deleteAll(tableView: self.tableView)
+    if notebook.display.count > 0 {
+      modalActionSheetConfirmation(title: "Delete completed") {
+        self.notebook.deleteAll(tableView: self.tableView)
+      }
     }
   }
   
@@ -440,11 +445,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
-    let controller = ModalNoteDetailViewController()
-    controller.delegate = self
-    controller.indexPath = indexPath
-    controller.data = create ? nil : notebook.display[indexPath.row]
-    modalPresent(controller: controller)
+    modalNoteDetail.delegate = self
+    modalNoteDetail.indexPath = indexPath
+    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
+    modalPresent(controller: modalNoteDetail)
   }
   
   func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool) {
