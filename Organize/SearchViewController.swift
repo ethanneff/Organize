@@ -37,6 +37,5 @@ class SearchViewController: UIViewController {
     scrollView.contentSize = CGSize(width: scrollView.frame.size.width, height: scrollViewHeight)
     
     NSLayoutConstraint.activateConstraints(constraints)
-
   }
 }

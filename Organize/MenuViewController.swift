@@ -58,7 +58,6 @@ class MenuViewController: UIViewController, SettingsDelegate {
     if let rightMenu = rightMenu as? SettingViewController {
       rightMenu.delegate = self
     }
-
   }
   
   // MARK: - buttons

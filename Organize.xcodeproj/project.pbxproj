@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */; };
 		6715F4E21CDBFB1D0002F421 /* Copying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E11CDBFB1D0002F421 /* Copying.swift */; };
 		6715F4E41CDBFBDC0002F421 /* Notebook+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */; };
 		67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67244C841CE3998F0038D343 /* ReorderTableView.swift */; };
@@ -53,6 +54,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Tutorial.swift"; sourceTree = "<group>"; };
 		6715F4E11CDBFB1D0002F421 /* Copying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copying.swift; sourceTree = "<group>"; };
 		6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notebook+History.swift"; sourceTree = "<group>"; };
 		67244C841CE3998F0038D343 /* ReorderTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReorderTableView.swift; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				675037C21CD176570061EC6E /* Modal+DatePicker.swift */,
 				675037C31CD176570061EC6E /* Modal+Reminder.swift */,
 				67299B631CE243660066728E /* Modal+NoteDetail.swift */,
+				670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */,
 			);
 			name = modals;
 			sourceTree = "<group>";
@@ -410,6 +413,7 @@
 				67299B661CE244DA0066728E /* UIScrollView+Config.swift in Sources */,
 				675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */,
 				675038071CD178F30061EC6E /* Access+Business+Logic.swift in Sources */,
+				670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */,
 				675037E51CD176570061EC6E /* ListViewController.swift in Sources */,
 				675037DB1CD176570061EC6E /* Modal.swift in Sources */,
 				675038091CD178F30061EC6E /* SignupViewController.swift in Sources */,

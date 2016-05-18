@@ -1,6 +1,7 @@
 import UIKit
+import MessageUI
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate, MFMailComposeViewControllerDelegate {
   // MARK: - properties
   var notebook: Notebook
   
@@ -133,7 +134,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     // TODO: make shadow same as menu
     button.layer.shadowColor = UIColor.blackColor().CGColor
     button.layer.shadowOffset = CGSizeMake(0, 2)
-    button.layer.shadowOpacity = 0.4
+    button.layer.shadowOpacity = 0.2
     button.layer.shadowRadius = 2
     button.layer.masksToBounds = false
     button.backgroundColor = Config.colorButton
@@ -275,6 +276,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .Collapse: notebook.collapseAll(tableView: tableView)
     case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
     case .Delete: modalDeleteAll()
+    case .Feedback: modalFeedback()
+    case .Tutorial: modalTutorial()
     }
   }
   
@@ -371,6 +374,29 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  // MARK: - modal tutorial
+  private func modalTutorial() {
+    
+  }
+  
+  // MARK: - modal feedback
+  private func modalFeedback() {
+    if MFMailComposeViewController.canSendMail() {
+      let mail = MFMailComposeViewController()
+      mail.mailComposeDelegate = self
+      mail.setToRecipients(["ethan.neff@eneff.com"])
+      mail.setSubject("I have some feedback for your Organize app!")
+      mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
+      presentViewController(mail, animated: true, completion: nil)
+    } else {
+      modalError(title: "Could not send email", message: "Please check your email configuration and try again", completion: nil)
+    }
+  }
+  
+  func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    controller.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
     let controller = ModalNoteDetailViewController()
@@ -394,17 +420,26 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     presentViewController(controller, animated: false, completion: nil)
   }
   
-  private func modalActionSheetConfirmation(title title:String, completion: () -> ()) {
+  private func modalActionSheetConfirmation(title title: String, completion: () -> ()) {
     let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-    let delete = UIAlertAction(title: title, style: .Default) { action in
+    let confirm = UIAlertAction(title: title, style: .Default) { action in
       Util.playSound(systemSound: .BeepBoBoopFailure)
       completion()
     }
     let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
       Util.playSound(systemSound: .Tap)
     }
-    alert.addAction(delete)
+    alert.addAction(confirm)
     alert.addAction(cancel)
+    presentViewController(alert, animated: true, completion:nil)
+  }
+  
+  private func modalError(title title: String, message: String?, completion: (() -> ())?) {
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+    let delete = UIAlertAction(title: "Okay", style: .Default) { action in
+      Util.playSound(systemSound: .BeepBoBoopFailure)
+    }
+    alert.addAction(delete)
     presentViewController(alert, animated: true, completion:nil)
   }
 }

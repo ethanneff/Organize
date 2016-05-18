@@ -1,6 +1,5 @@
 import UIKit
 
-
 protocol SettingsDelegate: class {
   func settingsButtonPressed(button button: SettingViewController.Button)
 }
@@ -19,9 +18,11 @@ class SettingViewController: UIViewController {
     case Collapse
     case Uncollapse
     case Delete
+    case Feedback
+    case Tutorial
     
     static var count: Int {
-      return Delete.hashValue+1
+      return Tutorial.hashValue+1
     }
     
     var title: String {
@@ -29,6 +30,15 @@ class SettingViewController: UIViewController {
       case .Collapse: return "Collapse all"
       case .Uncollapse: return "Expand all"
       case .Delete: return "Delete completed"
+      case .Feedback: return "Send feedback"
+      case .Tutorial: return "Watch tutorial"
+      }
+    }
+    
+    var topAnchorMultiplier: CGFloat {
+      switch self {
+      case .Feedback, .Tutorial: return 1
+      default: return 0
       }
     }
   }
@@ -41,22 +51,23 @@ class SettingViewController: UIViewController {
     let scrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(scrollView)
-
+    
     // buttons
     for i in 0..<Button.count {
-      let info = Button(rawValue: i)
-      let button = UIButton()
-      button.tag = i
-      button.setTitle(info?.title, forState: .Normal)
-      button.setTitleColor(Config.colorButton, forState: .Normal)
-      button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
-      button.translatesAutoresizingMaskIntoConstraints = false
-      scrollView.addSubview(button)
-      
-      constraints.append(button.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
-      constraints.append(button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
-      constraints.append(button.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
-      constraints.append(button.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: CGFloat(i)*Config.buttonHeight+Config.buttonPadding))
+      if let info = Button(rawValue: i) {
+        let button = UIButton()
+        button.tag = i
+        button.setTitle(info.title, forState: .Normal)
+        button.setTitleColor(Config.colorButton, forState: .Normal)
+        button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(button)
+        
+        constraints.append(button.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
+        constraints.append(button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
+        constraints.append(button.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
+        constraints.append(button.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: CGFloat(i)*Config.buttonHeight+Config.buttonPadding+info.topAnchorMultiplier*Config.buttonHeight))
+      }
     }
     
     // scroll view
