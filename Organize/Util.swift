@@ -2,7 +2,6 @@ import UIKit
 import AVFoundation
 
 class Util {
-  
   // multiple story board navigation
   class func navToStoryboard(currentController currentController:UIViewController, storyboard:String) {
     let storyboard = UIStoryboard(name: storyboard, bundle: nil)
@@ -118,7 +117,6 @@ class Util {
       AudioServicesPlaySystemSound(systemSoundID)
     }
   }
-  
   
   // image
   class func imageViewWithColor(image image: UIImage, color: UIColor) -> UIImageView {
