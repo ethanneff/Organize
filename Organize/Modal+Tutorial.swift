@@ -5,10 +5,12 @@ class ModalTutorialViewController: UIViewController {
   let modal: UIView = UIView()
   var message: UILabel?
   var image: UIImageView?
+  var button: UIButton?
   var progress: UIView?
-  var progressTrailingConstraint: NSLayoutConstraint?
+  var progressWidthConstraint: NSLayoutConstraint?
   
   let progressHeight: CGFloat = 3
+  let progressAnimation: Double = 0.4
   let modalWidth: CGFloat = 290
   let modalHeight: CGFloat = 290
   
@@ -46,7 +48,7 @@ class ModalTutorialViewController: UIViewController {
     var image: UIImage {
       switch self {
       case .Complete: return UIImage(named: "shot-complete")!
-      case .Uncomplete: return UIImage(named: "shot-complete")!
+      case .Uncomplete: return UIImage(named: "shot-uncomplete")!
       case .Indent: return UIImage(named: "shot-indent")!
       case .Reminder: return UIImage(named: "shot-reminder")!
       case .Delete: return UIImage(named: "shot-delete")!
@@ -68,7 +70,7 @@ class ModalTutorialViewController: UIViewController {
     message = nil
     image = nil
     progress = nil
-    progressTrailingConstraint = nil
+    progressWidthConstraint = nil
     Modal.clear(background: view)
   }
   
@@ -83,7 +85,7 @@ class ModalTutorialViewController: UIViewController {
     message = createTitle(title: slide.title)
     image = createImageView(image: slide.image)
     progress = createProgress()
-    let next = createButton(title: "Next", confirm: true)
+    button = createButton(title: "Next", confirm: true)
     let topSeparator = Modal.createSeparator()
     let messageSeparator = Modal.createSeparator()
     
@@ -93,9 +95,9 @@ class ModalTutorialViewController: UIViewController {
     modal.addSubview(image!)
     modal.addSubview(progress!)
     modal.addSubview(topSeparator)
-    modal.addSubview(next)
+    modal.addSubview(button!)
     
-    progressTrailingConstraint = progress!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor, constant: -50)
+    progressWidthConstraint = progress!.widthAnchor.constraintGreaterThanOrEqualToAnchor(modal.widthAnchor, multiplier: 0, constant: 0)
     
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
@@ -116,22 +118,22 @@ class ModalTutorialViewController: UIViewController {
       image!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       image!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       image!.topAnchor.constraintEqualToAnchor(messageSeparator.bottomAnchor, constant: Config.buttonPadding),
-      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor),
+      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor, constant: -Config.buttonPadding),
       
-      progressTrailingConstraint!,
+      progressWidthConstraint!,
       progress!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       progress!.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
       progress!.heightAnchor.constraintEqualToConstant(progressHeight),
       
       topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       topSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparator.bottomAnchor.constraintEqualToAnchor(next.topAnchor),
+      topSeparator.bottomAnchor.constraintEqualToAnchor(button!.topAnchor),
       topSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
       
-      next.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      next.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      next.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      next.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      button!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      button!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      button!.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
+      button!.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       ])
   }
   
@@ -163,7 +165,6 @@ class ModalTutorialViewController: UIViewController {
   
   private func createButton(title title: String, confirm: Bool) -> UIButton {
     let button = UIButton()
-    button.tag = Int(confirm)
     button.layer.cornerRadius = Modal.radius
     button.setTitle(title, forState: .Normal)
     button.setTitleColor(Config.colorButton, forState: .Normal)
@@ -177,9 +178,40 @@ class ModalTutorialViewController: UIViewController {
   
   // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
-    print(button.tag)
     Util.animateButtonPress(button: button)
     Util.playSound(systemSound: .Tap)
+    
+    if button.tag >= Slide.count-1 {
+      close()
+      return
+    }
+    if button.tag == Slide.count-2 {
+      button.setTitle("Done", forState: .Normal)
+      button.titleLabel?.font = .boldSystemFontOfSize(Modal.textSize)
+    }
+    
+    changeSlide(button: button)
+  }
+  
+  private func changeSlide(button button: UIButton) {
+    button.tag += 1
+    if let slide = Slide(rawValue: button.tag) {
+      UIView.animateWithDuration(progressAnimation/2, delay: 0.0, options: [.CurveEaseOut], animations: {
+        self.message?.alpha = 0.4
+        self.image?.alpha = 0.4
+        }, completion: { success in
+          self.message?.text = slide.title
+          self.image?.image = slide.image
+          UIView.animateWithDuration(self.progressAnimation/2, delay: 0.0, options: [.CurveEaseOut], animations: {
+            self.message?.alpha = 1
+            self.image?.alpha = 1
+            }, completion: nil)
+      })
+      self.progressWidthConstraint?.constant = CGFloat(button.tag)/CGFloat(Slide.count-1)*self.modal.frame.width
+      UIView.animateWithDuration(progressAnimation, delay: 0, options: [.CurveEaseOut], animations: {
+        self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
   }
   
   // MARK: - open/close
@@ -188,7 +220,7 @@ class ModalTutorialViewController: UIViewController {
     Modal.animateIn(modal: modal, background: view, completion: nil)
   }
   
-  private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
+  private func close() {
     Modal.animateOut(modal: modal, background: view) {
       self.dismissViewControllerAnimated(false, completion: nil)
     }
