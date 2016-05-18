@@ -1,24 +1,62 @@
 import UIKit
 
-
-protocol ModalTutorialDelegate: class {
-  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool)
-  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
-}
-
 class ModalTutorialViewController: UIViewController {
   // MARK: - properties
-  weak var delegate: ModalTutorialDelegate?
-  
   let modal: UIView = UIView()
+  var message: UILabel?
+  var image: UIImageView?
+  var progress: UIView?
+  var progressTrailingConstraint: NSLayoutConstraint?
   
-  var titleTextView: UITextView?
-  var titleTextViewPlaceHolder: UILabel?
+  let progressHeight: CGFloat = 3
   let modalWidth: CGFloat = 290
   let modalHeight: CGFloat = 290
-  var tapGesture: UITapGestureRecognizer?
-  var panGesture: UIPanGestureRecognizer?
-  var modalCenterYConstraint: NSLayoutConstraint?
+  
+  
+  // MARK: - data
+  enum Slide: Int {
+    case Complete
+    case Uncomplete
+    case Indent
+    case Reminder
+    case Delete
+    case Undo
+    case Collapse
+    case Reorder
+    case Edit
+    
+    static var count: Int {
+      return Slide.Edit.hashValue + 1
+    }
+    
+    var title: String {
+      switch self {
+      case .Complete: return "Swipe right to complete"
+      case .Uncomplete: return "Swipe left to uncomplete"
+      case .Indent: return "Swipe right or left to indent"
+      case .Reminder: return "Swipe right to set a reminder"
+      case .Delete: return "Swipe right to delete"
+      case .Undo: return "Shake to undo last action"
+      case .Collapse: return "Double tap to collapse"
+      case .Reorder: return "Hold to reorder"
+      case .Edit: return "Tap to edit or create"
+      }
+    }
+    
+    var image: UIImage {
+      switch self {
+      case .Complete: return UIImage(named: "shot-complete")!
+      case .Uncomplete: return UIImage(named: "shot-complete")!
+      case .Indent: return UIImage(named: "shot-indent")!
+      case .Reminder: return UIImage(named: "shot-reminder")!
+      case .Delete: return UIImage(named: "shot-delete")!
+      case .Undo: return UIImage(named: "shot-undo")!
+      case .Collapse: return UIImage(named: "shot-collapse")!
+      case .Reorder: return UIImage(named: "shot-reorder")!
+      case .Edit: return UIImage(named: "shot-edit")!
+      }
+    }
+  }
   
   
   // MARK: - deinit
@@ -27,13 +65,10 @@ class ModalTutorialViewController: UIViewController {
   }
   
   private func dealloc() {
-    titleTextView = nil
-    titleTextViewPlaceHolder = nil
-    delegate = nil
-    tapGesture = nil
-    panGesture = nil
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+    message = nil
+    image = nil
+    progress = nil
+    progressTrailingConstraint = nil
     Modal.clear(background: view)
   }
   
@@ -43,57 +78,82 @@ class ModalTutorialViewController: UIViewController {
     setupView()
   }
   
- 
   private func setupView() {
-    let yes = createButton(title: Modal.textYes, confirm: true)
-    let no = createButton(title: Modal.textNo, confirm: false)
+    let slide = Slide(rawValue: 0)!
+    message = createTitle(title: slide.title)
+    image = createImageView(image: slide.image)
+    progress = createProgress()
+    let next = createButton(title: "Next", confirm: true)
     let topSeparator = Modal.createSeparator()
-    let midSeparator = Modal.createSeparator()
     
     Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
-    
-    modal.addSubview(titleTextView!)
-    modal.addSubview(yes)
-    modal.addSubview(no)
+    modal.addSubview(message!)
+    modal.addSubview(image!)
+    modal.addSubview(progress!)
     modal.addSubview(topSeparator)
-    modal.addSubview(midSeparator)
+    modal.addSubview(next)
     
-    modalCenterYConstraint = modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor)
+    progressTrailingConstraint = progress!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor, constant: -50)
     
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
-      modalCenterYConstraint!,
+      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
       modal.widthAnchor.constraintEqualToConstant(modalWidth),
       modal.heightAnchor.constraintEqualToConstant(modalHeight),
       
-      titleTextView!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      titleTextView!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      titleTextView!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
-      titleTextView!.heightAnchor.constraintEqualToConstant(Config.buttonHeight*2),
+      message!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      message!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      message!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
+      message!.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       
-      no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
-      no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      no.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      image!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      image!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      image!.topAnchor.constraintEqualToAnchor(message!.bottomAnchor),
+      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor),
       
-      yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
-      yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      yes.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
-      yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
+      progressTrailingConstraint!,
+      progress!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      progress!.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
+      progress!.heightAnchor.constraintEqualToConstant(progressHeight),
       
       topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       topSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparator.bottomAnchor.constraintEqualToAnchor(yes.topAnchor),
+      topSeparator.bottomAnchor.constraintEqualToAnchor(next.topAnchor),
       topSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
       
-      midSeparator.leadingAnchor.constraintEqualToAnchor(no.trailingAnchor),
-      midSeparator.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparator.heightAnchor.constraintEqualToAnchor(no.heightAnchor),
-      midSeparator.widthAnchor.constraintEqualToConstant(Modal.separator),
+      next.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
+      next.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
+      next.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
+      next.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
       ])
   }
-
+  
+  private func createProgress() -> UIView {
+    let view = UIView()
+    view.backgroundColor = Config.colorButton
+    view.translatesAutoresizingMaskIntoConstraints = false
+    return view
+  }
+  
+  private func createTitle(title title: String) -> UILabel {
+    let label = UILabel()
+    label.textAlignment = .Center
+    label.font = .boldSystemFontOfSize(Modal.textSize)
+    label.text = title
+    label.translatesAutoresizingMaskIntoConstraints = false
+    
+    return label
+  }
+  
+  private func createImageView(image image: UIImage) -> UIImageView {
+    let imageView = UIImageView()
+    imageView.image = image
+    imageView.contentMode = .ScaleAspectFit
+    imageView.translatesAutoresizingMaskIntoConstraints = false
+    
+    return imageView
+  }
+  
   private func createButton(title title: String, confirm: Bool) -> UIButton {
     let button = UIButton()
     button.tag = Int(confirm)
@@ -107,10 +167,10 @@ class ModalTutorialViewController: UIViewController {
     
     return button
   }
-
   
   // MARK: - buttons
   internal func buttonPressed(button: UIButton) {
+    print(button.tag)
     Util.animateButtonPress(button: button)
     Util.playSound(systemSound: .Tap)
   }
@@ -124,9 +184,6 @@ class ModalTutorialViewController: UIViewController {
   private func close(confirm confirm: Bool, note: Note?, create: Bool?) {
     Modal.animateOut(modal: modal, background: view) {
       self.dismissViewControllerAnimated(false, completion: nil)
-//      if let note = note, create = create, indexPath = self.indexPath where confirm {
-//        self.delegate?.modalNoteDetailValue(indexPath: indexPath, note: note, create: create)
-//      }
     }
   }
 }

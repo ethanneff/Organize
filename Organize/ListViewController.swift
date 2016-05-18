@@ -376,7 +376,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal tutorial
   private func modalTutorial() {
-    
+    let controller = ModalTutorialViewController()
+    modalPresent(controller: controller)
   }
   
   // MARK: - modal feedback
@@ -384,7 +385,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if MFMailComposeViewController.canSendMail() {
       let mail = MFMailComposeViewController()
       mail.mailComposeDelegate = self
-      mail.setToRecipients(["ethan.neff@eneff.com"])
+      mail.setToRecipients(["ethan-neff@msn.com"])
       mail.setSubject("I have some feedback for your Organize app!")
       mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
       presentViewController(mail, animated: true, completion: nil)
@@ -395,6 +396,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
     controller.dismissViewControllerAnimated(true, completion: nil)
+    switch result.rawValue {
+    case 2: Util.playSound(systemSound: .BeepBoBoopSuccess)
+    default: Util.playSound(systemSound: .BeepBoBoopFailure)
+    }
   }
   
   // MARK: - modal note detail
