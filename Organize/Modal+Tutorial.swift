@@ -3,6 +3,7 @@ import UIKit
 class ModalTutorialViewController: UIViewController {
   // MARK: - properties
   let modal: UIView = UIView()
+  
   var message: UILabel?
   var image: UIImageView?
   var button: UIButton?
@@ -11,9 +12,6 @@ class ModalTutorialViewController: UIViewController {
   
   let progressHeight: CGFloat = 3
   let progressAnimation: Double = 0.4
-  let modalWidth: CGFloat = 290
-  let modalHeight: CGFloat = 290
-  
   
   // MARK: - data
   enum Slide: Int {
