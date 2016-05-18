@@ -122,7 +122,6 @@ class ReorderTableView: UITableView {
       // began
       if let indexPath = indexPathForRowAtPoint(location) {
         reorderNotifyDelegate(notification: .BeforeLift, fromIndexPath: indexPath, toIndexPath: nil) {
-          self.reorderGesturePressed = true
           self.reorderLoopToDetectScrolling()
           self.reorderHandleDelegateIndexChange(gesture: gesture, location: location, indexPath: indexPath)
           
@@ -130,7 +129,9 @@ class ReorderTableView: UITableView {
             self.reorderInitialCellCenter = cell.center
             self.reorderCreateSnapshotCell(cell: cell)
             self.reorderLiftSnapshotCell(location: location, cell: cell)
-            self.reorderNotifyDelegate(notification: .AfterLift, fromIndexPath: indexPath, toIndexPath: previousIndexPath) {}
+            self.reorderNotifyDelegate(notification: .AfterLift, fromIndexPath: indexPath, toIndexPath: previousIndexPath) {
+              self.reorderGesturePressed = true
+            }
           }
         }
       }
@@ -276,11 +277,11 @@ class ReorderTableView: UITableView {
     contentOffset = newOffset
   }
   
-  private func reorderUpdateCurrentLocation(gesture gesture: UILongPressGestureRecognizer, location: CGPoint ) {
+  private func reorderUpdateCurrentLocation(gesture gesture: UILongPressGestureRecognizer, location: CGPoint) {
     // reorder the tableview cells on drag
     if let nextIndexPath = indexPathForRowAtPoint(location), let prevIndexPath = reorderPreviousIndexPath {
       // prevents spamming and fast scrolling bug where the order is incorrect
-      if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1  {
+      if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1 {
         reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath) {
           self.moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
           self.reorderPreviousIndexPath = nextIndexPath

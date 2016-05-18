@@ -20,7 +20,7 @@ class ModalTutorialViewController: UIViewController {
     case Indent
     case Reminder
     case Delete
-//    case Undo
+//    case Undo // TODO: v2
     case Collapse
     case Reorder
     case Edit

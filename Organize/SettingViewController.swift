@@ -31,7 +31,7 @@ class SettingViewController: UIViewController {
       case .Uncollapse: return "Expand all"
       case .Delete: return "Delete completed"
       case .Feedback: return "Send feedback"
-      case .Tutorial: return "Watch tutorial"
+      case .Tutorial: return "View tutorial"
       }
     }
     

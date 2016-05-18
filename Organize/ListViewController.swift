@@ -18,6 +18,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return refreshControl
   }()
   
+  
+  
   // MARK: - init
   init() {
     notebook = Notebook.getDefault()
@@ -54,12 +56,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  
   // MARK: - load
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     // shake
     self.becomeFirstResponder()
   }
+  
   
   
   // MARK: - deinit
@@ -76,13 +80,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
-  func applicationWillResignActiveNotification() {
-  }
+  func applicationWillResignActiveNotification() {}
   
   func applicationDidBecomeActiveNotification() {
     // update reminder icons
     tableView.reloadData()
   }
+  
   
   
   // MARK: - create
@@ -173,10 +177,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.addGestureRecognizer(gestureSingleTap!)
   }
   
+  
+  
   // MARK: - error
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
   }
+  
+  
   
   // MARK: - tableview datasource
   func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -199,6 +207,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return cell
   }
   
+  
+  
   // MARK - cell accessory button
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
@@ -210,6 +220,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
+  
+  
   
   // MARK - swipe
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
@@ -249,9 +261,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  
+  
   // MARK: - reorder
   func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ()) {
     notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView) {
+      completion()
+    }
+  }
+  
+  func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
+    notebook.reorderAfterLift(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath) {
       completion()
     }
   }
@@ -282,6 +302,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
@@ -310,9 +331,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
-//      modalUndo()
+      // TODO: v2
+      //      modalUndo()
     }
   }
+  
+  
   
   // MARK: - modal date picker
   func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
@@ -326,6 +350,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
     createReminder(indexPath: indexPath, type: .Date, date: date)
   }
+  
+  
   
   // MARK: - modal reminder
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
@@ -352,6 +378,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  
   // MARK: - modal delete
   private func modalDelete(indexPath indexPath: NSIndexPath) {
     modalActionSheetConfirmation(title: "Delete") {
@@ -365,6 +393,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  
   // MARK: - modal undo
   private func modalUndo() {
     if notebook.history.count > 0 {
@@ -374,11 +404,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  
   // MARK: - modal tutorial
   private func modalTutorial() {
     let controller = ModalTutorialViewController()
     modalPresent(controller: controller)
   }
+  
+  
   
   // MARK: - modal feedback
   private func modalFeedback() {
@@ -402,6 +436,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
     let controller = ModalNoteDetailViewController()
@@ -418,6 +454,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       notebook.update(indexPath: indexPath, tableView: tableView, note: note)
     }
   }
+  
+  
   
   // MARK: - modal helper functions
   private func modalPresent(controller controller: UIViewController) {

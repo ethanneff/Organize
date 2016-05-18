@@ -8,10 +8,10 @@ class Notebook: NSObject, NSCoding, Copying {
   override var description: String {
     var output: String = notes.description + "\n" + display.description
     output += "\n"
-//    output += " history \n"
-//    for element in history {
-//      output += element.notes.description + "\n" + element.display.description + "\n"
-//    }
+    //    output += " history \n"
+    //    for element in history {
+    //      output += element.notes.description + "\n" + element.display.description + "\n"
+    //    }
     return output
   }
   let logging: Bool = true
@@ -386,20 +386,45 @@ class Notebook: NSObject, NSCoding, Copying {
     }
   }
   
+  func reorderAfterLift(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
+    log("reorderAfterLift")
+    Util.threadBackground {
+      // needed to handle when pulling a collapsed from the bottom and the tableview is shifted upwards
+      func complete() {
+        Util.threadMain {
+          completion()
+        }
+      }
+      
+      if toIndexPath.row == fromIndexPath.row {
+        complete()
+        return
+      }
+      
+      let direction = fromIndexPath.row > toIndexPath.row ? 1 : 0
+      self.display.insert(self.display[fromIndexPath.row], atIndex: toIndexPath.row)
+      self.display.removeAtIndex(fromIndexPath.row+direction)
+      complete()
+    }
+  }
+  
   func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
     log("reorderDuringMove")
-    // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
-    swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
-    // has to be main thread
-    print(self.display)
-    completion()
-    
+    Util.threadBackground  {
+      // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
+      swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
+      // has to be main thread
+      print(self.display)
+      Util.threadMain {
+        completion()
+      }
+    }
   }
   
   func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
     log("reorderAfterDrop")
     
-    print(self)
+    print(self.display[toIndexPath.row])
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
@@ -567,8 +592,11 @@ class Notebook: NSObject, NSCoding, Copying {
         }
       }
       
+      print(displayParent)
+      
       // early exit
       if !displayParent.collapsed {
+        print("early exit")
         complete()
         return
       }
@@ -953,8 +981,14 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - DEFAULT
   static func getDefault() -> Notebook {
+    return loadDefaultTesting()
+  }
+  
+  private static func loadDefaultTesting() -> Notebook {
     // create notebook
     let notebook = Notebook(notes: [])
+    
+    // notes
     notebook.notes.append(Note(title: "0", indent: 0))
     notebook.notes.append(Note(title: "1", indent: 1))
     notebook.notes.append(Note(title: "2", indent: 2))
@@ -976,21 +1010,35 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.notes.append(Note(title: "18", indent: 5))
     notebook.notes.append(Note(title: "19", indent: 4))
     
-    //    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    //    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    //    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    //    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    //    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    //    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    //    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    //    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: true, collapsed: true, children: 0, indent: 1, reminder: nil))
-    //    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    //    notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: true, children: 4, indent: 1, reminder: nil))
-    //    notebook.notes.append(Note(title: "Product Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    //    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    //    notebook.notes.append(Note(title: "San Francisco", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    //    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    // copy the references to display view
+    notebook.display = notebook.notes
     
+    // clear history and reminders
+    notebook.history.removeAll()
+    LocalNotification.sharedInstance.destroy()
+    
+    return notebook
+  }
+  
+  private static func loadDefaultDemo() -> Notebook {
+    // create notebook
+    let notebook = Notebook(notes: [])
+    
+    // notes
+    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: true, collapsed: true, children: 0, indent: 1, reminder: nil))
+    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: true, children: 4, indent: 1, reminder: nil))
+    notebook.notes.append(Note(title: "Product Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    notebook.notes.append(Note(title: "San Francisco", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
     
     // copy the references to display view
     notebook.display = notebook.notes
@@ -999,11 +1047,11 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.history.removeAll()
     LocalNotification.sharedInstance.destroy()
     
-    //    // removed collapsed
-    //    notebook.display.removeAtIndex(13)
-    //    notebook.display.removeAtIndex(12)
-    //    notebook.display.removeAtIndex(11)
-    //    notebook.display.removeAtIndex(10)
+    // removed collapsed
+    notebook.display.removeAtIndex(13)
+    notebook.display.removeAtIndex(12)
+    notebook.display.removeAtIndex(11)
+    notebook.display.removeAtIndex(10)
     
     return notebook
   }
