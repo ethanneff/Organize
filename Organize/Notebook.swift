@@ -14,7 +14,7 @@ class Notebook: NSObject, NSCoding, Copying {
     //    }
     return output
   }
-  let logging: Bool = true
+  let logging: Bool = false
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -414,7 +414,6 @@ class Notebook: NSObject, NSCoding, Copying {
       // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
       swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
       // has to be main thread
-      print(self.display)
       Util.threadMain {
         completion()
       }
@@ -423,8 +422,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
     log("reorderAfterDrop")
-    
-    print(self.display[toIndexPath.row])
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
@@ -592,11 +589,8 @@ class Notebook: NSObject, NSCoding, Copying {
         }
       }
       
-      print(displayParent)
-      
       // early exit
       if !displayParent.collapsed {
-        print("early exit")
         complete()
         return
       }
