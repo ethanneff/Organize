@@ -39,7 +39,6 @@ class ModalDatePickerViewController: UIViewController {
   let modalTitleText: String = "Pick a date"
   let pickerMinuteInterval: Int = 5
   
-  
   // MARK: - deinit
   deinit {
     dealloc()
@@ -51,6 +50,26 @@ class ModalDatePickerViewController: UIViewController {
     Modal.clear(background: view)
   }
   
+  // MARK: - open
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    Modal.animateIn(modal: modal, background: view, completion: nil)
+    updateDefaultDate()
+  }
+  
+  private func updateDefaultDate() {
+    picker.date = data?.date ?? NSDate().dateByAddingTimeInterval(5*60)
+  }
+  
+  // MARK: - close
+  private func close(date date: NSDate?) {
+    Modal.animateOut(modal: modal, background: view) {
+      self.dismissViewControllerAnimated(false, completion: nil)
+      if let date = date, indexPath = self.indexPath {
+        self.delegate?.modalDatePickerValue(indexPath: indexPath, date: date)
+      }
+    }
+  }
   
   // MARK: - create
   override func loadView() {
@@ -74,7 +93,6 @@ class ModalDatePickerViewController: UIViewController {
     
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
-    picker.date = data?.date ?? NSDate().dateByAddingTimeInterval(5*60)
     
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
@@ -131,21 +149,6 @@ class ModalDatePickerViewController: UIViewController {
     switch button.tag {
     case 0: close(date: picker.date)
     default: close(date: nil)
-    }
-  }
-  
-  // MARK: - open/close
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-    Modal.animateIn(modal: modal, background: view, completion: nil)
-  }
-  
-  private func close(date date: NSDate?) {
-    Modal.animateOut(modal: modal, background: view) {
-      self.dismissViewControllerAnimated(false, completion: nil)
-      if let date = date, indexPath = self.indexPath {
-        self.delegate?.modalDatePickerValue(indexPath: indexPath, date: date)
-      }
     }
   }
 }

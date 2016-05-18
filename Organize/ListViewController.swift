@@ -359,10 +359,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal reminder
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
-    modalReminder.delegate = self
-    modalReminder.data = notebook.display[indexPath.row].reminder ?? nil
-    modalReminder.indexPath = indexPath
-    modalPresent(controller: modalReminder)
+    let note = notebook.display[indexPath.row]
+    if !note.completed {
+      modalReminder.delegate = self
+      modalReminder.data = note.reminder ?? nil
+      modalReminder.indexPath = indexPath
+      modalPresent(controller: modalReminder)
+    }
   }
   
   func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType) {
