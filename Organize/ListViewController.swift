@@ -310,7 +310,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
-      modalUndo()
+//      modalUndo()
     }
   }
   

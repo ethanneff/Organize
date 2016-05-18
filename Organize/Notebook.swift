@@ -8,13 +8,13 @@ class Notebook: NSObject, NSCoding, Copying {
   override var description: String {
     var output: String = notes.description + "\n" + display.description
     output += "\n"
-    //    for element in history {
-    //      output += element.notes.description + "\n" + element.display.description + "\n"
-    //    }
-    //
+//    output += " history \n"
+//    for element in history {
+//      output += element.notes.description + "\n" + element.display.description + "\n"
+//    }
     return output
   }
-  let logging: Bool = false
+  let logging: Bool = true
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -104,6 +104,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - DELETE
   func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
+    log("delete")
     Util.threadBackground {
       // history
       self.historySave()
@@ -143,6 +144,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func deleteAll(tableView tableView: UITableView) {
+    log("delete all")
     Util.threadBackground {
       // save
       self.historySave()
@@ -187,6 +189,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
+    log("indent")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -465,6 +468,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
+    log("collapse")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -547,6 +551,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
+    log("uncollapse")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -621,6 +626,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func collapseAll(tableView tableView: UITableView) {
+    log("collapse all")
     Util.threadBackground {
       // notes (if statements b/c buttons outside of cells)
       if self.notes.count > 0 {
@@ -682,6 +688,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncollapseAll(tableView tableView: UITableView) {
+    log("uncollapse all")
     Util.threadBackground {
       if self.notes.count > 0 {
         // history
@@ -757,6 +764,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - REMINDER
   func reminder(indexPath indexPath: NSIndexPath, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
+    log("reminder")
     Util.threadBackground {
       // history
       self.historySave()
@@ -851,6 +859,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - TABLEVIEW AND DISPLAY MODIFICATION
   private func remove(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {
+    log("remove")
     Util.threadMain {
       for indexPath in indexPaths {
         self.display.removeAtIndex(indexPath.row)
@@ -863,6 +872,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func reload(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {
+    log("reload")
     Util.threadMain {
       for indexPath in indexPaths {
         tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
@@ -874,6 +884,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func insert(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, data: [Note], completion: (() -> ())? = nil) {
+    log("insert")
     Util.threadMain {
       for i in 0..<indexPaths.count {
         self.display.insert(data[i], atIndex: indexPaths[i].row)
@@ -923,7 +934,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   static func set(data data: Notebook, completion: ((success: Bool) -> ())? = nil) {
-    print("data save")
+    print("notebook: save")
     print(data)
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), {
       let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(data, toFile: Notebook.ArchiveURL.path!)
@@ -944,43 +955,43 @@ class Notebook: NSObject, NSCoding, Copying {
   static func getDefault() -> Notebook {
     // create notebook
     let notebook = Notebook(notes: [])
-    //    notebook.notes.append(Note(title: "0", indent: 0))
-    //    notebook.notes.append(Note(title: "1", indent: 1))
-    //    notebook.notes.append(Note(title: "2", indent: 2))
-    //    notebook.notes.append(Note(title: "3", indent: 1))
-    //    notebook.notes.append(Note(title: "4", indent: 2))
-    //    notebook.notes.append(Note(title: "5", indent: 3))
-    //    notebook.notes.append(Note(title: "6", indent: 1))
-    //    notebook.notes.append(Note(title: "7", indent: 0))
-    //    notebook.notes.append(Note(title: "8", indent: 1))
-    //    notebook.notes.append(Note(title: "9", indent: 1))
-    //    notebook.notes.append(Note(title: "10", indent: 0))
-    //    notebook.notes.append(Note(title: "11", indent: 1))
-    //    notebook.notes.append(Note(title: "12", indent: 1))
-    //    notebook.notes.append(Note(title: "13", indent: 2))
-    //    notebook.notes.append(Note(title: "14", indent: 3))
-    //    notebook.notes.append(Note(title: "15", indent: 4))
-    //    notebook.notes.append(Note(title: "16", indent: 5))
-    //    notebook.notes.append(Note(title: "17", indent: 6))
-    //    notebook.notes.append(Note(title: "18", indent: 5))
-    //    notebook.notes.append(Note(title: "19", indent: 4))
+    notebook.notes.append(Note(title: "0", indent: 0))
+    notebook.notes.append(Note(title: "1", indent: 1))
+    notebook.notes.append(Note(title: "2", indent: 2))
+    notebook.notes.append(Note(title: "3", indent: 1))
+    notebook.notes.append(Note(title: "4", indent: 2))
+    notebook.notes.append(Note(title: "5", indent: 3))
+    notebook.notes.append(Note(title: "6", indent: 1))
+    notebook.notes.append(Note(title: "7", indent: 0))
+    notebook.notes.append(Note(title: "8", indent: 1))
+    notebook.notes.append(Note(title: "9", indent: 1))
+    notebook.notes.append(Note(title: "10", indent: 0))
+    notebook.notes.append(Note(title: "11", indent: 1))
+    notebook.notes.append(Note(title: "12", indent: 1))
+    notebook.notes.append(Note(title: "13", indent: 2))
+    notebook.notes.append(Note(title: "14", indent: 3))
+    notebook.notes.append(Note(title: "15", indent: 4))
+    notebook.notes.append(Note(title: "16", indent: 5))
+    notebook.notes.append(Note(title: "17", indent: 6))
+    notebook.notes.append(Note(title: "18", indent: 5))
+    notebook.notes.append(Note(title: "19", indent: 4))
     
-    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
-    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: true, collapsed: true, children: 0, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
-    notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: true, children: 4, indent: 1, reminder: nil))
-    notebook.notes.append(Note(title: "Product Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "San Francisco", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
-
-
+    //    notebook.notes.append(Note(title: "Active", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    //    notebook.notes.append(Note(title: "Get groceries", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Sandwich", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    //    notebook.notes.append(Note(title: "Bread", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Jelly", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Bananas", body: nil, completed: false, collapsed: false, children: 0, indent: 2, reminder: nil))
+    //    notebook.notes.append(Note(title: "Finish book", body: nil, completed: false, collapsed: false, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Clean out garage", body: nil, completed: true, collapsed: true, children: 0, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Archive", body: nil, completed: false, collapsed: false, children: 0, indent: 0, reminder: nil))
+    //    notebook.notes.append(Note(title: "Favorite Font Types", body: nil, completed: false, collapsed: true, children: 4, indent: 1, reminder: nil))
+    //    notebook.notes.append(Note(title: "Product Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Open Sans", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "San Francisco", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    //    notebook.notes.append(Note(title: "Helvetica Neue", body: nil, completed: false, collapsed: false, children: 0, indent: 3, reminder: nil))
+    
+    
     // copy the references to display view
     notebook.display = notebook.notes
     
@@ -988,12 +999,12 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.history.removeAll()
     LocalNotification.sharedInstance.destroy()
     
-    // removed collapsed
-    notebook.display.removeAtIndex(13)
-    notebook.display.removeAtIndex(12)
-    notebook.display.removeAtIndex(11)
-    notebook.display.removeAtIndex(10)
-
+    //    // removed collapsed
+    //    notebook.display.removeAtIndex(13)
+    //    notebook.display.removeAtIndex(12)
+    //    notebook.display.removeAtIndex(11)
+    //    notebook.display.removeAtIndex(10)
+    
     return notebook
   }
   
