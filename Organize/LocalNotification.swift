@@ -7,7 +7,7 @@ class LocalNotification {
   static let sharedInstance = LocalNotification()
   
   private let displayTitle: String = "Enable Notifications"
-  private let displayMessage: String = "Would you like to receive scheduled reminders you create within the app?"
+  private let displayMessage: String = "Would you like to get notified of the reminders you create?"
   private let displayButtonYes: String = "Yes"
   private let displayButtonNo: String = "No"
   typealias completionHandler = ((success: Bool) -> ())?

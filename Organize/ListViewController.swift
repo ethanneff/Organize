@@ -301,7 +301,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .Collapse: notebook.collapseAll(tableView: tableView)
     case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
     case .Delete: modalDeleteAll()
-    case .Feedback: modalFeedback()
+    case .Feedback: print(UIApplication.sharedApplication().scheduledLocalNotifications!) // modalFeedback()
     case .Tutorial: modalTutorial()
     }
   }
@@ -310,7 +310,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
-    print(notebook)
     let location = gesture.locationInView(tableView)
     if let indexPath = tableView.indexPathForRowAtPoint(location) {
       modalNoteDetailDisplay(indexPath: indexPath, create: false)

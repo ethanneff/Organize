@@ -14,7 +14,7 @@ class Notebook: NSObject, NSCoding, Copying {
     //    }
     return output
   }
-  let logging: Bool = true
+  let logging: Bool = false
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -846,12 +846,11 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func reminderDelete(note note: Note) {
-    Util.threadBackground {
-      if let reminder = note.reminder {
-        LocalNotification.sharedInstance.delete(uid: reminder.id)
-      }
-      note.reminder = nil
+    // uses the same background thread of parent
+    if let reminder = note.reminder {
+      LocalNotification.sharedInstance.delete(uid: reminder.id)
     }
+    note.reminder = nil
   }
   
   
