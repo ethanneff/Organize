@@ -301,7 +301,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .Collapse: notebook.collapseAll(tableView: tableView)
     case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
     case .Delete: modalDeleteAll()
-    case .Feedback: print(UIApplication.sharedApplication().scheduledLocalNotifications!) // modalFeedback()
+    case .Feedback: modalFeedback()
     case .Tutorial: modalTutorial()
     }
   }
