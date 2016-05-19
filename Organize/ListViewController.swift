@@ -260,8 +260,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     //    notebook = Notebook.getDefault()
     notebook.display = notebook.notes
-    Notebook.set(data: notebook)
     tableView.reloadData()
+    notebook.uncollapseAll(tableView: tableView)
     refreshControl.endRefreshing()
   }
   
