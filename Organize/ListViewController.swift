@@ -23,10 +23,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   lazy var modalReminder: ModalReminderViewController = ModalReminderViewController()
   lazy var modalDatePicker: ModalDatePickerViewController = ModalDatePickerViewController()
   
+  
+  
   // MARK: - init
   init() {
-    //    notebook = Notebook.getDefault()
-    notebook = Notebook(notes: [], display: [], history: [])
+    if Config.release {
+      notebook = Notebook(notes: [], display: [], history: [])
+    } else {
+      notebook = Notebook.getDefault()
+    }
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -258,8 +263,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    //    notebook = Notebook.getDefault()
-    notebook.display = notebook.notes
+    if Config.release {
+      notebook.display = notebook.notes
+    } else {
+      notebook = Notebook.getDefault()
+    }
+    // TODO: do i need reloadData? (maybe if changing display to equal notes)
     tableView.reloadData()
     notebook.uncollapseAll(tableView: tableView)
     refreshControl.endRefreshing()
