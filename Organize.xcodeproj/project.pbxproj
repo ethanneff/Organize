@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */; };
+		670963071CEE3DD60043D2A5 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963061CEE3DD60043D2A5 /* AppState.swift */; };
 		6715F4E21CDBFB1D0002F421 /* Copying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E11CDBFB1D0002F421 /* Copying.swift */; };
 		6715F4E41CDBFBDC0002F421 /* Notebook+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */; };
 		67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67244C841CE3998F0038D343 /* ReorderTableView.swift */; };
@@ -55,6 +56,7 @@
 
 /* Begin PBXFileReference section */
 		670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Tutorial.swift"; sourceTree = "<group>"; };
+		670963061CEE3DD60043D2A5 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		6715F4E11CDBFB1D0002F421 /* Copying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copying.swift; sourceTree = "<group>"; };
 		6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notebook+History.swift"; sourceTree = "<group>"; };
 		67244C841CE3998F0038D343 /* ReorderTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReorderTableView.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 			children = (
 				675037D41CD176570061EC6E /* Util.swift */,
 				675037F01CD176600061EC6E /* Config.swift */,
+				670963061CEE3DD60043D2A5 /* AppState.swift */,
 				675037CC1CD176570061EC6E /* UIButton+Config.swift */,
 				675037CD1CD176570061EC6E /* UIColor+Config.swift */,
 				675037CE1CD176570061EC6E /* UINavigationController+Config.swift */,
@@ -416,6 +419,7 @@
 				670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */,
 				675037E51CD176570061EC6E /* ListViewController.swift in Sources */,
 				675037DB1CD176570061EC6E /* Modal.swift in Sources */,
+				670963071CEE3DD60043D2A5 /* AppState.swift in Sources */,
 				675038091CD178F30061EC6E /* SignupViewController.swift in Sources */,
 				675038061CD178F30061EC6E /* Access+Setup.swift in Sources */,
 				675038051CD178F30061EC6E /* AccessNavigationController.swift in Sources */,

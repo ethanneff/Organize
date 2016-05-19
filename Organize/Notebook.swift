@@ -981,7 +981,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - DEFAULT
   static func getDefault() -> Notebook {
-    return loadDefaultTesting()
+    return loadDefaultDemo()
   }
   
   private static func loadDefaultTesting() -> Notebook {
