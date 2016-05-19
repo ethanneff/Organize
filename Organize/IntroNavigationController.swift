@@ -13,7 +13,10 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-    displayController(navController: MenuNavigationController())
+//    Util.delay(Config.appLoadingDelay) {
+//      self.displayController(navController: MenuNavigationController())
+//    }
+    
     
     //    User.get(completion: { user in
     //      if user == nil {
