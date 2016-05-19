@@ -54,13 +54,9 @@ class ModalDatePickerViewController: UIViewController {
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
     Modal.animateIn(modal: modal, background: view, completion: nil)
-    updateDefaultDate()
+    picker.minimumDate = NSDate().dateByAddingTimeInterval(5*60)
   }
-  
-  private func updateDefaultDate() {
-    picker.date = data?.date ?? NSDate().dateByAddingTimeInterval(5*60)
-  }
-  
+
   // MARK: - close
   private func close(date date: NSDate?) {
     Modal.animateOut(modal: modal, background: view) {
@@ -93,7 +89,7 @@ class ModalDatePickerViewController: UIViewController {
     
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
-    
+  
     NSLayoutConstraint.activateConstraints([
       modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
       modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
@@ -127,7 +123,7 @@ class ModalDatePickerViewController: UIViewController {
       midSeparator.widthAnchor.constraintEqualToConstant(Modal.separator),
       ])
   }
-
+  
   private func createButton(title title: String, bold: Bool) -> UIButton {
     let button = UIButton()
     button.tag = Int(bold)

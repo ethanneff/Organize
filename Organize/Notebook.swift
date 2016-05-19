@@ -14,7 +14,7 @@ class Notebook: NSObject, NSCoding, Copying {
     //    }
     return output
   }
-  let logging: Bool = false
+  let logging: Bool = true
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -787,62 +787,70 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - REMINDER
   func reminder(indexPath indexPath: NSIndexPath, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
     log("reminder")
+    print(date)
     Util.threadBackground {
       // history
       self.historySave()
       
-      // update
-      func update(create create: Bool) {
-        // display
-        self.reload(indexPaths: [indexPath], tableView: tableView) {
-          // save
-          Notebook.set(data: self)
-          completion(success: true, create: create)
-        }
-      }
-      
       // create
       func create(note note: Note) {
-        // delete and create reminder
-        note.reminder = nil
+        // create
         note.reminder = Reminder(type: reminderType, date: date)
-        
-        // create notification
-        LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: date, soundName: nil, uid: note.reminder!.id) { success in
-          if success {
-            update(create: true)
-          } else {
-            note.reminder = nil
-            completion(success: success, create: true)
+        print(note.reminder)
+        // notification
+        LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: note.reminder!.date, soundName: nil, uid: note.reminder!.id) { success in
+          print(success)
+          if !success {
+            delete(note: note)
           }
+          complete(success: success, create: true)
         }
       }
       
       // delete
       func delete(note note: Note) {
-        // delete reminder and notification
+        if let reminder = note.reminder {
+          LocalNotification.sharedInstance.delete(uid: reminder.id)
+        }
         note.reminder = nil
-        update(create: false)
       }
       
-      // reminder
+      // complete
+      func complete(success success: Bool, create: Bool) {
+        // update
+        self.reload(indexPaths: [indexPath], tableView: tableView) {
+          // save
+          Notebook.set(data: self)
+          completion(success: success, create: create)
+        }
+      }
+      
+      // logic
       let note = self.display[indexPath.row]
-      if let reminder = note.reminder where reminderType == reminder.type {
-        // has same reminder
-        if reminderType != .Date {
+      if reminderType == .Date {
+        if date != nil {
           delete(note: note)
+          create(note: note)
         } else {
-          // remove same date
-          if reminder.date == date {
-            delete(note: note)
-          } else {
-            create(note: note)
-          }
+          delete(note: note)
+          complete(success: true, create: false)
         }
       } else {
-        // has no reminder
-        create(note: note)
+        if let reminder = note.reminder {
+          if reminderType != reminder.type {
+            delete(note: note)
+            create(note: note)
+          } else {
+            delete(note: note)
+            complete(success: true, create: false)
+          }
+        } else {
+          delete(note: note)
+          create(note: note)
+        }
       }
+  
+      print(UIApplication.sharedApplication().scheduledLocalNotifications!)
     }
   }
   
@@ -956,8 +964,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   static func set(data data: Notebook, completion: ((success: Bool) -> ())? = nil) {
-    print("notebook: save")
-    print(data)
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), {
       let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(data, toFile: Notebook.ArchiveURL.path!)
       if !isSuccessfulSave {

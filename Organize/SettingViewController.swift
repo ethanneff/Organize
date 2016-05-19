@@ -80,7 +80,6 @@ class SettingViewController: UIViewController {
     NSLayoutConstraint.activateConstraints(constraints)
   }
   
-  
   func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)

@@ -300,9 +300,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     switch button {
     case .Collapse: notebook.collapseAll(tableView: tableView)
     case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .Delete: modalDeleteAll()
-    case .Feedback: modalFeedback()
-    case .Tutorial: modalTutorial()
+    case .Delete:
+      modalDeleteAll()
+    case .Feedback:
+      print(UIApplication.sharedApplication().scheduledLocalNotifications!)
+    //      modalFeedback()
+    case .Tutorial:
+      LocalNotification.sharedInstance.destroy()
+      //      modalTutorial()
     }
   }
   
@@ -342,21 +347,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  
-  // MARK: - modal date picker
-  func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
-    modalDatePicker.delegate = self
-    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
-    modalDatePicker.indexPath = indexPath
-    modalPresent(controller: modalDatePicker)
-  }
-  
-  func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
-    createReminder(indexPath: indexPath, type: .Date, date: date)
-  }
-  
-  
-  
   // MARK: - modal reminder
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
     let note = notebook.display[indexPath.row]
@@ -370,10 +360,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType) {
     if reminderType == .Date {
-      modalDatePickerDisplay(indexPath: indexPath)
-      return
+      if let reminder = notebook.display[indexPath.row].reminder where reminder.type == .Date {
+        createReminder(indexPath: indexPath, type: reminderType, date: nil)
+      } else {
+        modalDatePickerDisplay(indexPath: indexPath)
+      }
+    } else {
+      createReminder(indexPath: indexPath, type: reminderType, date: nil)
     }
-    createReminder(indexPath: indexPath, type: reminderType, date: nil)
   }
   
   private func createReminder(indexPath indexPath: NSIndexPath, type: ReminderType, date: NSDate?) {
@@ -383,6 +377,21 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
+  
+  
+  
+  // MARK: - modal date picker
+  func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
+    modalDatePicker.delegate = self
+    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
+    modalDatePicker.indexPath = indexPath
+    modalPresent(controller: modalDatePicker)
+  }
+  
+  func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
+    createReminder(indexPath: indexPath, type: .Date, date: date)
+  }
+  
   
   
   
