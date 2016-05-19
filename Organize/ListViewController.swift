@@ -300,14 +300,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     switch button {
     case .Collapse: notebook.collapseAll(tableView: tableView)
     case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .Delete:
-      modalDeleteAll()
-    case .Feedback:
-      print(UIApplication.sharedApplication().scheduledLocalNotifications!)
-    //      modalFeedback()
-    case .Tutorial:
-      LocalNotification.sharedInstance.destroy()
-      //      modalTutorial()
+    case .Delete: modalDeleteAll()
+    case .Feedback: modalFeedback()
+    case .Tutorial: modalTutorial()
     }
   }
   
@@ -315,6 +310,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
+    print(notebook)
     let location = gesture.locationInView(tableView)
     if let indexPath = tableView.indexPathForRowAtPoint(location) {
       modalNoteDetailDisplay(indexPath: indexPath, create: false)
@@ -335,6 +331,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  // MARK: - shake
   override func canBecomeFirstResponder() -> Bool {
     return true
   }

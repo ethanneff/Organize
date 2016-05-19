@@ -112,10 +112,10 @@ class Notebook: NSObject, NSCoding, Copying {
       // display parent
       let displayParent = self.display[indexPath.row]
       
-      if displayParent.collapsed {
-        // note parent
-        let noteParent = self.getNoteParent(displayParent: displayParent)
-        
+      // note parent
+      let noteParent = self.getNoteParent(displayParent: displayParent)
+      
+      if noteParent.note.collapsed {
         // while because removing
         while true {
           let next = noteParent.index+1
@@ -128,12 +128,16 @@ class Notebook: NSObject, NSCoding, Copying {
           if noteChild.indent <= noteParent.note.indent {
             break
           }
+          
+          // remove
+          self.reminderDelete(note: self.notes[next])
           self.notes.removeAtIndex(next)
         }
       }
       
       // note parent
-      self.notes.removeAtIndex(indexPath.row)
+      self.reminderDelete(note: noteParent.note)
+      self.notes.removeAtIndex(noteParent.index)
       
       // display parent
       self.remove(indexPaths: [indexPath], tableView: tableView) {
@@ -157,6 +161,7 @@ class Notebook: NSObject, NSCoding, Copying {
         }
         let note = self.notes[index]
         if note.completed {
+          self.reminderDelete(note: self.notes[index])
           self.notes.removeAtIndex(index)
           continue
         }
@@ -237,7 +242,7 @@ class Notebook: NSObject, NSCoding, Copying {
       // note parent
       let noteParent = self.getNoteParent(displayParent: displayParent)
       noteParent.note.completed = true
-      noteParent.note.reminder = nil
+      self.reminderDelete(note: noteParent.note)
       
       // note child
       var noteChildIndex = self.notes.count
@@ -248,7 +253,7 @@ class Notebook: NSObject, NSCoding, Copying {
           break
         }
         noteChild.completed = true
-        noteChild.reminder = nil
+        self.reminderDelete(note: noteChild)
       }
       
       // note insert
@@ -786,8 +791,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - REMINDER
   func reminder(indexPath indexPath: NSIndexPath, controller: UIViewController, tableView: UITableView, reminderType: ReminderType, date: NSDate?, completion: (success: Bool, create: Bool) -> ()) {
-    log("reminder")
-    print(date)
     Util.threadBackground {
       // history
       self.historySave()
@@ -796,23 +799,13 @@ class Notebook: NSObject, NSCoding, Copying {
       func create(note note: Note) {
         // create
         note.reminder = Reminder(type: reminderType, date: date)
-        print(note.reminder)
         // notification
         LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: note.reminder!.date, soundName: nil, uid: note.reminder!.id) { success in
-          print(success)
           if !success {
-            delete(note: note)
+            self.reminderDelete(note: note)
           }
           complete(success: success, create: true)
         }
-      }
-      
-      // delete
-      func delete(note note: Note) {
-        if let reminder = note.reminder {
-          LocalNotification.sharedInstance.delete(uid: reminder.id)
-        }
-        note.reminder = nil
       }
       
       // complete
@@ -829,30 +822,38 @@ class Notebook: NSObject, NSCoding, Copying {
       let note = self.display[indexPath.row]
       if reminderType == .Date {
         if date != nil {
-          delete(note: note)
+          self.reminderDelete(note: note)
           create(note: note)
         } else {
-          delete(note: note)
+          self.reminderDelete(note: note)
           complete(success: true, create: false)
         }
       } else {
         if let reminder = note.reminder {
           if reminderType != reminder.type {
-            delete(note: note)
+            self.reminderDelete(note: note)
             create(note: note)
           } else {
-            delete(note: note)
+            self.reminderDelete(note: note)
             complete(success: true, create: false)
           }
         } else {
-          delete(note: note)
+          self.reminderDelete(note: note)
           create(note: note)
         }
       }
-  
-      print(UIApplication.sharedApplication().scheduledLocalNotifications!)
     }
   }
+  
+  private func reminderDelete(note note: Note) {
+    Util.threadBackground {
+      if let reminder = note.reminder {
+        LocalNotification.sharedInstance.delete(uid: reminder.id)
+      }
+      note.reminder = nil
+    }
+  }
+  
   
   // MARK: - HELPER METHODS
   private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
