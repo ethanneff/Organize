@@ -1,6 +1,5 @@
 import UIKit
 
-
 protocol ModalNoteDetailDelegate: class {
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool)
   func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
@@ -16,11 +15,11 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   var titleTextView: UITextView?
   var titleTextViewPlaceHolder: UILabel?
-  let modalWidth: CGFloat = 290
-  let modalHeight: CGFloat = 140
+  let modalPadding: CGFloat = 25
+  var modalBottomConstraint: NSLayoutConstraint?
   var tapGesture: UITapGestureRecognizer?
   var panGesture: UIPanGestureRecognizer?
-  var modalCenterYConstraint: NSLayoutConstraint?
+  
   
   // MARK: - deinit
   deinit {
@@ -46,6 +45,10 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     Modal.animateIn(modal: modal, background: view, completion: nil)
     titleTextView?.text = data?.title
     titleTextView?.becomeFirstResponder()
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
     handleTitlePlaceholderAndCursor()
   }
   
@@ -98,13 +101,13 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     modal.addSubview(topSeparator)
     modal.addSubview(midSeparator)
     
-    modalCenterYConstraint = modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor)
+    modalBottomConstraint = modal.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -modalPadding)
     
     NSLayoutConstraint.activateConstraints([
-      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
-      modalCenterYConstraint!,
-      modal.widthAnchor.constraintEqualToConstant(modalWidth),
-      modal.heightAnchor.constraintEqualToConstant(modalHeight),
+      modalBottomConstraint!,
+      modal.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: modalPadding),
+      modal.widthAnchor.constraintGreaterThanOrEqualToAnchor(view.widthAnchor, multiplier: 0.6, constant: modalPadding*4),
+      modal.centerXAnchor.constraintLessThanOrEqualToAnchor(view.centerXAnchor),
       
       titleTextView!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       titleTextView!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -150,11 +153,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   private func createPlaceHolderLabel(textView textView: UITextView) -> UILabel {
     let label = UILabel()
     label.text = "Title"
-    let labelWidth = label.intrinsicContentSize().width
-    let textViewTextSize = textView.font!.pointSize
     label.font = .boldSystemFontOfSize(textView.font!.pointSize)
     label.sizeToFit()
-    label.frame.origin = CGPointMake(modalWidth/2-labelWidth/2, textViewTextSize/2)
     label.textColor = Config.colorBorder
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
@@ -177,6 +177,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     return button
   }
   
+  
   // MARK: - gestures
   func tapPressed(gesture: UITapGestureRecognizer) {
     view.endEditing(true)
@@ -189,16 +190,27 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   
   // MARK: - keybaord
   func keyboardWillShow(notification: NSNotification) {
-    moveModalWithKeyboard(constant: -85)
+    moveModalWithKeyboard(constant: -keyboardHeight(notification: notification)-modalPadding)
   }
   
   func keyboardWillHide(notification: NSNotification) {
-    moveModalWithKeyboard(constant: 0)
+    moveModalWithKeyboard(constant: -modalPadding)
+  }
+  
+  private func keyboardHeight(notification notification: NSNotification) -> CGFloat {
+    if let info  = notification.userInfo, let value  = info[UIKeyboardFrameEndUserInfoKey] {
+      let rawFrame = value.CGRectValue
+      let keyboardFrame = view.convertRect(rawFrame, fromView: nil)
+      return keyboardFrame.height
+    }
+    return 0
   }
   
   private func moveModalWithKeyboard(constant constant: CGFloat) {
-    modalCenterYConstraint?.constant = constant
-    view.layoutIfNeeded()
+    modalBottomConstraint?.constant = constant
+    UIView.animateWithDuration(0.3) {
+      self.view.layoutIfNeeded()
+    }
   }
   
   func textViewDidChange(textView: UITextView) {
@@ -210,6 +222,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
       let labelWidth = placeholder.intrinsicContentSize().width
       let textViewTextSize = title.font!.pointSize
       
+      placeholder.frame.origin = CGPointMake(modal.frame.width/2-labelWidth/2, textViewTextSize/2)
       placeholder.hidden = !title.text.isEmpty
       title.textContainerInset = title.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:labelWidth+textViewTextSize/4, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
     }
