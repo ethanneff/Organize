@@ -486,25 +486,29 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func modalActionSheetConfirmation(title title: String, completion: () -> ()) {
-    let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-    let confirm = UIAlertAction(title: title, style: .Default) { action in
-      Util.playSound(systemSound: .BeepBoBoopFailure)
-      completion()
+    Util.threadMain {
+      let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
+      let confirm = UIAlertAction(title: title, style: .Default) { action in
+        Util.playSound(systemSound: .BeepBoBoopFailure)
+        completion()
+      }
+      let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
+        Util.playSound(systemSound: .Tap)
+      }
+      alert.addAction(confirm)
+      alert.addAction(cancel)
+      self.presentViewController(alert, animated: true, completion:nil)
     }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
-      Util.playSound(systemSound: .Tap)
-    }
-    alert.addAction(confirm)
-    alert.addAction(cancel)
-    presentViewController(alert, animated: true, completion:nil)
   }
   
   private func modalError(title title: String, message: String?, completion: (() -> ())?) {
-    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-    let delete = UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .BeepBoBoopFailure)
+    Util.threadMain {
+      let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+      let delete = UIAlertAction(title: "Okay", style: .Default) { action in
+        Util.playSound(systemSound: .BeepBoBoopFailure)
+      }
+      alert.addAction(delete)
+      self.presentViewController(alert, animated: true, completion:nil)
     }
-    alert.addAction(delete)
-    presentViewController(alert, animated: true, completion:nil)
   }
 }

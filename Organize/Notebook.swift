@@ -178,7 +178,10 @@ class Notebook: NSObject, NSCoding, Copying {
         indexPaths.insert(indexPath, atIndex: 0)
       }
     }
+    
+    // remove
     self.remove(indexPaths: indexPaths, tableView: tableView) {
+      // save
       Notebook.set(data: self)
     }
   }
