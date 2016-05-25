@@ -45,7 +45,7 @@ class SettingViewController: UIViewController {
   
   private func setupView() {
     var constraints: [NSLayoutConstraint] = []
-    view.backgroundColor = Config.colorBackground
+    view.backgroundColor = Constant.Color.background
     
     // scroll view
     let scrollView = UIScrollView()
@@ -58,15 +58,15 @@ class SettingViewController: UIViewController {
         let button = UIButton()
         button.tag = i
         button.setTitle(info.title, forState: .Normal)
-        button.setTitleColor(Config.colorButton, forState: .Normal)
+        button.setTitleColor(Constant.Color.button, forState: .Normal)
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(button)
         
         constraints.append(button.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
         constraints.append(button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
-        constraints.append(button.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
-        constraints.append(button.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: CGFloat(i)*Config.buttonHeight+Config.buttonPadding+info.topAnchorMultiplier*Config.buttonHeight))
+        constraints.append(button.heightAnchor.constraintEqualToConstant(Constant.Button.height))
+        constraints.append(button.topAnchor.constraintEqualToAnchor(view.topAnchor, constant: CGFloat(i)*Constant.Button.height+Constant.Button.padding+info.topAnchorMultiplier*Constant.Button.height))
       }
     }
     

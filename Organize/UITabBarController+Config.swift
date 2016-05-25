@@ -6,7 +6,7 @@ extension UITabBarController {
     super.viewDidLoad()
     // color
     tabBar.backgroundImage = UIImage()
-    tabBar.backgroundColor = Config.colorBackground
-    tabBar.tintColor = Config.colorButton
+    tabBar.backgroundColor = Constant.Color.background
+    tabBar.tintColor = Constant.Color.button
   }
 }

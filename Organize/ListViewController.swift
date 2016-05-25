@@ -14,7 +14,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   lazy var refreshControl: UIRefreshControl = {
     let refreshControl = UIRefreshControl()
     refreshControl.addTarget(self, action: #selector(tableViewRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
-    refreshControl.tintColor = Config.colorBorder
+    refreshControl.tintColor = Constant.Color.border
     return refreshControl
   }()
   
@@ -27,7 +27,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - init
   init() {
-    if Config.release {
+    if Constant.App.release {
       notebook = Notebook(notes: [], display: [], history: [])
     } else {
       notebook = Notebook.getDefault()
@@ -117,12 +117,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.addSubview(refreshControl)
     
     // color
-    tableView.backgroundColor = Config.colorBackground
+    tableView.backgroundColor = Constant.Color.background
     
     // borders
     tableView.contentInset = UIEdgeInsetsZero
     tableView.separatorInset = UIEdgeInsetsZero
-    tableView.separatorColor = Config.colorBorder
+    tableView.separatorColor = Constant.Color.border
     tableView.scrollIndicatorInsets = UIEdgeInsetsZero
     tableView.layoutMargins = UIEdgeInsetsZero
     tableView.tableFooterView = UIView(frame: CGRect.zero)
@@ -139,9 +139,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func createAddButton() {
     let button = UIButton()
-    let buttonSize = Config.buttonHeight*1.33
+    let buttonSize = Constant.Button.height*1.33
     let image = UIImage(named: "icon-add")!
-    let imageView = Util.imageViewWithColor(image: image, color: Config.colorBackground)
+    let imageView = Util.imageViewWithColor(image: image, color: Constant.Color.background)
     view.addSubview(button)
     button.layer.cornerRadius = buttonSize/2
     // TODO: make shadow same as menu
@@ -150,15 +150,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     button.layer.shadowOpacity = 0.2
     button.layer.shadowRadius = 2
     button.layer.masksToBounds = false
-    button.backgroundColor = Config.colorButton
-    button.tintColor = Config.colorBackground
+    button.backgroundColor = Constant.Color.button
+    button.tintColor = Constant.Color.background
     button.setImage(imageView.image, forState: .Normal)
     button.setImage(imageView.image, forState: .Highlighted)
     button.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activateConstraints([
-      button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor, constant: -Config.buttonPadding*2),
-      button.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -Config.buttonPadding*2),
+      button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor, constant: -Constant.Button.padding*2),
+      button.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -Constant.Button.padding*2),
       button.heightAnchor.constraintEqualToConstant(buttonSize),
       button.widthAnchor.constraintEqualToConstant(buttonSize),
       ])
@@ -263,7 +263,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    if Config.release {
+    if Constant.App.release {
       notebook.display = notebook.notes
     } else {
       notebook = Notebook.getDefault()

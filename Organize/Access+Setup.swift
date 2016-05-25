@@ -59,9 +59,9 @@ class AccessSetup {
   
   private static func createController(controller controller: UIViewController) {
     // prevent flash of gray when transitioning between controllers
-    controller.view.backgroundColor = Config.colorBackground
+    controller.view.backgroundColor = Constant.Color.background
     // add navigation title
-    controller.navigationItem.title = Config.appName
+    controller.navigationItem.title = Constant.App.name
     // remove back button text
     controller.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
   }
@@ -69,7 +69,7 @@ class AccessSetup {
   private static func createTextField(textField textField: UITextField, title: String, view: UIView, topAnchor: NSLayoutYAxisAnchor, type: KeyboardType) -> [NSLayoutConstraint] {
     textField.placeholder = title
     textField.borderStyle = .RoundedRect
-    textField.tintColor = Config.colorButton
+    textField.tintColor = Constant.Color.button
     textField.keyboardType = type == .Email ? .EmailAddress : .Default
     textField.returnKeyType = .Next
     textField.secureTextEntry = type == .Password ? true : false
@@ -87,9 +87,9 @@ class AccessSetup {
     button.setTitle(title, forState: .Normal)
     button.layer.cornerRadius = 5
     button.clipsToBounds = true
-    button.backgroundColor = Config.colorButton
-    button.setBackgroundImage(Config.colorButton.image, forState: .Normal)
-    button.setBackgroundImage(Config.colorShadow.image, forState: .Highlighted)
+    button.backgroundColor = Constant.Color.button
+    button.setBackgroundImage(Constant.Color.button.image, forState: .Normal)
+    button.setBackgroundImage(Constant.Color.shadow.image, forState: .Highlighted)
     button.translatesAutoresizingMaskIntoConstraints = false
     
     return [
@@ -102,10 +102,10 @@ class AccessSetup {
   
   private static func createLink(button button: UIButton, title: String, view: UIView, align: UIControlContentHorizontalAlignment, topAnchor: NSLayoutYAxisAnchor, leadingAnchor: NSLayoutXAxisAnchor, trailingAnchor: NSLayoutXAxisAnchor, widthAnchor: NSLayoutDimension) -> [NSLayoutConstraint] {
     button.setTitle(title, forState: .Normal)
-    button.backgroundColor = Config.colorBackground
+    button.backgroundColor = Constant.Color.background
     button.contentHorizontalAlignment = align
-    button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorShadow, forState: .Highlighted)
+    button.setTitleColor(Constant.Color.button, forState: .Normal)
+    button.setTitleColor(Constant.Color.shadow, forState: .Highlighted)
     button.translatesAutoresizingMaskIntoConstraints = false
     
     return [

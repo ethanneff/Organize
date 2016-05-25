@@ -98,18 +98,18 @@ class ModalDatePickerViewController: UIViewController {
       
       picker.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       picker.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      picker.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonHeight),
+      picker.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.height),
       picker.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
       
       no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
       no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      no.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      no.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       
       yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
       yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      yes.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      yes.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
       
       topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -129,8 +129,8 @@ class ModalDatePickerViewController: UIViewController {
     button.tag = Int(bold)
     button.layer.cornerRadius = Modal.radius
     button.setTitle(title, forState: .Normal)
-    button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
+    button.setTitleColor(Constant.Color.button, forState: .Normal)
+    button.setTitleColor(Constant.Color.border, forState: .Highlighted)
     button.titleLabel?.font = bold ? .boldSystemFontOfSize(Modal.textSize) : .systemFontOfSize(Modal.textSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false

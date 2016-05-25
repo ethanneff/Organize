@@ -21,7 +21,7 @@ extension UITableViewCell {
   override public func awakeFromNib() {
     super.awakeFromNib()
     
-    backgroundColor = Config.colorBackground
+    backgroundColor = Constant.Color.background
     separatorInset = UIEdgeInsetsZero
     layoutMargins = UIEdgeInsetsZero
     selectionStyle = .None

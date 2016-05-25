@@ -7,12 +7,12 @@ extension UINavigationController {
     // color
     
     navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
-    navigationBar.backgroundColor = Config.colorBackground
-    navigationBar.tintColor = Config.colorButton
-    navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: Config.colorTitle]
-    toolbar.barTintColor = Config.colorBackground
-    toolbar.backgroundColor = Config.colorBackground
-    toolbar.tintColor = Config.colorButton
+    navigationBar.backgroundColor = Constant.Color.background
+    navigationBar.tintColor = Constant.Color.button
+    navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: Constant.Color.title]
+    toolbar.barTintColor = Constant.Color.background
+    toolbar.backgroundColor = Constant.Color.background
+    toolbar.tintColor = Constant.Color.button
     //    Util.setStatusBarBackgroundColor(Config.colorBackground)
     //    navigationBar.barStyle = Config.colorStatusBar
   }

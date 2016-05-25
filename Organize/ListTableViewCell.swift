@@ -14,8 +14,8 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   private var titleLabel: UILabel?
   private var accessoryButton: UIButton?
   private var reminderView: UIView?
-  private let titleLabelPadding: CGFloat = Config.buttonPadding
-  private let accessoryButtonWidth: CGFloat = Config.buttonHeight
+  private let titleLabelPadding: CGFloat = Constant.Button.padding
+  private let accessoryButtonWidth: CGFloat = Constant.Button.height
   private let reminderViewWidth: CGFloat = 3
   private let titleIndentSpace: String = "       "
   
@@ -82,7 +82,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   }
   
   private func setupCellDefaults() {
-    backgroundColor = Config.colorBackground
+    backgroundColor = Constant.Color.background
     separatorInset = UIEdgeInsetsZero
     layoutMargins = UIEdgeInsetsZero
     preservesSuperviewLayoutMargins = false
@@ -150,11 +150,11 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     if note.completed {
       let attrString = NSAttributedString(string: title, attributes: [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue])
       titleLabel?.attributedText = attrString
-      titleLabel?.textColor = Config.colorBorder
-      accessoryButton?.tintColor = Config.colorBorder
+      titleLabel?.textColor = Constant.Color.border
+      accessoryButton?.tintColor = Constant.Color.border
     } else {
-      titleLabel?.textColor = Config.colorTitle
-      accessoryButton?.tintColor = Config.colorButton
+      titleLabel?.textColor = Constant.Color.title
+      accessoryButton?.tintColor = Constant.Color.button
       titleLabel?.text = title
     }
     
@@ -162,15 +162,15 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     // accessoryButton
     if note.collapsed {
       accessoryButton?.setTitle(String(note.children), forState: .Normal)
-      accessoryButton?.setTitleColor(Config.colorBorder, forState: .Normal)
+      accessoryButton?.setTitleColor(Constant.Color.border, forState: .Normal)
     } else {
       accessoryButton?.setTitle("+", forState: .Normal)
-      accessoryButton?.setTitleColor(Config.colorButton, forState: .Normal)
+      accessoryButton?.setTitleColor(Constant.Color.button, forState: .Normal)
     }
     
     // reminder view
     if note.reminder?.date.timeIntervalSinceNow > 0 {
-      reminderView?.backgroundColor = Config.colorButton
+      reminderView?.backgroundColor = Constant.Color.button
     } else {
       reminderView?.backgroundColor = .clearColor()
     }

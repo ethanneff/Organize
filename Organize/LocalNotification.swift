@@ -19,7 +19,7 @@ class LocalNotification {
     
     if settings.types == .None {
       // if already asked
-      if let _ = NSUserDefaults.standardUserDefaults().stringForKey(UserDefaultKey.AskedLocalNotification.rawValue) {
+      if let _ = NSUserDefaults.standardUserDefaults().stringForKey(Constant.UserDefaultKey.askedLocalNotification) {
         displayPostPremission(controller: controller)
       } else {
         displayPrePremission(controller: controller)
@@ -57,7 +57,7 @@ class LocalNotification {
   private func registerPermission() {
     let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
     UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
-    NSUserDefaults.standardUserDefaults().setBool(true, forKey: UserDefaultKey.AskedLocalNotification.rawValue)
+    NSUserDefaults.standardUserDefaults().setBool(true, forKey: Constant.UserDefaultKey.askedLocalNotification)
   }
   
   
