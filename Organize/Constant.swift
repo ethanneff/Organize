@@ -14,6 +14,7 @@ struct Constant {
     static let name: String = "Organize"
     static let loadingDelay: Double = 0.8
     static let release: Bool = true
+    static let logging: Bool = false
   }
   
   struct Button {

@@ -90,7 +90,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
-  func applicationWillResignActiveNotification() {}
+  func applicationWillResignActiveNotification() {
+  
+  }
   
   func applicationDidBecomeActiveNotification() {
     // update reminder icons
@@ -236,7 +238,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK - swipe
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     if let indexPath = tableView.indexPathForCell(cell) {
-      
       switch type {
       case .Complete:
         notebook.complete(indexPath: indexPath, tableView: tableView)

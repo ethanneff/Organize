@@ -1,5 +1,6 @@
 import UIKit
 import AVFoundation
+import Firebase
 
 class Util {
   // multiple story board navigation
@@ -33,9 +34,13 @@ class Util {
   }
   
   // logging
-  class func log(logMessage: String?=nil, functionName: String = #function) {
-    let currentDateTime = Int64(NSDate().timeIntervalSince1970*1000)
-    print("[\(currentDateTime)] [\(functionName)] \(logMessage)")
+  class func log(message: String?=nil, function: String = #function, file: String = #file) {
+    if Constant.App.logging {
+      let current = Int64(NSDate().timeIntervalSince1970*1000)
+      let output = "\(current) | \(file) | \(function) | \(message ?? "")"
+      print(output)
+      FIRCrashMessage(output)
+    }
   }
   
   // random

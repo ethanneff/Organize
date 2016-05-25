@@ -11,7 +11,7 @@
 		670963071CEE3DD60043D2A5 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963061CEE3DD60043D2A5 /* AppState.swift */; };
 		671053F51CF603B2003B8BDB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 671053F41CF603B2003B8BDB /* GoogleService-Info.plist */; };
 		671053F91CF6065C003B8BDB /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671053F81CF6065C003B8BDB /* Constant.swift */; };
-		671053FB1CF61A78003B8BDB /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671053FA1CF61A78003B8BDB /* Analytics.swift */; };
+		671053FB1CF61A78003B8BDB /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671053FA1CF61A78003B8BDB /* Report.swift */; };
 		6715F4E21CDBFB1D0002F421 /* Copying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E11CDBFB1D0002F421 /* Copying.swift */; };
 		6715F4E41CDBFBDC0002F421 /* Notebook+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */; };
 		67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67244C841CE3998F0038D343 /* ReorderTableView.swift */; };
@@ -64,7 +64,7 @@
 		670963061CEE3DD60043D2A5 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		671053F41CF603B2003B8BDB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		671053F81CF6065C003B8BDB /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
-		671053FA1CF61A78003B8BDB /* Analytics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
+		671053FA1CF61A78003B8BDB /* Report.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		6715F4E11CDBFB1D0002F421 /* Copying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copying.swift; sourceTree = "<group>"; };
 		6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notebook+History.swift"; sourceTree = "<group>"; };
 		67244C841CE3998F0038D343 /* ReorderTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReorderTableView.swift; sourceTree = "<group>"; };
@@ -259,7 +259,7 @@
 				675037D41CD176570061EC6E /* Util.swift */,
 				671053F81CF6065C003B8BDB /* Constant.swift */,
 				670963061CEE3DD60043D2A5 /* AppState.swift */,
-				671053FA1CF61A78003B8BDB /* Analytics.swift */,
+				671053FA1CF61A78003B8BDB /* Report.swift */,
 				675037CC1CD176570061EC6E /* UIButton+Config.swift */,
 				675037CD1CD176570061EC6E /* UIColor+Config.swift */,
 				675037CE1CD176570061EC6E /* UINavigationController+Config.swift */,
@@ -491,7 +491,7 @@
 				675037E71CD176570061EC6E /* UIColor+Config.swift in Sources */,
 				6715F4E21CDBFB1D0002F421 /* Copying.swift in Sources */,
 				675037E81CD176570061EC6E /* UINavigationController+Config.swift in Sources */,
-				671053FB1CF61A78003B8BDB /* Analytics.swift in Sources */,
+				671053FB1CF61A78003B8BDB /* Report.swift in Sources */,
 				67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */,
 				675038081CD178F30061EC6E /* LoginViewController.swift in Sources */,
 				675037EC1CD176570061EC6E /* UITextField+Config.swift in Sources */,
