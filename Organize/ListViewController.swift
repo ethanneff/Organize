@@ -129,6 +129,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.scrollIndicatorInsets = UIEdgeInsetsZero
     tableView.layoutMargins = UIEdgeInsetsZero
     tableView.tableFooterView = UIView(frame: CGRect.zero)
+    tableView.cellLayoutMarginsFollowReadableWidth = false
     
     // constraints
     tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -445,7 +446,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       let mail = MFMailComposeViewController()
       mail.mailComposeDelegate = self
       mail.setToRecipients(["ethan-neff@msn.com"])
-      mail.setSubject("I have some feedback for your Organize app!")
+      mail.setSubject("I have feedback for your Organize app!")
       mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
       presentViewController(mail, animated: true, completion: nil)
     } else {

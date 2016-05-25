@@ -68,7 +68,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   // MARK: create
   private func setupView() {
     titleLabel = UILabel()
-            titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
+    titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     addSubview(titleLabel!)
     
     accessoryButton = UIButton()
