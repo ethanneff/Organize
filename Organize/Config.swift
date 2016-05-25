@@ -3,7 +3,7 @@ import UIKit
 struct Config {
   static let appName: String = "Organize"
   static let appLoadingDelay: Double = 0.8
-  static let release: Bool = false
+  static let release: Bool = true
   
   static let buttonHeight: CGFloat = 44
   static let buttonPadding: CGFloat = 10

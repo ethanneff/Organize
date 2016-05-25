@@ -17,7 +17,7 @@ extension UITableViewCell {
     }
   }
   
-  // load 
+  // load
   override public func awakeFromNib() {
     super.awakeFromNib()
     
