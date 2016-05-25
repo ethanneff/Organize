@@ -9,19 +9,19 @@ extension UITableViewController {
   
   func configureTableView() {
     // color
-    tableView.backgroundColor = Config.colorBackground
+    tableView.backgroundColor = Constant.Color.background
     
     // borders
     tableView.contentInset = UIEdgeInsetsZero
     tableView.separatorInset = UIEdgeInsetsZero
-    tableView.separatorColor = Config.colorBorder
+    tableView.separatorColor = Constant.Color.border
     tableView.scrollIndicatorInsets = UIEdgeInsetsZero
     tableView.layoutMargins = UIEdgeInsetsZero
     tableView.tableFooterView = UIView(frame: CGRect.zero)
     
     // refresh
     refreshControl = UIRefreshControl()
-    refreshControl?.tintColor = Config.colorBorder
+    refreshControl?.tintColor = Constant.Color.border
     refreshControl?.addTarget(self, action: #selector(UITableViewController.beginRefresh), forControlEvents: .ValueChanged)
     edgesForExtendedLayout = .None
   }

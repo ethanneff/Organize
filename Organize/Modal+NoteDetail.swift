@@ -111,18 +111,18 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
       
       titleTextView!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       titleTextView!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      titleTextView!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
-      titleTextView!.heightAnchor.constraintEqualToConstant(Config.buttonHeight*2),
+      titleTextView!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.padding),
+      titleTextView!.heightAnchor.constraintEqualToConstant(Constant.Button.height*2),
       
       no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
       no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      no.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      no.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       
       yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
       yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      yes.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      yes.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
       
       topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -145,7 +145,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     textView.textAlignment = .Center
     textView.font = UIFont.boldSystemFontOfSize(Modal.textSize)
     textView.translatesAutoresizingMaskIntoConstraints = false
-    textView.tintColor = Config.colorButton
+    textView.tintColor = Constant.Color.button
     
     return textView
   }
@@ -155,7 +155,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     label.text = "Title"
     label.font = .boldSystemFontOfSize(textView.font!.pointSize)
     label.sizeToFit()
-    label.textColor = Config.colorBorder
+    label.textColor = Constant.Color.border
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
     textView.addSubview(label)
@@ -168,8 +168,8 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
     button.tag = Int(confirm)
     button.layer.cornerRadius = Modal.radius
     button.setTitle(title, forState: .Normal)
-    button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
+    button.setTitleColor(Constant.Color.button, forState: .Normal)
+    button.setTitleColor(Constant.Color.border, forState: .Highlighted)
     button.titleLabel?.font = confirm ? .systemFontOfSize(Modal.textSize) : .boldSystemFontOfSize(Modal.textSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false

@@ -13,7 +13,7 @@ class IntroViewController: UIViewController {
   override func loadView() {
     super.loadView()
     
-    view.backgroundColor = Config.colorButton
+    view.backgroundColor = Constant.Color.button
     let indicator = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
     indicator.hidesWhenStopped = true
     indicator.startAnimating()
@@ -23,7 +23,7 @@ class IntroViewController: UIViewController {
     indicator.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
     indicator.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor, constant: -50).active = true
     
-    label.textColor = Config.colorBackground
+    label.textColor = Constant.Color.background
     label.textAlignment = .Center
     view.addSubview(label)
     

@@ -105,18 +105,18 @@ class ModalTutorialViewController: UIViewController {
       
       message!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       message!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      message!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding),
-      message!.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      message!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.padding),
+      message!.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       
       messageSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       messageSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      messageSeparator.topAnchor.constraintEqualToAnchor(message!.bottomAnchor, constant: Config.buttonPadding/2),
+      messageSeparator.topAnchor.constraintEqualToAnchor(message!.bottomAnchor, constant: Constant.Button.padding/2),
       messageSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
       
       image!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       image!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      image!.topAnchor.constraintEqualToAnchor(messageSeparator.bottomAnchor, constant: Config.buttonPadding),
-      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor, constant: -Config.buttonPadding),
+      image!.topAnchor.constraintEqualToAnchor(messageSeparator.bottomAnchor, constant: Constant.Button.padding),
+      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor, constant: -Constant.Button.padding),
       
       progressWidthConstraint!,
       progress!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
@@ -131,13 +131,13 @@ class ModalTutorialViewController: UIViewController {
       button!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
       button!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
       button!.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      button!.heightAnchor.constraintEqualToConstant(Config.buttonHeight),
+      button!.heightAnchor.constraintEqualToConstant(Constant.Button.height),
       ])
   }
   
   private func createProgress() -> UIView {
     let view = UIView()
-    view.backgroundColor = Config.colorButton
+    view.backgroundColor = Constant.Color.button
     view.translatesAutoresizingMaskIntoConstraints = false
     return view
   }
@@ -165,8 +165,8 @@ class ModalTutorialViewController: UIViewController {
     let button = UIButton()
     button.layer.cornerRadius = Modal.radius
     button.setTitle(title, forState: .Normal)
-    button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
+    button.setTitleColor(Constant.Color.button, forState: .Normal)
+    button.setTitleColor(Constant.Color.border, forState: .Highlighted)
     button.titleLabel?.font = confirm ? .systemFontOfSize(Modal.textSize) : .boldSystemFontOfSize(Modal.textSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false

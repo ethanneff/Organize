@@ -26,7 +26,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
     sideMenu!.rightWidth = 170
     sideMenu!.leftWidth = 250
     createNavButtons()
-    createNavTitle(title: Config.appName)
+    createNavTitle(title: Constant.App.name)
     createDelegates()
   }
   

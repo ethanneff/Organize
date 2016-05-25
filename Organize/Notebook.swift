@@ -14,7 +14,6 @@ class Notebook: NSObject, NSCoding, Copying {
     //    }
     return output
   }
-  let logging: Bool = false
   
   // MARK: - INIT
   init(notes: [Note]) {
@@ -47,13 +46,12 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func historySave() {
-    log("history save")
     // already on background thread
     // TODO: turn on v3
-//    while history.count >= 20 {
-//      history.removeFirst()
-//    }
-//    history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
+    //    while history.count >= 20 {
+    //      history.removeFirst()
+    //    }
+    //    history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
   }
   
   private func historyLoad(tableView tableView: UITableView) {
@@ -84,6 +82,7 @@ class Notebook: NSObject, NSCoding, Copying {
       self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
         // save
         Notebook.set(data: self)
+        Report.sharedInstance.track(event: "note_create")
       }
     }
   }
@@ -99,13 +98,13 @@ class Notebook: NSObject, NSCoding, Copying {
       self.reload(indexPaths: [indexPath], tableView: tableView) {
         // save
         Notebook.set(data: self)
+        Report.sharedInstance.track(event: "note_update")
       }
     }
   }
   
   // MARK: - DELETE
   func delete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
-    log("delete")
     Util.threadBackground {
       // history
       self.historySave()
@@ -144,12 +143,12 @@ class Notebook: NSObject, NSCoding, Copying {
       self.remove(indexPaths: [indexPath], tableView: tableView) {
         // save
         Notebook.set(data: self)
+        Report.sharedInstance.track(event: "note_delete")
       }
     }
   }
   
   func deleteAll(tableView tableView: UITableView) {
-    log("delete all")
     Util.threadBackground {
       // save
       self.historySave()
@@ -198,7 +197,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
-    log("indent")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -230,7 +228,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - COMPLETE
   func complete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
-    log("complete")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -295,6 +292,7 @@ class Notebook: NSObject, NSCoding, Copying {
             self.reload(indexPaths: [displayIndexPath], tableView: tableView) {
               // save
               Notebook.set(data: self)
+              Report.sharedInstance.track(event: "note_complete")
             }
           }
         }
@@ -303,7 +301,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncomplete(indexPath indexPath: NSIndexPath, tableView: UITableView) {
-    log("uncomplete")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -370,6 +367,7 @@ class Notebook: NSObject, NSCoding, Copying {
             self.uncollapse(indexPath: displayIndexPath, tableView: tableView) {
               // save
               Notebook.set(data: self)
+              Report.sharedInstance.track(event: "note_uncomplete")
             }
           }
         }
@@ -379,7 +377,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - REORDER
   func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
-    log("reorderBeforeLift")
     Util.threadBackground {
       // history
       self.historySave()
@@ -396,7 +393,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func reorderAfterLift(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
-    log("reorderAfterLift")
     Util.threadBackground {
       // needed to handle when pulling a collapsed from the bottom and the tableview is shifted upwards
       func complete() {
@@ -418,7 +414,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func reorderDuringMove(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
-    log("reorderDuringMove")
     Util.threadBackground  {
       // needed to prevent re-appearing of lifted cell after tableview scrolls out of focus
       swap(&self.display[fromIndexPath.row], &self.display[toIndexPath.row])
@@ -430,7 +425,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func reorderAfterDrop(fromIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
-    log("reorderAfterDrop")
     Util.threadBackground {
       // uncollapse
       self.uncollapse(indexPath: toIndexPath, tableView: tableView) {
@@ -499,7 +493,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - COLLAPSE
   func collapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: ((children: Int) -> ())? = nil) {
-    log("collapse")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -582,7 +575,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncollapse(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: (() -> ())? = nil) {
-    log("uncollapse")
     Util.threadBackground {
       // display parent
       let displayParent = self.display[indexPath.row]
@@ -657,7 +649,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func collapseAll(tableView tableView: UITableView) {
-    log("collapse all")
     Util.threadBackground {
       // notes (if statements b/c buttons outside of cells)
       if self.notes.count > 0 {
@@ -719,7 +710,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func uncollapseAll(tableView tableView: UITableView) {
-    log("uncollapse all")
     Util.threadBackground {
       if self.notes.count > 0 {
         // history
@@ -893,7 +883,6 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - TABLEVIEW AND DISPLAY MODIFICATION
   private func remove(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {
-    log("remove")
     Util.threadMain {
       for indexPath in indexPaths {
         self.display.removeAtIndex(indexPath.row)
@@ -906,7 +895,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func reload(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {
-    log("reload")
     Util.threadMain {
       for indexPath in indexPaths {
         tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
@@ -918,7 +906,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func insert(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, data: [Note], completion: (() -> ())? = nil) {
-    log("insert")
     Util.threadMain {
       for i in 0..<indexPaths.count {
         self.display.insert(data[i], atIndex: indexPaths[i].row)
@@ -1058,11 +1045,5 @@ class Notebook: NSObject, NSCoding, Copying {
     notebook.display.removeAtIndex(10)
     
     return notebook
-  }
-  
-  private func log(output:String){
-    if logging {
-      print("notebook: " + output)
-    }
   }
 }

@@ -43,11 +43,11 @@ class Modal {
     var constraints: [NSLayoutConstraint] = []
     
     // background
-    background.backgroundColor = Config.colorBackdrop
+    background.backgroundColor = Constant.Color.backdrop
     background.addSubview(modal)
     
     // modal
-    modal.backgroundColor = Config.colorBackground
+    modal.backgroundColor = Constant.Color.background
     modal.layer.cornerRadius = Modal.radius
     modal.layer.masksToBounds = true
     modal.translatesAutoresizingMaskIntoConstraints = false
@@ -62,8 +62,8 @@ class Modal {
       title.translatesAutoresizingMaskIntoConstraints = false
       constraints.append(title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor))
       constraints.append(title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor))
-      constraints.append(title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Config.buttonPadding))
-      constraints.append(title.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
+      constraints.append(title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.padding))
+      constraints.append(title.heightAnchor.constraintEqualToConstant(Constant.Button.height))
     }
 
     NSLayoutConstraint.activateConstraints(constraints)
@@ -71,7 +71,7 @@ class Modal {
   
   static func createSeparator() -> UIView {
     let separator = UIView()
-    separator.backgroundColor = Config.colorBorder
+    separator.backgroundColor = Constant.Color.border
     separator.translatesAutoresizingMaskIntoConstraints = false
     
     return separator

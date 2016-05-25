@@ -9,7 +9,7 @@ class SearchViewController: UIViewController {
   
   func setupView() {
     var constraints: [NSLayoutConstraint] = []
-    view.backgroundColor = Config.colorBackground
+    view.backgroundColor = Constant.Color.background
     
     // scroll view
     let scrollView = UIScrollView()
@@ -25,9 +25,9 @@ class SearchViewController: UIViewController {
     scrollView.addSubview(label)
     constraints.append(label.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor))
     constraints.append(label.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor))
-    constraints.append(label.heightAnchor.constraintEqualToConstant(Config.buttonHeight))
+    constraints.append(label.heightAnchor.constraintEqualToConstant(Constant.Button.height))
     constraints.append(label.centerYAnchor.constraintEqualToAnchor(scrollView.centerYAnchor))
-    scrollViewHeight += Config.buttonHeight
+    scrollViewHeight += Constant.Button.height
     
     // scroll view
     constraints.append(scrollView.topAnchor.constraintEqualToAnchor(view.topAnchor))

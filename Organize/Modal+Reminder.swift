@@ -200,11 +200,11 @@ class ModalReminderViewController: UIViewController {
     
     button.tag = reminderType.hashValue
     button.setTitle(reminderType.title, forState: .Normal)
-    button.tintColor = Config.colorButton
-    button.setImage(reminderType.imageView(color: Config.colorButton).image, forState: .Normal)
-    button.setImage(reminderType.imageView(color: Config.colorBorder).image, forState: .Highlighted)
-    button.setTitleColor(Config.colorButton, forState: .Normal)
-    button.setTitleColor(Config.colorBorder, forState: .Highlighted)
+    button.tintColor = Constant.Color.button
+    button.setImage(reminderType.imageView(color: Constant.Color.button).image, forState: .Normal)
+    button.setImage(reminderType.imageView(color: Constant.Color.border).image, forState: .Highlighted)
+    button.setTitleColor(Constant.Color.button, forState: .Normal)
+    button.setTitleColor(Constant.Color.border, forState: .Highlighted)
     
     button.titleLabel?.font = reminderType == .None ? .boldSystemFontOfSize(buttonTitleFontSize) : .systemFontOfSize(buttonTitleFontSize)
     button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
@@ -220,9 +220,9 @@ class ModalReminderViewController: UIViewController {
     for view in modal.subviews {
       if let button = view as? UIButton, reminder = ReminderType(rawValue: button.tag) {
         if data?.type == reminder && data?.date.timeIntervalSinceNow > 0  {
-          button.backgroundColor = Config.colorShadow
+          button.backgroundColor = Constant.Color.shadow
         } else {
-          button.backgroundColor = Config.colorBackground
+          button.backgroundColor = Constant.Color.background
         }
       }
     }

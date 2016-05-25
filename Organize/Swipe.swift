@@ -21,13 +21,13 @@ enum SwipeType: Int {
   
   var color: UIColor {
     switch self {
-    case .Complete: return Config.colorGreen
-    case .Indent: return Config.colorBrown
-    case .Reminder: return Config.colorButton
+    case .Complete: return Constant.Color.green
+    case .Indent: return Constant.Color.brown
+    case .Reminder: return Constant.Color.button
       
-    case .Uncomplete: return Config.colorSubtitle
-    case .Unindent: return Config.colorBrown
-    case .Delete: return Config.colorRed
+    case .Uncomplete: return Constant.Color.subtitle
+    case .Unindent: return Constant.Color.brown
+    case .Delete: return Constant.Color.red
     }
   }
   
@@ -56,6 +56,6 @@ enum SwipeType: Int {
   }
   
   var icon: UIImageView {
-    return Util.imageViewWithColor(image: self.image, color: Config.colorBackground)
+    return Util.imageViewWithColor(image: self.image, color: Constant.Color.background)
   }
 }
