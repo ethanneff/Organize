@@ -49,10 +49,11 @@ class Notebook: NSObject, NSCoding, Copying {
   private func historySave() {
     log("history save")
     // already on background thread
-    while history.count >= 20 {
-      history.removeFirst()
-    }
-    history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
+    // TODO: turn on v3
+//    while history.count >= 20 {
+//      history.removeFirst()
+//    }
+//    history.append(NotebookHistory(notes: self.notes.clone(), display: self.display.clone()))
   }
   
   private func historyLoad(tableView tableView: UITableView) {
