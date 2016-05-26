@@ -94,21 +94,22 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     accessoryButton!.translatesAutoresizingMaskIntoConstraints = false
     reminderView!.translatesAutoresizingMaskIntoConstraints = false
     
+    
     NSLayoutConstraint.activateConstraints([
-      titleLabel!.topAnchor.constraintEqualToAnchor(topAnchor),
-      titleLabel!.leadingAnchor.constraintEqualToAnchor(reminderView!.trailingAnchor, constant: titleLabelPadding),
-      titleLabel!.trailingAnchor.constraintEqualToAnchor(accessoryButton!.leadingAnchor, constant: titleLabelPadding),
-      titleLabel!.bottomAnchor.constraintEqualToAnchor(bottomAnchor),
+      NSLayoutConstraint(item: titleLabel!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: titleLabel!, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
+      NSLayoutConstraint(item: titleLabel!, attribute: .Trailing, relatedBy: .Equal, toItem: accessoryButton!, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
+      NSLayoutConstraint(item: titleLabel!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
       
-      accessoryButton!.topAnchor.constraintEqualToAnchor(topAnchor),
-      accessoryButton!.trailingAnchor.constraintEqualToAnchor(trailingAnchor),
-      accessoryButton!.bottomAnchor.constraintEqualToAnchor(bottomAnchor),
-      accessoryButton!.widthAnchor.constraintEqualToConstant(accessoryButtonWidth),
+      NSLayoutConstraint(item: accessoryButton!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton!, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton!, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: accessoryButtonWidth),
       
-      reminderView!.topAnchor.constraintEqualToAnchor(topAnchor),
-      reminderView!.leadingAnchor.constraintEqualToAnchor(leadingAnchor),
-      reminderView!.bottomAnchor.constraintEqualToAnchor(bottomAnchor),
-      reminderView!.widthAnchor.constraintEqualToConstant(reminderViewWidth)
+      NSLayoutConstraint(item: reminderView!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView!, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView!, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: reminderViewWidth),
       ])
   }
   

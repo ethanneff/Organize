@@ -75,6 +75,9 @@ class LocalNotification {
       // create
       let notification = UILocalNotification()
       
+      // badge 
+      notification.applicationIconBadgeNumber += 1
+      
       // is a string containing the text to show to users. The title of the message will automatically be your app's name.
       notification.alertBody = body
       

@@ -54,7 +54,7 @@ class ModalDatePickerViewController: UIViewController {
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
     Modal.animateIn(modal: modal, background: view, completion: nil)
-    picker.minimumDate = NSDate().dateByAddingTimeInterval(5*60)
+    picker.minimumDate = NSDate().dateByAddingTimeInterval(1*60)
   }
 
   // MARK: - close

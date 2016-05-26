@@ -134,10 +134,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     // constraints
     tableView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activateConstraints([
-      tableView.topAnchor.constraintEqualToAnchor(view.topAnchor),
-      tableView.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
-      tableView.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
-      tableView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor),
+      NSLayoutConstraint(item: tableView, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: tableView, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: tableView, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: tableView, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: 0),
       ])
   }
   
@@ -161,10 +161,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     button.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
     button.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activateConstraints([
-      button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor, constant: -Constant.Button.padding*2),
-      button.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor, constant: -Constant.Button.padding*2),
-      button.heightAnchor.constraintEqualToConstant(buttonSize),
-      button.widthAnchor.constraintEqualToConstant(buttonSize),
+      NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2),
+      NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -Constant.Button.padding*2),
+      NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
+      NSLayoutConstraint(item: button, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
       ])
     addButton = button
   }
