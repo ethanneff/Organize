@@ -10,23 +10,35 @@ class AccessSetup {
     case Default
   }
   
-  static func createLogin(controller controller: UIViewController, email: UITextField, password: UITextField, login: UIButton, forgot: UIButton, signup: UIButton) {
-    controller.view.addSubview(email)
-    controller.view.addSubview(password)
-    controller.view.addSubview(login)
-    controller.view.addSubview(signup)
-    controller.view.addSubview(forgot)
+  static func createLogin(controller controller: UIViewController, email: UITextField, password: UITextField, login: UIButton, forgot: UIButton, signup: UIButton) -> NSLayoutConstraint {
+    let scrollView = UIScrollView()
+    controller.view.addSubview(scrollView)
+    scrollView.addSubview(email)
+    scrollView.addSubview(password)
+    scrollView.addSubview(login)
+    scrollView.addSubview(signup)
+    scrollView.addSubview(forgot)
+
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    scrollView.topAnchor.constraintEqualToAnchor(controller.view.topAnchor).active = true
+    let bottom = scrollView.bottomAnchor.constraintEqualToAnchor(controller.view.bottomAnchor)
+    bottom.active = true
+    scrollView.leadingAnchor.constraintEqualToAnchor(controller.view.leadingAnchor).active = true
+    scrollView.trailingAnchor.constraintEqualToAnchor(controller.view.trailingAnchor).active = true
+    
     
     createController(controller: controller)
     
     var constraints: [NSLayoutConstraint] = []
-    constraints += createTextField(textField: email, title: "email", view: controller.view, topAnchor: controller.view.topAnchor, type: .Email)
-    constraints += createTextField(textField: password, title: "password", view: controller.view, topAnchor: email.bottomAnchor, type: .Password)
-    constraints += createButton(button: login, title: "log in", view: controller.view, topAnchor: password.bottomAnchor)
-    constraints += createLink(button: forgot, title: "forgot password", view: controller.view, align: .Left, topAnchor: login.bottomAnchor, leadingAnchor: login.leadingAnchor, trailingAnchor: signup.leadingAnchor, widthAnchor: signup.widthAnchor)
-    constraints += createLink(button: signup, title: "create account", view: controller.view, align: .Right, topAnchor: login.bottomAnchor, leadingAnchor: forgot.trailingAnchor, trailingAnchor: login.trailingAnchor, widthAnchor: forgot.widthAnchor)
-    // performance boost over .active = true
+    constraints += createTextField(textField: email, title: "email", view: scrollView, topAnchor: controller.view.topAnchor, type: .Email)
+    constraints += createTextField(textField: password, title: "password", view: scrollView, topAnchor: email.bottomAnchor, type: .Password)
+    constraints += createButton(button: login, title: "log in", view: scrollView, topAnchor: password.bottomAnchor)
+    constraints += createLink(button: forgot, title: "forgot password", view: scrollView, align: .Left, topAnchor: login.bottomAnchor, leadingAnchor: login.leadingAnchor, trailingAnchor: signup.leadingAnchor, widthAnchor: signup.widthAnchor)
+    constraints += createLink(button: signup, title: "create account", view: scrollView, align: .Right, topAnchor: login.bottomAnchor, leadingAnchor: forgot.trailingAnchor, trailingAnchor: login.trailingAnchor, widthAnchor: forgot.widthAnchor)
     NSLayoutConstraint.activateConstraints(constraints)
+    scrollView.contentSize = CGSize(width: controller.view.frame.width, height: 1000)
+    
+    return bottom
   }
   
   static func createSignup(controller controller: UIViewController, email: UITextField, passwordOne: UITextField, passwordTwo: UITextField, signup: UIButton) {
@@ -40,7 +52,7 @@ class AccessSetup {
     var constraints: [NSLayoutConstraint] = []
     constraints += createTextField(textField: email, title: "email", view: controller.view, topAnchor: controller.view.topAnchor, type: .Email)
     constraints += createTextField(textField: passwordOne, title: "password", view: controller.view, topAnchor: email.bottomAnchor, type: .Password)
-    constraints += createTextField(textField: passwordTwo, title: "password again", view: controller.view, topAnchor: passwordOne.bottomAnchor, type: .Password)
+    constraints += createTextField(textField: passwordTwo, title: "confirm password", view: controller.view, topAnchor: passwordOne.bottomAnchor, type: .Password)
     constraints += createButton(button: signup, title: "sign up", view: controller.view, topAnchor: passwordTwo.bottomAnchor)
     NSLayoutConstraint.activateConstraints(constraints)
   }
@@ -116,5 +128,4 @@ class AccessSetup {
       button.widthAnchor.constraintEqualToAnchor(widthAnchor),
     ]
   }
-  
 }

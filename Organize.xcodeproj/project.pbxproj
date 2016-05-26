@@ -67,6 +67,7 @@
 		671053FA1CF61A78003B8BDB /* Report.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
 		6715F4E11CDBFB1D0002F421 /* Copying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copying.swift; sourceTree = "<group>"; };
 		6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notebook+History.swift"; sourceTree = "<group>"; };
+		67227B721CF7762A0042468D /* Organize.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Organize.entitlements; sourceTree = "<group>"; };
 		67244C841CE3998F0038D343 /* ReorderTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReorderTableView.swift; sourceTree = "<group>"; };
 		67299B631CE243660066728E /* Modal+NoteDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+NoteDetail.swift"; sourceTree = "<group>"; };
 		67299B651CE244DA0066728E /* UIScrollView+Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIScrollView+Config.swift"; sourceTree = "<group>"; };
@@ -168,6 +169,7 @@
 				675037B21CD1764B0061EC6E /* LaunchScreen.storyboard */,
 				675037B51CD1764B0061EC6E /* Info.plist */,
 				671053F41CF603B2003B8BDB /* GoogleService-Info.plist */,
+				67227B721CF7762A0042468D /* Organize.entitlements */,
 			);
 			name = app;
 			sourceTree = "<group>";
@@ -378,6 +380,14 @@
 					675037A51CD1764B0061EC6E = {
 						CreatedOnToolsVersion = 7.3;
 						DevelopmentTeam = PW4Q8885U7;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+							com.apple.SafariKeychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -616,6 +626,7 @@
 			baseConfigurationReference = 30A7090C5B7C95A4B7BC6ECB /* Pods-Organize.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Organize/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -631,6 +642,7 @@
 			baseConfigurationReference = 08EB7B7C5F10A4F730026A07 /* Pods-Organize.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Organize/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;

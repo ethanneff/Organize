@@ -13,21 +13,20 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-//    Util.delay(Config.appLoadingDelay) {
-//      self.displayController(navController: MenuNavigationController())
-//    }
+    //    Util.delay(Config.appLoadingDelay) {
+    //      self.displayController(navController: MenuNavigationController())
+    //    }
     
     
-    //    User.get(completion: { user in
-    //      if user == nil {
-    //        Util.delay(Config.appLoadingDelay) {
-    //          // TODO: create a login already viewed in nsuserdefaults
-    //          self.displayController(navController: AccessNavigationController())
-    //        }
-    //      } else {
-    //        self.displayController(navController: MenuNavigationController())
-    //      }
-    //    })
+    User.get(completion: { user in
+      if user == nil {
+        Util.delay(Constant.App.loadingDelay) {
+          self.displayController(navController: AccessNavigationController())
+        }
+      } else {
+        self.displayController(navController: MenuNavigationController())
+      }
+    })
   }
   
   private func displayController(navController navController: UINavigationController) {

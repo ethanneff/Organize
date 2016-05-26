@@ -5,7 +5,7 @@ protocol ModalNoteDetailDelegate: class {
   func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
 }
 
-class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
+class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
   // MARK: - properties
   weak var delegate: ModalNoteDetailDelegate?
   weak var data: Note?
@@ -198,7 +198,7 @@ class ModalNoteDetailViewController: UIViewController, UITextViewDelegate, UITex
   }
   
   private func keyboardHeight(notification notification: NSNotification) -> CGFloat {
-    if let info  = notification.userInfo, let value  = info[UIKeyboardFrameEndUserInfoKey] {
+    if let info  = notification.userInfo, let value = info[UIKeyboardFrameEndUserInfoKey] {
       let rawFrame = value.CGRectValue
       let keyboardFrame = view.convertRect(rawFrame, fromView: nil)
       return keyboardFrame.height
