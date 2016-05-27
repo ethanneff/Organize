@@ -310,11 +310,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
-    case .Collapse: notebook.collapseAll(tableView: tableView)
-    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .Delete: modalDeleteAll()
-    case .Feedback: modalFeedback()
-    case .Tutorial: modalTutorial()
+      
+//    case .Collapse: notebook.collapseAll(tableView: tableView)
+//    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
+//    case .Delete: modalDeleteAll()
+//    case .Feedback: modalFeedback()
+//    case .Tutorial: modalTutorial()
+    default: break
     }
   }
   
