@@ -49,8 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window = UIWindow(frame: UIScreen.mainScreen().bounds)
     if let window = window {
       window.backgroundColor = UIColor.whiteColor()
-//      window.rootViewController = IntroNavigationController()
-      window.rootViewController = MenuNavigationController()
+      window.rootViewController = IntroNavigationController()
       window.makeKeyAndVisible()
     }
   }

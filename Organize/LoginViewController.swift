@@ -5,6 +5,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   let emailTextField: UITextField = UITextField()
   let passwordTextField: UITextField = UITextField()
   let loginButton: UIButton = UIButton()
+  let facebookButton: UIButton = UIButton()
+  let googleButton: UIButton = UIButton()
   let signupButton: UIButton = UIButton()
   let forgotButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
@@ -18,7 +20,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   }
   
   private func setupView() {
-    bottomConstraint = AccessSetup.createLogin(controller: self, email: emailTextField, password: passwordTextField, login: loginButton, forgot: forgotButton, signup: signupButton)
+    AccessSetup.createLogin(controller: self, email: emailTextField, password: passwordTextField, login: loginButton, forgot: forgotButton, signup: signupButton)
     loginButton.addTarget(self, action: #selector(attemptLogin(_:)), forControlEvents: .TouchUpInside)
     signupButton.addTarget(self, action: #selector(showSignup(_:)), forControlEvents: .TouchUpInside)
     forgotButton.addTarget(self, action: #selector(showForgot(_:)), forControlEvents: .TouchUpInside)
@@ -51,12 +53,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   }
   
   func keyboardWillShow(notification: NSNotification) {
-    bottomConstraint!.constant = -keyboardHeight(notification: notification)
+//    bottomConstraint!.constant = -keyboardHeight(notification: notification)
     print(bottomConstraint)
   }
   
   func keyboardWillHide(notification: NSNotification) {
-    bottomConstraint!.constant = 0
+//    bottomConstraint!.constant = 0
     print(bottomConstraint)
   }
   

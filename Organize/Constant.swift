@@ -19,7 +19,7 @@ struct Constant {
   }
   
   struct Button {
-    static let height: CGFloat = 44
+    static let height: CGFloat = 40
     static let padding: CGFloat = 10
   }
   

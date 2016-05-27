@@ -18,6 +18,7 @@ class SettingViewController: UIViewController {
   enum Button: Int  {
     case NotebookHeader
     case ChangeTitle
+//    case ChangeNotebook
     case CollapseAll
     case UncollapseAll
     case DeleteAll
