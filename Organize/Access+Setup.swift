@@ -29,48 +29,65 @@ class AccessSetup {
     let height: CGFloat
   }
   
-  static func createLogin(controller controller: UIViewController, email: UITextField, password: UITextField, login: UIButton, forgot: UIButton, signup: UIButton) {
+  private struct ButtonDoubleObject {
+    let view1: UIButton
+    let view2: UIButton
+    let constraints: [NSLayoutConstraint]
+    let height: CGFloat
+  }
+  private struct TextFieldDoubleObject {
+    let view1: UIButton
+    let view2: UIButton
+    let constraints: [NSLayoutConstraint]
+    let height: CGFloat
+  }
+  
+  static func createLogin(controller controller: UIViewController, email: UITextField, password: UITextField, login: UIButton, forgot: UIButton, signup: UIButton) -> NSLayoutConstraint {
     // controller
     var constraints: [NSLayoutConstraint] = []
-    var height: CGFloat = Constant.Button.padding
+    var height: CGFloat = Constant.Button.padding*2
     
     // create
     createController(controller: controller)
     let scrollViewObject: ScrollViewObject = createScrollViewObject(parent: controller.view)
-    let emailObject = createTextFieldObject(textField: email, title: "email", view: controller.view, topItem: scrollViewObject.view, topAttribute: .Top, topPadding: Constant.Button.padding, keyboardType: .Email)
-    let passwordObject = createTextFieldObject(textField: password, title: "password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, topPadding: Constant.Button.padding*2, keyboardType: .Password)
-    let loginObject = createButtonObject(button: login, title: "log in", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, topPadding: Constant.Button.padding*2)
+    let emailObject: TextFieldObject = createTextFieldObject(textField: email, title: "email", view: controller.view, topItem: scrollViewObject.view, topAttribute: .Top, topPadding: Constant.Button.padding, keyboardType: .Email)
+    let passwordObject: TextFieldObject = createTextFieldObject(textField: password, title: "password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, topPadding: Constant.Button.padding*2, keyboardType: .Password)
+    let loginObject: ButtonObject = createButtonObject(button: login, title: "log in", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, topPadding: Constant.Button.padding*2)
+    let forgotSignupObject: ButtonDoubleObject = createButtonDoubleObject(button1: forgot, button1Title: "reset password", button2: signup, button2Title: "create account", view: controller.view, topItem: loginObject.view, topAttribute: .Bottom, topPadding: Constant.Button.padding*2)
     
     // views
     controller.view.addSubview(scrollViewObject.view)
     scrollViewObject.view.addSubview(emailObject.view)
     scrollViewObject.view.addSubview(passwordObject.view)
     scrollViewObject.view.addSubview(loginObject.view)
-    scrollViewObject.view.addSubview(signup)
-    scrollViewObject.view.addSubview(forgot)
-    
+    scrollViewObject.view.addSubview(forgotSignupObject.view1)
+    scrollViewObject.view.addSubview(forgotSignupObject.view2)
+  
     // heights
     height += emailObject.height
     height += passwordObject.height
     height += loginObject.height
+    height += forgotSignupObject.height
     scrollViewObject.view.contentSize = CGSize(width: 0, height: height)
-    print(height)
-    
-    //    constraints += createTextField(textField: email, title: "email", view: scrollView, topAnchor: controller.view.topAnchor, type: .Email)
-    //    constraints += createTextField(textField: password, title: "password", view: scrollView, topAnchor: email.bottomAnchor, type: .Password)
-//        constraints += createButton(button: login, title: "log in", view: scrollView, topAnchor: password.bottomAnchor)
-    //    constraints += createLink(button: forgot, title: "forgot password", view: scrollView, align: .Left, topAnchor: login.bottomAnchor, leadingAnchor: login.leadingAnchor, trailingAnchor: signup.leadingAnchor, widthAnchor: signup.widthAnchor)
-    //    constraints += createLink(button: signup, title: "create account", view: scrollView, align: .Right, topAnchor: login.bottomAnchor, leadingAnchor: forgot.trailingAnchor, trailingAnchor: login.trailingAnchor, widthAnchor: forgot.widthAnchor)
-    
-    // scroll view
-
     
     // constraints
     constraints += scrollViewObject.constraints
     constraints += emailObject.constraints
     constraints += passwordObject.constraints
     constraints += loginObject.constraints
+    constraints += forgotSignupObject.constraints
     NSLayoutConstraint.activateConstraints(constraints)
+    
+    return scrollViewObject.bottomConstraint
+  }
+  
+  private static func createController(controller controller: UIViewController) {
+    // prevent flash of gray when transitioning between controllers
+    controller.view.backgroundColor = Constant.Color.background
+    // add navigation title
+    controller.navigationItem.title = Constant.App.name
+    // remove back button text
+    controller.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
   }
   
   private static func createScrollViewObject(parent parent: UIView) -> ScrollViewObject {
@@ -102,20 +119,17 @@ class AccessSetup {
     constraints.append(NSLayoutConstraint(item: textField, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding*2))
     constraints.append(NSLayoutConstraint(item: textField, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2))
     constraints.append(NSLayoutConstraint(item: textField, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
-
+    
     let height: CGFloat = Constant.Button.height+topPadding
     let textFieldObject = TextFieldObject(view: textField, constraints: constraints, height: height)
     return textFieldObject
   }
-  
   
   private static func createButtonObject(button button: UIButton, title: String, view: UIView, topItem: UIView, topAttribute: NSLayoutAttribute, topPadding: CGFloat) -> ButtonObject {
     button.setTitle(title, forState: .Normal)
     button.layer.cornerRadius = 5
     button.clipsToBounds = true
     button.backgroundColor = Constant.Color.button
-    button.setBackgroundImage(Constant.Color.button.image, forState: .Normal)
-    button.setBackgroundImage(Constant.Color.shadow.image, forState: .Highlighted)
     button.translatesAutoresizingMaskIntoConstraints = false
     
     var constraints: [NSLayoutConstraint] = []
@@ -129,6 +143,35 @@ class AccessSetup {
     return buttonObject
   }
   
+  private static func createButtonDoubleObject(button1 button1: UIButton, button1Title: String, button2: UIButton, button2Title: String, view: UIView, topItem: UIView, topAttribute: NSLayoutAttribute, topPadding: CGFloat) -> ButtonDoubleObject {
+    func setupButton(button button: UIButton, title: String, align: UIControlContentHorizontalAlignment) {
+      button.setTitle(title, forState: .Normal)
+      button.backgroundColor = Constant.Color.background
+      button.contentHorizontalAlignment = align
+      button.setTitleColor(Constant.Color.button, forState: .Normal)
+      button.translatesAutoresizingMaskIntoConstraints = false
+    }
+    setupButton(button: button1, title: button1Title, align: .Left)
+    setupButton(button: button2, title: button2Title, align: .Right)
+    
+    var constraints: [NSLayoutConstraint] = []
+    constraints.append(NSLayoutConstraint(item: button1, attribute: .Top, relatedBy: .Equal, toItem: topItem, attribute: topAttribute, multiplier: 1, constant: topPadding))
+    constraints.append(NSLayoutConstraint(item: button1, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding*2))
+    constraints.append(NSLayoutConstraint(item: button1, attribute: .Trailing, relatedBy: .Equal, toItem: button2, attribute: .Leading, multiplier: 1, constant: -Constant.Button.padding*2))
+    constraints.append(NSLayoutConstraint(item: button1, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
+    constraints.append(NSLayoutConstraint(item: button1, attribute: .Width, relatedBy: .Equal, toItem: button2, attribute: .Width, multiplier: 1, constant: 0))
+    constraints.append(NSLayoutConstraint(item: button2, attribute: .Top, relatedBy: .Equal, toItem: topItem, attribute: topAttribute, multiplier: 1, constant: topPadding))
+    constraints.append(NSLayoutConstraint(item: button2, attribute: .Leading, relatedBy: .Equal, toItem: button1, attribute: .Trailing, multiplier: 1, constant: Constant.Button.padding*2))
+    constraints.append(NSLayoutConstraint(item: button2, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2))
+    constraints.append(NSLayoutConstraint(item: button2, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
+    constraints.append(NSLayoutConstraint(item: button2, attribute: .Width, relatedBy: .Equal, toItem: button1, attribute: .Width, multiplier: 1, constant: 0))
+    
+    let height: CGFloat = Constant.Button.height+topPadding
+    let buttonDoubleObject = ButtonDoubleObject(view1: button1, view2: button2, constraints: constraints, height: height)
+    return buttonDoubleObject
+  }
+  
+
   
   static func createSignup(controller controller: UIViewController, email: UITextField, passwordOne: UITextField, passwordTwo: UITextField, signup: UIButton) {
     controller.view.addSubview(email)
@@ -156,15 +199,6 @@ class AccessSetup {
     constraints += createTextField(textField: email, title: "email", view: controller.view, topAnchor: controller.view.topAnchor, type: .Email)
     constraints += createButton(button: forgot, title: "retrieve password", view: controller.view, topAnchor: email.bottomAnchor)
     NSLayoutConstraint.activateConstraints(constraints)
-  }
-  
-  private static func createController(controller controller: UIViewController) {
-    // prevent flash of gray when transitioning between controllers
-    controller.view.backgroundColor = Constant.Color.background
-    // add navigation title
-    controller.navigationItem.title = Constant.App.name
-    // remove back button text
-    controller.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
   }
   
   private static func createTextField(textField textField: UITextField, title: String, view: UIView, topAnchor: NSLayoutYAxisAnchor, type: KeyboardType) -> [NSLayoutConstraint] {

@@ -75,22 +75,18 @@ class Util {
   }
   
   // animation
-  class func animateButtonPress(button button: UIButton) {
-    if let color = button.backgroundColor {
-      UIView.animateWithDuration(0.2) {
-        button.backgroundColor = color.colorWithAlphaComponent(0.7)
-        UIView.animateWithDuration(0.3) {
-          button.backgroundColor = color
-        }
-      }
-    } else {
-      UIView.animateWithDuration(0.4) {
-        button.alpha = 0.4
-        UIView.animateWithDuration(0.4) {
+  class func animateButtonPress(button button: UIButton, completion: (() -> ())? = nil) {
+    UIView.animateWithDuration(0.05, animations: {
+      button.alpha = 0.4
+      }, completion: { success in
+        UIView.animateWithDuration(0.20, animations: {
           button.alpha = 1
-        }
-      }
-    }
+          }, completion: { success in
+            if let completion = completion {
+              completion()
+            }
+        })
+    })
   }
   
   // sounds
@@ -134,5 +130,26 @@ class Util {
   // network indicator
   class func toggleNetworkIndicator(on on: Bool) {
     UIApplication.sharedApplication().networkActivityIndicatorVisible = on
+  }
+  
+  
+  // keyboard
+  class func handleKeyboardScrollView(keyboardNotification keyboardNotification: NSNotification, scrollViewBottomConstraint: NSLayoutConstraint, view: UIView) {
+    if let userInfo = keyboardNotification.userInfo {
+      let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
+      let endFrameHeight: CGFloat = endFrame?.size.height ?? 0.0
+      let duration: NSTimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
+      let animationCurveRawNSN = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? NSNumber
+      let animationCurveRaw = animationCurveRawNSN?.unsignedLongValue ?? UIViewAnimationOptions.CurveEaseInOut.rawValue
+      let animationCurve:UIViewAnimationOptions = UIViewAnimationOptions(rawValue: animationCurveRaw)
+      if endFrame?.origin.y >= UIScreen.mainScreen().bounds.size.height {
+        scrollViewBottomConstraint.constant = 0.0
+      } else {
+        scrollViewBottomConstraint.constant = -endFrameHeight
+      }
+      UIView.animateWithDuration(duration, delay: NSTimeInterval(0), options: animationCurve, animations: {
+        view.layoutIfNeeded()
+        }, completion: nil)
+    }
   }
 }
