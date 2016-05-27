@@ -1,0 +1,231 @@
+///////////////////////////////////////
+// users
+///////////////////////////////////////
+// true because if exists
+users
+  user1
+    email s = a@a.com
+    firstName s = tom
+    lastName s = cruz
+    active b = true
+    created d =
+    updated d =
+    notebooks 
+      notebook1 b = true
+    notes
+      note1 b = true
+      note2 b = true
+    tags
+      tag1 b = true
+      tag2 b = true
+    indexes
+      index1 b = true
+      index2 b = true
+      index3 b = true
+  user2
+    email s = b@b.com
+    firstName s = brad
+    lastName s = pitt
+    active b = true
+    created d =
+    updated d =
+    notebooks 
+      notebook2 b = true
+    notes
+    tags
+  user3
+    email s = c@c.com
+    firstName s = duke
+    lastName s = nukem
+    active b = true
+    created d =
+    updated d =
+    notebooks 
+      notebook3 b = true
+      notebook4 b = true
+    notes
+    tags
+
+
+
+///////////////////////////////////////
+// notesbook
+///////////////////////////////////////
+notebooks
+  notebook1 
+    name = Organize
+  notebook2
+    name = Organize
+  notebook3
+    name = Organize
+  notebook4
+    name = Organize
+
+
+
+///////////////////////////////////////
+// tags
+///////////////////////////////////////
+// 2 way data binding with notes [] 
+tags 
+  tag1
+    name = Who
+    parent = nil
+    notes [] = note1
+  tag2
+    name = What
+    parent = nil
+    notes []
+  tag3
+    name = When
+    parent = nil
+    notes []
+  tag4
+    name = Where
+    parent = nil
+    notes []
+  tag5
+    name = 0 Daily
+    parent = tag3
+    notes []
+  tag6
+    name = 1 Now
+    parent = tag3
+    notes []
+  tag7
+    name = 2 Next
+    parent = tag3
+    notes []
+  tag8
+    name = 3 Soon
+    parent = tag3
+    notes []
+  tag9
+    name = 4 Later
+    parent = tag3
+    notes []
+  tag10
+    name = 5 Someday
+    parent = tag3
+    notes []
+  tag11
+    name = 6 Waiting
+    parent = tag3
+    notes []
+  tag12
+    name = @ Home
+    parent = tag4
+    notes []
+  tag13
+    name = @ Town
+    parent = tag4
+    notes []
+  tag14
+    name = @ Work
+    parent = tag4
+    notes []
+  tag15
+    name = @ Gym
+    parent = tag4
+    notes []
+
+// indexes
+// array because order
+indexes
+  index1 
+    name = notebooks
+    index [] = notebook1, notebook2
+  index2
+    name = tags
+    index [] = tag1, tag3, tag2
+  index3
+    name = notes
+    index [] = note3, note1, note2
+  index4 
+    name = notebooks
+    index []
+
+
+
+///////////////////////////////////////
+// notes
+///////////////////////////////////////
+// 2 way data binding with tags
+notes
+  note1
+    title s = a
+    body s 
+    indent n
+    children n
+    collapsed b
+    completed b
+    active b
+    created d
+    updated d
+    reminder = reminder1
+  note2
+    title s = b
+    body s 
+    indent n
+    children n
+    collapsed b
+    completed b
+    active b
+    created d
+    updated d
+    reminder = reminder2
+  note3
+    title s = c
+    body s 
+    indent n
+    children n
+    collapsed b
+    completed b
+    active b
+    created d
+    updated d
+    reminder = reminder3
+  note4
+    title s = d
+    body s 
+    indent n
+    children n
+    collapsed b
+    completed b
+    active b
+    created d
+    updated d
+    reminder
+  note5
+    title s = e
+    body s 
+    indent n
+    children n
+    collapsed b
+    completed b
+    active b
+    created d
+    updated d
+    reminder
+
+
+
+///////////////////////////////////////
+// reminders
+///////////////////////////////////////
+reminders
+  reminder1
+    uid n
+    type s
+    date d
+    active b
+  reminder2
+    uid n
+    type s
+    date d
+    active b
+  reminder3
+    uid n
+    type s
+    date d
+    active b
