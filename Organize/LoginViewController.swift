@@ -1,7 +1,7 @@
 import UIKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
-  // MARK: properties
+  // MARK: - properties
   let emailTextField: UITextField = UITextField()
   let passwordTextField: UITextField = UITextField()
   let loginButton: UIButton = UIButton()
@@ -11,12 +11,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   let forgotButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
   
-  // MARK: load
+  // MARK: - load
   override func loadView() {
     super.loadView()
     setupView()
-    setupGestures()
-    createListeners()
+    listenKeyboard()
   }
   
   private func setupView() {
@@ -26,17 +25,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     forgotButton.addTarget(self, action: #selector(showForgot(_:)), forControlEvents: .TouchUpInside)
   }
   
-  private func setupGestures() {
-    let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-    view.addGestureRecognizer(tap)
-    
-  }
-  
-  func dismissKeyboard() {
-    view.endEditing(true)
-  }
-  
-  // MARK: deinit
+  // MARK: - deinit
   deinit {
     dealloc()
   }
@@ -45,10 +34,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
   }
   
-  
-  // MARK: keyboard
-  private func createListeners() {
+  // MARK: - keyboard
+  private func listenKeyboard() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardNotification(_:)), name: UIKeyboardWillChangeFrameNotification, object: nil)
+    let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+    view.addGestureRecognizer(tap)
+  }
+  
+  func dismissKeyboard() {
+    view.endEditing(true)
   }
   
   func keyboardNotification(notification: NSNotification) {
@@ -57,38 +51,28 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
   }
   
-  
-  private func keyboardHeight(notification notification: NSNotification) -> CGFloat {
-    if let info  = notification.userInfo, let value  = info[UIKeyboardFrameEndUserInfoKey] {
-      let rawFrame = value.CGRectValue
-      let keyboardFrame = view.convertRect(rawFrame, fromView: nil)
-      return keyboardFrame.height
-    }
-    return 0
-  }
-  
-  // MARK: buttons
+  // MARK: - buttons
   func attemptLogin(button: UIButton) {
-    dismissKeyboard()
-    Util.animateButtonPress(button: button) {
-      self.dismissViewControllerAnimated(true, completion: nil)
-    }
+    buttonPressed(button: button)
+    self.dismissViewControllerAnimated(true, completion: nil)
   }
   
   func showSignup(button: UIButton) {
-    dismissKeyboard()
-    Util.animateButtonPress(button: button) {
-      self.clearTextFields()
-      self.navigationController?.pushViewController(SignupViewController(), animated: true)
-    }
+    buttonPressed(button: button)
+    self.clearTextFields()
+    self.navigationController?.pushViewController(SignupViewController(), animated: true)
   }
   
   func showForgot(button: UIButton) {
+    buttonPressed(button: button)
+    self.clearTextFields()
+    self.navigationController?.pushViewController(ForgotViewController(), animated: true)
+  }
+  
+  // MARK: - helper
+  private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
-    Util.animateButtonPress(button: button) {
-      self.clearTextFields()
-      self.navigationController?.pushViewController(ForgotViewController(), animated: true)
-    }
+    Util.animateButtonPress(button: button)
   }
   
   private func clearTextFields() {

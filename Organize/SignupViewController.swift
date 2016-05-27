@@ -1,22 +1,24 @@
 import UIKit
 
 class SignupViewController: UIViewController, UITextFieldDelegate {
-  // MARK: properties
+  // MARK: - properties
   let emailTextField: UITextField = UITextField()
   let passwordOneTextField: UITextField = UITextField()
   let passwordTwoTextField: UITextField = UITextField()
   let signupButton: UIButton = UIButton()
+  var bottomConstraint: NSLayoutConstraint?
   
-  // MARK: load
+  // MARK: - load
   override func loadView() {
     super.loadView()
     setupView()
     setupKeyboard()
+    listenKeyboard()
   }
   
-  // MARK: create
+  // MARK: - create
   private func setupView() {
-    AccessSetup.createSignup(controller: self, email: emailTextField, passwordOne: passwordOneTextField, passwordTwo: passwordTwoTextField, signup: signupButton)
+    bottomConstraint = AccessSetup.createSignup(controller: self, email: emailTextField, passwordOne: passwordOneTextField, passwordTwo: passwordTwoTextField, signup: signupButton)
     signupButton.addTarget(self, action: #selector(attemptSignup), forControlEvents: .TouchUpInside)
   }
   
@@ -28,7 +30,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     UITextField.setTapOrder(fields: [emailTextField, passwordOneTextField, passwordTwoTextField])
   }
   
-  // MARK: button
+  // MARK: - buttons
   func attemptSignup() {
     let error = AccessBusinessLogic.validateSignup(emailTextField: emailTextField, passwordOneTextField: passwordOneTextField, passwordTwoTextfield: passwordTwoTextField)
     if error == .Success {
@@ -45,7 +47,16 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     }
   }
   
-  // MARK: keyboard
+  // MARK: - deinit
+  deinit {
+    dealloc()
+  }
+  
+  private func dealloc() {
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+  }
+  
+  // MARK: - keyboard
   func textFieldDidEndEditing(textField: UITextField) {
     if let email = emailTextField.text?.trim, let passwordOne = passwordOneTextField.text?.trim, let passwordTwo = passwordTwoTextField.text?.trim {
       if email.length > 0 && passwordOne.length > 0 && passwordTwo.length > 0 {
@@ -54,8 +65,24 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     }
   }
   
-  func textFieldClearAndSelect(textField textField: UITextField) {
+  private func textFieldClearAndSelect(textField textField: UITextField) {
     textField.text = ""
     textField.becomeFirstResponder()
+  }
+  
+  private func listenKeyboard() {
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardNotification(_:)), name: UIKeyboardWillChangeFrameNotification, object: nil)
+    let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+    view.addGestureRecognizer(tap)
+  }
+  
+  internal func dismissKeyboard() {
+    view.endEditing(true)
+  }
+  
+  internal func keyboardNotification(notification: NSNotification) {
+    if let bottomConstraint = bottomConstraint {
+      Util.handleKeyboardScrollView(keyboardNotification: notification, scrollViewBottomConstraint: bottomConstraint, view: view)
+    }
   }
 }
