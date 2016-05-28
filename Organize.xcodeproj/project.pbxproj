@@ -14,6 +14,7 @@
 		671053FB1CF61A78003B8BDB /* Report.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671053FA1CF61A78003B8BDB /* Report.swift */; };
 		6715F4E21CDBFB1D0002F421 /* Copying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E11CDBFB1D0002F421 /* Copying.swift */; };
 		6715F4E41CDBFBDC0002F421 /* Notebook+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */; };
+		67227B741CF9F0470042468D /* Remote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67227B731CF9F0470042468D /* Remote.swift */; };
 		67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67244C841CE3998F0038D343 /* ReorderTableView.swift */; };
 		67299B641CE243660066728E /* Modal+NoteDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67299B631CE243660066728E /* Modal+NoteDetail.swift */; };
 		675037AA1CD1764B0061EC6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037A91CD1764B0061EC6E /* AppDelegate.swift */; };
@@ -67,6 +68,7 @@
 		6715F4E11CDBFB1D0002F421 /* Copying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copying.swift; sourceTree = "<group>"; };
 		6715F4E31CDBFBDC0002F421 /* Notebook+History.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Notebook+History.swift"; sourceTree = "<group>"; };
 		67227B721CF7762A0042468D /* Organize.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Organize.entitlements; sourceTree = "<group>"; };
+		67227B731CF9F0470042468D /* Remote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Remote.swift; sourceTree = "<group>"; };
 		67244C841CE3998F0038D343 /* ReorderTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReorderTableView.swift; sourceTree = "<group>"; };
 		67299B631CE243660066728E /* Modal+NoteDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+NoteDetail.swift"; sourceTree = "<group>"; };
 		675037A61CD1764B0061EC6E /* Organize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Organize.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -283,6 +285,7 @@
 				675037C41CD176570061EC6E /* Note.swift */,
 				675037C71CD176570061EC6E /* Reminder.swift */,
 				67D8441D1CD2847B004C144F /* Swipe.swift */,
+				67227B731CF9F0470042468D /* Remote.swift */,
 			);
 			name = models;
 			sourceTree = "<group>";
@@ -483,6 +486,7 @@
 				675037D91CD176570061EC6E /* MenuNavigationController.swift in Sources */,
 				675037DC1CD176570061EC6E /* Modal+DatePicker.swift in Sources */,
 				675037D51CD176570061EC6E /* IntroNavigationController.swift in Sources */,
+				67227B741CF9F0470042468D /* Remote.swift in Sources */,
 				675037E01CD176570061EC6E /* SettingViewController.swift in Sources */,
 				675037EE1CD176570061EC6E /* Util.swift in Sources */,
 				675037D71CD176570061EC6E /* LocalNotification.swift in Sources */,
