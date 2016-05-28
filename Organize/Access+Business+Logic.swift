@@ -24,8 +24,7 @@ class AccessBusinessLogic {
   }
   
   static func displayError(controller controller: UIViewController, error: ErrorMessage, completion: () -> ()) {
-    // TODO: make custom alert modal instead of alert view
-    let ac = UIAlertController(title: "Error", message: error.message, preferredStyle: .Alert)
+    let ac = UIAlertController(title: error.message, message: nil, preferredStyle: .Alert)
     ac.addAction(UIAlertAction(title: "Okay", style: .Default) { action in
       completion()
       })
