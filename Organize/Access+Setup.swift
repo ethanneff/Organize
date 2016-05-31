@@ -206,7 +206,7 @@ class AccessSetup {
     // buttons
     let textField1 = setupTextField(textField: textField1, title: textField1Title, keyboardType: keyboardType)
     let textField2 = setupTextField(textField: textField2, title: textField2Title, keyboardType: keyboardType)
-
+    
     // constraints
     let constraints: [NSLayoutConstraint] = setupConstraintsHalf(container: container, item1: textField1, item2: textField2, view: view, topItem: topItem, topAttribute: topAttribute, topPadding: setupTopPadding(first: first))
     
@@ -241,6 +241,7 @@ class AccessSetup {
     textField.returnKeyType = .Next
     textField.secureTextEntry = keyboardType == .Password ? true : false
     textField.translatesAutoresizingMaskIntoConstraints = false
+    textField.autoresizesSubviews = false
     
     return textField
   }
@@ -261,7 +262,7 @@ class AccessSetup {
     var constraints: [NSLayoutConstraint] = []
     constraints.append(NSLayoutConstraint(item: item, attribute: .Top, relatedBy: .Equal, toItem: topItem, attribute: topAttribute, multiplier: 1, constant: topPadding))
     constraints.append(NSLayoutConstraint(item: item, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
-    constraints.append(NSLayoutConstraint(item: item, attribute: .Width, relatedBy: .GreaterThanOrEqual, toItem: view, attribute: .Width, multiplier: Constant.Button.widthMultiplier, constant: Constant.Button.widthConstant(padding: setupTopPadding(first: false))))
+    constraints.append(NSLayoutConstraint(item: item, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: Constant.Button.widthMultiplier, constant: Constant.Button.widthConstant(padding: setupTopPadding(first: false))))
     constraints.append(NSLayoutConstraint(item: item, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0))
     
     return constraints
@@ -269,11 +270,11 @@ class AccessSetup {
   
   private static func setupConstraintsHalf(container container: UIView, item1: UIView, item2: UIView, view: UIView, topItem: UIView, topAttribute: NSLayoutAttribute, topPadding: CGFloat) -> [NSLayoutConstraint]  {
     var constraints: [NSLayoutConstraint] = []
-    
+
     // container
     constraints.append(NSLayoutConstraint(item: container, attribute: .Top, relatedBy: .Equal, toItem: topItem, attribute: topAttribute, multiplier: 1, constant: topPadding))
     constraints.append(NSLayoutConstraint(item: container, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
-    constraints.append(NSLayoutConstraint(item: container, attribute: .Width, relatedBy: .GreaterThanOrEqual, toItem: view, attribute: .Width, multiplier: Constant.Button.widthMultiplier, constant: Constant.Button.widthConstant(padding: setupTopPadding(first: false))))
+    constraints.append(NSLayoutConstraint(item: container, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: Constant.Button.widthMultiplier, constant: Constant.Button.widthConstant(padding: setupTopPadding(first: false))))
     constraints.append(NSLayoutConstraint(item: container, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0))
     
     // item 1
