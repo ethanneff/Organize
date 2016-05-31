@@ -10,12 +10,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   let signupButton: UIButton = UIButton()
   let forgotButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
+  lazy var modalLoading: ModalLoadingController = ModalLoadingController()
   
   // MARK: - load
   override func loadView() {
     super.loadView()
     setupView()
     listenKeyboard()
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+
+    if let user = Remote.Auth.currentUser {
+      print(user)
+//      login(user: "bob")
+    }
   }
   
   private func setupView() {
@@ -54,7 +64,39 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   // MARK: - buttons
   func attemptLogin(button: UIButton) {
     buttonPressed(button: button)
-    self.dismissViewControllerAnimated(true, completion: nil)
+    
+    
+    modalLoading.show(self)
+    
+    Util.delay(2) {
+      self.modalLoading.close()
+    }
+//
+//    let error = AccessBusinessLogic.validateLogin(emailTextField: emailTextField, passwordTextField: passwordTextField)
+//    if error != .Success {
+//      AccessBusinessLogic.displayError(controller: self, error: error) {
+//        switch error {
+//        case .PasswordInvalid, .PasswordIncorrect: AccessBusinessLogic.textFieldClearAndSelect(textField: self.passwordTextField)
+//        default: AccessBusinessLogic.textFieldClearAndSelect(textField: self.emailTextField)
+//        }
+//      }
+//      return
+//    }
+//    
+//    Remote.Auth.login(email: emailTextField.text!, password: passwordTextField.text!) { error in
+//      if let error = error {
+//        
+//      }
+//      print(error)
+//    }
+    
+    
+ 
+//    self.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
+  func login(user user: String) {
+    
   }
   
   func showSignup(button: UIButton) {

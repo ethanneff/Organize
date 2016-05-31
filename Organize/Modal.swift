@@ -76,4 +76,10 @@ class Modal {
     
     return separator
   }
+  
+  static func show(parentController parentController: UIViewController, modalController: UIViewController, modal: UIView) {
+    modalController.modalPresentationStyle = .OverCurrentContext
+    parentController.presentViewController(modalController, animated: false, completion: nil)
+    animateIn(modal: modal, background: modalController.view, completion: nil)
+  }
 }

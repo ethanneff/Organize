@@ -38,8 +38,8 @@ class AccessSetup {
     var scrollViewObject: ScrollViewColumn = createScrollViewColumn(parent: controller.view)
     let emailObject: SingleColumn<UITextField> = createTextFieldColumn(textField: email, title: "email", view: controller.view, topItem: scrollViewObject.view, topAttribute: .Top, first: true, keyboardType: .Email)
     let passwordObject: SingleColumn<UITextField> = createTextFieldColumn(textField: password, title: "password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, first: false, keyboardType: .Password)
-    let loginObject: SingleColumn<UIButton> = createButtonColumn(button: login, title: "log in", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, first: false)
-    let forgotSignupObject: DoubleColumn<UIButton, UIButton> = createButtonDoubleColumn(button1: forgot, button1Title: "reset password", button2: signup, button2Title: "create account", view: controller.view, topItem: loginObject.view, topAttribute: .Bottom, align: true, first: false)
+    let loginObject: SingleColumn<UIButton> = createButtonColumn(button: login, title: "Log In", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, first: false)
+    let forgotSignupObject: DoubleColumn<UIButton, UIButton> = createButtonDoubleColumn(button1: forgot, button1Title: "Reset Password", button2: signup, button2Title: "Create Account", view: controller.view, topItem: loginObject.view, topAttribute: .Bottom, align: true, first: false)
     
     // views
     controller.view.addSubview(scrollViewObject.view)
@@ -73,7 +73,7 @@ class AccessSetup {
     let nameObject: DoubleColumn<UITextField, UITextField> = createTextFieldDoubleColumn(textField1: firstName, textField1Title: "first name", textField2: lastName, textField2Title: "last name", view: controller.view, topItem: scrollViewObject.view, topAttribute: .Top, first: true, keyboardType: .Default)
     let emailObject: SingleColumn<UITextField> = createTextFieldColumn(textField: email, title: "email", view: controller.view, topItem: nameObject.view, topAttribute: .Bottom, first: false, keyboardType: .Email)
     let passwordObject: SingleColumn<UITextField> = createTextFieldColumn(textField: password, title: "password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, first: false, keyboardType: .Password)
-    let signupObject: SingleColumn<UIButton> = createButtonColumn(button: signup, title: "sign up", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, first: false)
+    let signupObject: SingleColumn<UIButton> = createButtonColumn(button: signup, title: "Sign Up", view: controller.view, topItem: passwordObject.view, topAttribute: .Bottom, first: false)
     
     // views
     controller.view.addSubview(scrollViewObject.view)
@@ -105,7 +105,7 @@ class AccessSetup {
     createController(controller: controller)
     var scrollViewObject: ScrollViewColumn = createScrollViewColumn(parent: controller.view)
     let emailObject: SingleColumn<UITextField> = createTextFieldColumn(textField: email, title: "email", view: controller.view, topItem: scrollViewObject.view, topAttribute: .Top, first: true, keyboardType: .Email)
-    let forgotObject: SingleColumn<UIButton> = createButtonColumn(button: forgot, title: "reset password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, first: false)
+    let forgotObject: SingleColumn<UIButton> = createButtonColumn(button: forgot, title: "Reset Password", view: controller.view, topItem: emailObject.view, topAttribute: .Bottom, first: false)
     
     // views
     controller.view.addSubview(scrollViewObject.view)

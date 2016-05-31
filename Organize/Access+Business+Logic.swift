@@ -3,22 +3,24 @@ import UIKit
 class AccessBusinessLogic {
   enum ErrorMessage {
     case Success
+    case FirstNameInvalid
+    case LastNameInvalid
     case EmailInvalid
     case EmailMissing
     case EmailExists
     case PasswordInvalid
     case PasswordIncorrect
-    case PasswordAgain
     
     var message: String {
       switch self {
-      case .Success: return "success"
-      case .EmailInvalid: return "invalid email"
-      case .EmailExists: return "email already in use"
-      case .EmailMissing: return "email does not exist"
-      case .PasswordInvalid: return "passwords must be longer than 6 with uppercase, lowercase, and number characters"
-      case .PasswordIncorrect: return "incorrect password"
-      case .PasswordAgain: return "both password fields must be the same"
+      case .Success: return "Success"
+      case .FirstNameInvalid: return "Invalid first name"
+      case .LastNameInvalid: return "Invalid last name"
+      case .EmailInvalid: return "Invalid email"
+      case .EmailExists: return "Email already in use"
+      case .EmailMissing: return "Email does not exist"
+      case .PasswordInvalid: return "Passwords must be longer than 6 with uppercase, lowercase, and numbers"
+      case .PasswordIncorrect: return "Incorrect password"
       }
     }
   }
@@ -29,6 +31,11 @@ class AccessBusinessLogic {
       completion()
       })
     controller.presentViewController(ac, animated: true, completion: nil)
+  }
+  
+  static func textFieldClearAndSelect(textField textField: UITextField) {
+    textField.text = ""
+    textField.becomeFirstResponder()
   }
   
   static func validateLogin(emailTextField emailTextField: UITextField, passwordTextField: UITextField) -> ErrorMessage {
@@ -43,36 +50,28 @@ class AccessBusinessLogic {
       return .PasswordInvalid
     }
     
-    if !emailExists(email: email) {
-      return .EmailMissing
-    }
-    
-    if !validEmailAndPassword(email: email, password: password) {
-      return .PasswordIncorrect
-    }
-    
     return .Success
   }
   
-  static func validateSignup(emailTextField emailTextField: UITextField, passwordOneTextField: UITextField, passwordTwoTextfield: UITextField) -> ErrorMessage {
-    let email = textFieldToString(textField: emailTextField)
-    let passwordOne = textFieldToString(textField: passwordOneTextField)
-    let passwordTwo = textFieldToString(textField: passwordTwoTextfield)
+  static func validateSignup(firstName firstName: UITextField, lastName: UITextField, email: UITextField, password: UITextField) -> ErrorMessage {
+    let firstName: String = textFieldToString(textField: firstName)
+    let lastName: String = textFieldToString(textField: lastName)
+    let email: String = textFieldToString(textField: email)
+    let password: String = textFieldToString(textField: password)
+    
+    if firstName.isEmpty {
+      return .FirstNameInvalid
+    }
+    if lastName.isEmpty {
+      return .LastNameInvalid
+    }
     
     if !email.isEmail {
       return .EmailInvalid
     }
     
-    if emailExists(email: email) {
-      return .EmailExists
-    }
-    
-    if !passwordOne.isPassword  {
+    if !password.isPassword  {
       return .PasswordInvalid
-    }
-    
-    if passwordOne != passwordTwo {
-      return .PasswordAgain
     }
     
     return .Success
@@ -102,8 +101,8 @@ class AccessBusinessLogic {
   }
   
   static func createUser(emailTextField emailTextField: UITextField, passwordTextField: UITextField) {
-//    let email = textFieldToString(textField: emailTextField)
-//    let password = textFieldToString(textField: passwordTextField)
+    //    let email = textFieldToString(textField: emailTextField)
+    //    let password = textFieldToString(textField: passwordTextField)
     
   }
   
@@ -112,8 +111,8 @@ class AccessBusinessLogic {
   }
   
   static func loginUser(emailTextField emailTextField: UITextField, passwordTextField: UITextField) -> Bool {
-//    let email = textFieldToString(textField: emailTextField)
-//    let password = textFieldToString(textField: passwordTextField)
+    //    let email = textFieldToString(textField: emailTextField)
+    //    let password = textFieldToString(textField: passwordTextField)
     
     return true
   }

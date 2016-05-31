@@ -24,7 +24,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   }
   
   private func setupKeyboard() {
-    emailTextField.becomeFirstResponder()
+    firstNameTextField.becomeFirstResponder()
     firstNameTextField.delegate = self
     lastNameTextField.delegate = self
     emailTextField.delegate = self
@@ -34,19 +34,67 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - buttons
   func attemptSignup() {
-//    let error = AccessBusinessLogic.validateSignup(emailTextField: emailTextField, passwordOneTextField: passwordOneTextField, passwordTwoTextfield: passwordTwoTextField)
-//    if error == .Success {
-//      AccessBusinessLogic.createUser(emailTextField: emailTextField, passwordTextField: passwordOneTextField)
-//      dismissViewControllerAnimated(true, completion: nil)
-//    } else {
-//      AccessBusinessLogic.displayError(controller: self, error: error) {
-//        switch error {
-//        case .PasswordInvalid: self.textFieldClearAndSelect(textField: self.passwordOneTextField)
-//        case .PasswordAgain: self.textFieldClearAndSelect(textField: self.passwordTwoTextField)
-//        default: self.textFieldClearAndSelect(textField: self.emailTextField)
-//        }
-//      }
-//    }
+    dismissKeyboard()
+    displayLoading(message: "Creating account")
+    //    showActivityIndicatory(view)
+    return
+    
+    //    let firstName: String = firstNameTextField.text!.trim
+    //    let lastName: String  = lastNameTextField.text!.trim
+    //    let email: String  = emailTextField.text!.trim
+    //    let password: String  = passwordTextField.text!.trim
+    //    let fullName = (firstName + lastName).trim
+    //
+    //    if firstName.isEmpty {
+    //      return displayError(message: "Invalid first name", textField: firstNameTextField)
+    //    }
+    //
+    //    if lastName.isEmpty {
+    //      return displayError(message: "Invalid last name", textField: lastNameTextField)
+    //    }
+    //
+    //    if !email.isEmail {
+    //      return displayError(message: "Invalid email", textField: emailTextField)
+    //    }
+    //
+    //    if !password.isPassword {
+    //      return displayError(message: "Passwords must be longer than 6 with uppercase, lowercase, and number characters", textField: passwordTextField)
+    //    }
+    //
+    //    Remote.Auth.signup(email: email, password: password, name: fullName) { (error) in
+    //      if let error = error {
+    //        return self.displayError(message: error, textField: nil)
+    //      }
+    //      self.dismissViewControllerAnimated(true, completion: nil)
+    //    }
+  }
+  
+  
+  func displayError(message message: String, textField: UITextField?) {
+    let ac = UIAlertController(title: message, message: nil, preferredStyle: .Alert)
+    ac.addAction(UIAlertAction(title: "Okay", style: .Default) { action in
+      if let textField = textField {
+        textField.becomeFirstResponder()
+      }
+      })
+    presentViewController(ac, animated: true, completion: nil)
+  }
+  
+  func displayLoading(message message: String) {
+    let message = message + "\n\n\n"
+    let alert = UIAlertController(title: nil, message: message, preferredStyle: .Alert)
+    let indicator = UIActivityIndicatorView()
+    alert.view.addSubview(indicator)
+    indicator.translatesAutoresizingMaskIntoConstraints = false
+    indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge
+    indicator.color = Constant.Color.button
+    indicator.startAnimating()
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: indicator, attribute: .CenterX, relatedBy: .Equal, toItem: alert.view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: indicator, attribute: .CenterY, relatedBy: .Equal, toItem: alert.view, attribute: .CenterY, multiplier: 1, constant: 0),
+      ])
+
+    presentViewController(alert, animated: true, completion: nil)
   }
   
   // MARK: - deinit
@@ -60,11 +108,11 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - keyboard
   func textFieldDidEndEditing(textField: UITextField) {
-//    if let email = emailTextField.text?.trim, let passwordOne = passwordOneTextField.text?.trim, let passwordTwo = passwordTwoTextField.text?.trim {
-//      if email.length > 0 && passwordOne.length > 0 && passwordTwo.length > 0 {
-//        attemptSignup()
-//      }
-//    }
+    //    if let email = emailTextField.text?.trim, let passwordOne = passwordOneTextField.text?.trim, let passwordTwo = passwordTwoTextField.text?.trim {
+    //      if email.length > 0 && passwordOne.length > 0 && passwordTwo.length > 0 {
+    //        attemptSignup()
+    //      }
+    //    }
   }
   
   private func textFieldClearAndSelect(textField textField: UITextField) {
