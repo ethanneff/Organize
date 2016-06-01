@@ -14,27 +14,29 @@ class SettingViewController: UIViewController {
     super.loadView()
     setupView()
   }
-
+  
   enum Button: Int  {
     case NotebookHeader
     case ChangeTitle
-//    case ChangeNotebook
+    //    case ChangeNotebook
     case CollapseAll
     case UncollapseAll
     case DeleteAll
     
     case SettingsHeader
     case ViewTutorial
-//    case ToggleSound
-//    case ToggleColor
+    //    case ToggleSound
+    //    case ToggleColor
     
     case SocialHeader
     case SendFeedback
     case ShareApp
-  
+    
     case AccountHeader
-    case UpdateAccount
-//    case UpgradeAccount
+    case ChangeEmail
+    case ChangePass
+    case DeleteAccount
+
     case Logout
     
     static var count: Int {
@@ -58,15 +60,17 @@ class SettingViewController: UIViewController {
         
       case .SettingsHeader: return "Settings"
       case .ViewTutorial: return "View tutorial"
-//      case .ToggleSound: return "Toggle sound" // TODO: based on appstate
-//      case .ToggleColor: return "Toggle color" // TODO: based on app state
+        //      case .ToggleSound: return "Toggle sound" // TODO: based on appstate
+        //      case .ToggleColor: return "Toggle color" // TODO: based on app state
         
       case .SocialHeader: return "Social"
       case .SendFeedback: return "Send feedback"
       case .ShareApp: return "Share the app"
         
       case .AccountHeader: return "Account"
-      case .UpdateAccount: return "Update"
+      case .ChangeEmail: return "Change email"
+      case .ChangePass: return "Change password"
+      case .DeleteAccount: return "Delete account"
       case .Logout: return "Logout"
       }
     }
@@ -123,7 +127,7 @@ class SettingViewController: UIViewController {
   
   func buttonPressed(button: UIButton) {
     // TODO: change title (notebook needs new property title)
-//    parentViewController?.navigationItem.title = "hello"
+    //    parentViewController?.navigationItem.title = "hello"
     Util.animateButtonPress(button: button)
     Util.playSound(systemSound: .Tap)
     if let button = Button(rawValue: button.tag) {

@@ -30,7 +30,7 @@ struct Remote {
       case 17015: return "Provider already linked"
       case 17016: return "No such Provider"
       case 17017: return "Invalid user token"
-      case 17020: return "Network error"
+      case 17020: return "No internet connection"
       case 17021: return "User token expired"
       case 17023: return "Invalid API key"
       case 17024: return "User mismatch"
@@ -101,6 +101,20 @@ struct Remote {
     
     static func logout() {
       try! FIRAuth.auth()!.signOut()
+    }
+    
+    static func delete(controller controller: UIViewController, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoadingController()
+      loadingModal.show(controller)
+      FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
+        loadingModal.hide {
+          if let error = error {
+            completion(error: error.localizedDescription)
+          } else {
+            completion(error: nil)
+          }
+        }
+      }
     }
   }
   

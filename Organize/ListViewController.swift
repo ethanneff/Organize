@@ -92,7 +92,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func applicationWillResignActiveNotification() {
-  
+    
   }
   
   func applicationDidBecomeActiveNotification() {
@@ -311,20 +311,34 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
-    case.Logout: logout()
+    case .Logout: logout()
+    case .DeleteAccount: modalAccountDelete()
       
-//    case .Collapse: notebook.collapseAll(tableView: tableView)
-//    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
-//    case .Delete: modalDeleteAll()
-//    case .Feedback: modalFeedback()
-//    case .Tutorial: modalTutorial()
+      
+      //    case .Collapse: notebook.collapseAll(tableView: tableView)
+      //    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
+      //    case .Delete: modalDeleteAll()
+      //    case .Feedback: modalFeedback()
+    //    case .Tutorial: modalTutorial()
     default: break
     }
   }
   
-  func logout() {
+  private func logout() {
     Remote.Auth.logout()
-    dismissViewControllerAnimated(true, completion: nil)
+    self.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
+  private func modalAccountDelete() {
+    modalAlertConfirmation(title: "Permanently delete account?") {
+      Remote.Auth.delete(controller: self) { error in
+        if let error = error {
+          self.modalError(title: error, message: nil, completion: nil)
+        } else {
+          self.logout()
+        }
+      }
+    }
   }
   
   
@@ -508,7 +522,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     alert.addAction(confirm)
     alert.addAction(cancel)
-     presentViewController(alert, animated: true, completion:nil)
+    presentViewController(alert, animated: true, completion:nil)
   }
   
   private func modalError(title title: String, message: String?, completion: (() -> ())?) {
