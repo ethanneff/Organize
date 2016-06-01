@@ -59,37 +59,48 @@ struct Remote {
       }
     }
     
-    static func signup(email email: String, password: String, name: String, completion: (error: String?) -> ()) {
+    static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoadingController()
+      loadingModal.show(controller)
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
-          completion(error: authError(code: error.code))
-          return
+          loadingModal.hide {
+            completion(error: authError(code: error.code))
+          }
         }
         if let user = user {
           let changeRequest = user.profileChangeRequest()
           changeRequest.displayName = name
           changeRequest.commitChangesWithCompletion() { (error) in
-            if let error = error {
-              completion(error: authError(code: error.code))
-              return
+            loadingModal.hide {
+              if let error = error {
+                completion(error: authError(code: error.code))
+              } else {
+                completion(error: nil)
+              }
             }
+          }
+        }
+      }
+    }
+    
+    static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoadingController()
+      loadingModal.show(controller)
+      FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
+        loadingModal.hide {
+          if let error = error {
+            completion(error: authError(code: error.code))
+          } else {
             completion(error: nil)
           }
         }
       }
     }
     
-    static func login(email email: String, password: String, completion: (error: String?) -> ()) {
-      FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
-        if let error = error {
-          completion(error: authError(code: error.code))
-        } else {
-          completion(error: nil)
-        }
-      }
-    }
-    
-    static func reset(email email: String, completion: (error: String?) -> ()) {
+    static func reset(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoadingController()
+      loadingModal.show(controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
         if let error = error {
           completion(error: error.localizedDescription)

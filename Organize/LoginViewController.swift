@@ -11,7 +11,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   let forgotButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
   var recentlySignedUp: Bool = false
-  lazy var modalLoading: ModalLoadingController = ModalLoadingController()
   lazy var signupController: SignupViewController = SignupViewController()
   lazy var forgotController: ForgotViewController = ForgotViewController()
   
@@ -38,7 +37,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - deinit
   deinit {
-    print("login deinit")
     dealloc()
   }
   
@@ -80,15 +78,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     // login
-    modalLoading.show(self)
-    Remote.Auth.login(email: emailTextField.text!, password: passwordTextField.text!) { error in
-      self.modalLoading.hide() {
-        if let error = error {
-          return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
-        } else {
-          self.dismissViewControllerAnimated(false, completion: nil)
-        }
+    Remote.Auth.login(controller: self, email: emailTextField.text!, password: passwordTextField.text!) { error in
+      if let error = error {
+        return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
       }
+      self.dismissViewControllerAnimated(false, completion: nil)
     }
   }
   

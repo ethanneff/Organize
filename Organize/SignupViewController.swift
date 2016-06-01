@@ -9,7 +9,6 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   let signupButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
   weak var previousController: LoginViewController?
-  lazy var modalLoading: ModalLoadingController = ModalLoadingController()
   
   // MARK: - load
   override func loadView() {
@@ -29,7 +28,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     super.viewWillAppear(animated)
     firstNameTextField.becomeFirstResponder()
   }
-
+  
   // MARK: - buttons
   internal func attemptSignup(button: UIButton) {
     buttonPressed(button: button)
@@ -56,14 +55,11 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
       return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.PasswordInvalid.message, textField: passwordTextField)
     }
     
-    modalLoading.show(self)
-    Remote.Auth.signup(email: email, password: password, name: fullName) { (error) in
-      self.modalLoading.hide() {
-        if let error = error {
-          return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
-        }
-        self.navigateToMenu()
+    Remote.Auth.signup(controller: self, email: email, password: password, name: fullName) { (error) in
+      if let error = error {
+        return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
       }
+      self.navigateToMenu()
     }
   }
   
