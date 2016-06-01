@@ -13,7 +13,6 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-    Remote.Auth.logout()
     Util.delay(Constant.App.loadingDelay) {
       if let user = Remote.Auth.currentUser {
         print(user)

@@ -25,8 +25,8 @@ class SettingViewController: UIViewController {
     
     case SettingsHeader
     case ViewTutorial
-    case ToggleSound
-    case ToggleColor
+//    case ToggleSound
+//    case ToggleColor
     
     case SocialHeader
     case SendFeedback
@@ -34,6 +34,7 @@ class SettingViewController: UIViewController {
   
     case AccountHeader
     case UpdateAccount
+//    case UpgradeAccount
     case Logout
     
     static var count: Int {
@@ -57,8 +58,8 @@ class SettingViewController: UIViewController {
         
       case .SettingsHeader: return "Settings"
       case .ViewTutorial: return "View tutorial"
-      case .ToggleSound: return "Toggle sound" // TODO: based on appstate
-      case .ToggleColor: return "Toggle color" // TODO: based on app state
+//      case .ToggleSound: return "Toggle sound" // TODO: based on appstate
+//      case .ToggleColor: return "Toggle color" // TODO: based on app state
         
       case .SocialHeader: return "Social"
       case .SendFeedback: return "Send feedback"
@@ -123,8 +124,8 @@ class SettingViewController: UIViewController {
   func buttonPressed(button: UIButton) {
     // TODO: change title (notebook needs new property title)
 //    parentViewController?.navigationItem.title = "hello"
-    Util.playSound(systemSound: .Tap)
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
     if let button = Button(rawValue: button.tag) {
       delegate?.settingsButtonPressed(button: button)
     }

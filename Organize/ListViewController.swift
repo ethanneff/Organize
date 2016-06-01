@@ -78,6 +78,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - deinit
   deinit {
+    print("list deinit)")
     // FIXME: dismiss viewcontollor does not call deinit (reference cycle)
     dealloc()
   }
@@ -310,6 +311,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
+    case.Logout: logout()
       
 //    case .Collapse: notebook.collapseAll(tableView: tableView)
 //    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
@@ -318,6 +320,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
 //    case .Tutorial: modalTutorial()
     default: break
     }
+  }
+  
+  func logout() {
+    Remote.Auth.logout()
+    dismissViewControllerAnimated(true, completion: nil)
   }
   
   
