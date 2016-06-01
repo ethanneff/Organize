@@ -313,6 +313,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     switch button {
     case .Logout: logout()
     case .DeleteAccount: modalAccountDelete()
+      case .ChangeEmail: modalAccountDelete()
+      case .ChangePassword: modalAccountDelete()
       
       
       //    case .Collapse: notebook.collapseAll(tableView: tableView)
@@ -326,6 +328,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func logout() {
     Remote.Auth.logout()
+    Report.sharedInstance.track(event: "logout")
     self.dismissViewControllerAnimated(true, completion: nil)
   }
   
@@ -335,6 +338,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         if let error = error {
           self.modalError(title: error, message: nil, completion: nil)
         } else {
+          Report.sharedInstance.track(event: "delete account")
           self.logout()
         }
       }

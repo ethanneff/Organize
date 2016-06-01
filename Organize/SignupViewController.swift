@@ -65,6 +65,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - helper
   private func navigateToMenu() {
+    Report.sharedInstance.track(event: "signup")
     previousController?.recentlySignedUp = true
     self.dismissViewControllerAnimated(true, completion: nil)
   }

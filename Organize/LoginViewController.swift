@@ -82,7 +82,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
       if let error = error {
         return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
       }
-      self.dismissViewControllerAnimated(false, completion: nil)
+      self.navigateToMenu()
     }
   }
   
@@ -100,6 +100,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   }
   
   // MARK: - helper
+  private func navigateToMenu() {
+    Report.sharedInstance.track(event: "login")
+    self.dismissViewControllerAnimated(false, completion: nil)
+  }
+  
+  
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)

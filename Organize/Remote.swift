@@ -16,6 +16,7 @@ struct Remote {
     
     private static func authError(code code: Int) -> String {
       switch code {
+        // TODO: word better
       case 17000: return "Invalid custom token"
       case 17002: return "Custom token mismatch"
       case 17004: return "Invalid credentials"
@@ -97,7 +98,7 @@ struct Remote {
       }
     }
     
-    static func reset(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+    static func resetPassword(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
       loadingModal.show(controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
         loadingModal.hide {
@@ -108,6 +109,14 @@ struct Remote {
           }
         }
       }
+    }
+    
+    static func changePassword() {
+      
+    }
+    
+    static func changeEmail() {
+      
     }
     
     static func logout() {

@@ -36,20 +36,24 @@ class ForgotViewController: UIViewController {
     }
     
     // reset
-    Remote.Auth.reset(controller: self, email: email) { (error) in
+    Remote.Auth.resetPassword(controller: self, email: email) { (error) in
       if let error = error {
-        AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: self.emailTextField)
-      } else {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: self.emailTextField)
       }
+      self.navigateBack()
     }
+  }
+  
+  // MARK: - helper
+  private func navigateBack() {
+    Report.sharedInstance.track(event: "forgot")
+    self.dismissViewControllerAnimated(true, completion: nil)
   }
   
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)
   }
-  
   
   // MARK: - deinit
   deinit {

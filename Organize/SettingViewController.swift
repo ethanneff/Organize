@@ -34,7 +34,7 @@ class SettingViewController: UIViewController {
     
     case AccountHeader
     case ChangeEmail
-    case ChangePass
+    case ChangePassword
     case DeleteAccount
 
     case Logout
@@ -69,7 +69,7 @@ class SettingViewController: UIViewController {
         
       case .AccountHeader: return "Account"
       case .ChangeEmail: return "Change email"
-      case .ChangePass: return "Change password"
+      case .ChangePassword: return "Change password"
       case .DeleteAccount: return "Delete account"
       case .Logout: return "Logout"
       }
