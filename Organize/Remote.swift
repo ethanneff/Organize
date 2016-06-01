@@ -25,7 +25,7 @@ struct Remote {
       case 17008: return "Invalid email"
       case 17009: return "Invalid password"
       case 17010: return "Too many requests"
-      case 17011: return "No account with this email found"
+      case 17011: return "No account with this email"
       case 17012: return "Account exists with different credentials"
       case 17014: return "Requires re-login"
       case 17015: return "Provider already linked"
@@ -100,10 +100,12 @@ struct Remote {
     static func reset(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
       loadingModal.show(controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
-        if let error = error {
-          completion(error: error.localizedDescription)
-        } else {
-          completion(error: nil)
+        loadingModal.hide {
+          if let error = error {
+            completion(error: authError(code: error.code))
+          } else {
+            completion(error: nil)
+          }
         }
       }
     }

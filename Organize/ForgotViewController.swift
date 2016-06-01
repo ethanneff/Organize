@@ -26,8 +26,30 @@ class ForgotViewController: UIViewController {
   
   // MARK: - buttons
   func attemptForgot(button: UIButton) {
+    buttonPressed(button: button)
+    
+    // validate
+    let email: String  = emailTextField.text!.trim
+    
+    if !email.isEmail {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.EmailInvalid.message, textField: emailTextField)
+    }
+    
+    // reset
+    Remote.Auth.reset(controller: self, email: email) { (error) in
+      if let error = error {
+        AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: self.emailTextField)
+      } else {
+        self.dismissViewControllerAnimated(true, completion: nil)
+      }
+    }
+  }
+  
+  private func buttonPressed(button button: UIButton) {
+    dismissKeyboard()
     Util.animateButtonPress(button: button)
   }
+  
   
   // MARK: - deinit
   deinit {
