@@ -12,6 +12,7 @@ import Firebase
 struct Remote {
   
   struct Auth {
+    static let loadingModal: ModalLoadingController = ModalLoadingController()
     
     private static func authError(code code: Int) -> String {
       switch code {
@@ -60,7 +61,6 @@ struct Remote {
     }
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
-      let loadingModal = ModalLoadingController()
       loadingModal.show(controller)
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
@@ -85,7 +85,6 @@ struct Remote {
     }
     
     static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
-      let loadingModal = ModalLoadingController()
       loadingModal.show(controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
         loadingModal.hide {
@@ -99,7 +98,6 @@ struct Remote {
     }
     
     static func reset(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
-      let loadingModal = ModalLoadingController()
       loadingModal.show(controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
         if let error = error {
