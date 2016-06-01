@@ -9,7 +9,6 @@ class ForgotViewController: UIViewController {
   // MARK: - load
   override func loadView() {
     super.loadView()
-    print("loadview")
     setupView()
     listenKeyboard()
   }
@@ -17,6 +16,11 @@ class ForgotViewController: UIViewController {
   private func setupView() {
     AccessSetup.createForgot(controller: self, email: emailTextField, forgot: forgotButton)
     forgotButton.addTarget(self, action: #selector(attemptForgot(_:)), forControlEvents: .TouchUpInside)
+  }
+  
+  // MARK: - appear
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
     emailTextField.becomeFirstResponder()
   }
   

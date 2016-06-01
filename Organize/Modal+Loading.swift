@@ -23,10 +23,14 @@ class ModalLoadingController: UIViewController {
   }
   
   // MARK: - close
-  func close() {
+  func hide(parentController: UIViewController? = nil, completion: (() -> ())? = nil) {
     Modal.animateOut(modal: modal, background: view) {
-      self.dismissViewControllerAnimated(false, completion: nil)
       Util.toggleNetworkIndicator(on: false)
+      self.dismissViewControllerAnimated(false, completion: { 
+        if let completion = completion {
+          completion()
+        }
+      })
     }
   }
   
@@ -55,7 +59,7 @@ class ModalLoadingController: UIViewController {
   private func createIndicator() -> UIActivityIndicatorView {
     let indicator = UIActivityIndicatorView()
     indicator.translatesAutoresizingMaskIntoConstraints = false
-    indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge
+    indicator.activityIndicatorViewStyle = .WhiteLarge
     indicator.color = Constant.Color.button
     indicator.startAnimating()
     

@@ -24,7 +24,7 @@ struct Remote {
       case 17008: return "Invalid email"
       case 17009: return "Invalid password"
       case 17010: return "Too many requests"
-      case 17011: return "User not found"
+      case 17011: return "No account with this email found"
       case 17012: return "Account exists with different credentials"
       case 17014: return "Requires re-login"
       case 17015: return "Provider already linked"
@@ -47,11 +47,11 @@ struct Remote {
       if let user = FIRAuth.auth()?.currentUser {
         for profile in user.providerData {
           print(profile)
-//          let providerID = profile.providerID
-//          let uid = profile.uid;  // Provider-specific UID
-//          let name = profile.displayName
-//          let email = profile.email
-//          let photoURL = profile.photoURL
+          //          let providerID = profile.providerID
+          //          let uid = profile.uid;  // Provider-specific UID
+          //          let name = profile.displayName
+          //          let email = profile.email
+          //          let photoURL = profile.photoURL
         }
         return user
       } else {
@@ -80,19 +80,13 @@ struct Remote {
     }
     
     static func login(email email: String, password: String, completion: (error: String?) -> ()) {
-      FIRAuth.auth()?.fetchProvidersForEmail(email, completion: { (user, error) in
+      FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
         if let error = error {
           completion(error: authError(code: error.code))
         } else {
-          FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
-            if let error = error {
-              completion(error: authError(code: error.code))
-            } else {
-              completion(error: nil)
-            }
-          }
+          completion(error: nil)
         }
-      })
+      }
     }
     
     static func reset(email email: String, completion: (error: String?) -> ()) {

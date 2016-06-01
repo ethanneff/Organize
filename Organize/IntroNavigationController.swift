@@ -13,20 +13,15 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-    //    Util.delay(Config.appLoadingDelay) {
-    //      self.displayController(navController: MenuNavigationController())
-    //    }
-    
-    
-    User.get(completion: { user in
-      if user == nil {
-        Util.delay(Constant.App.loadingDelay) {
-          self.displayController(navController: AccessNavigationController())
-        }
-      } else {
+    Remote.Auth.logout()
+    Util.delay(Constant.App.loadingDelay) {
+      if let user = Remote.Auth.currentUser {
+        print(user)
         self.displayController(navController: MenuNavigationController())
+      } else {
+        self.displayController(navController: AccessNavigationController())
       }
-    })
+    }
   }
   
   private func displayController(navController navController: UINavigationController) {

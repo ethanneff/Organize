@@ -242,6 +242,7 @@ class AccessSetup {
     textField.secureTextEntry = keyboardType == .Password ? true : false
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.autoresizesSubviews = false
+    textField.autocapitalizationType = .None
     
     return textField
   }

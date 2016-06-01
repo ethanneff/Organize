@@ -10,7 +10,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   let signupButton: UIButton = UIButton()
   let forgotButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
+  var recentlySignedUp: Bool = false
   lazy var modalLoading: ModalLoadingController = ModalLoadingController()
+  lazy var signupController: SignupViewController = SignupViewController()
+  lazy var forgotController: ForgotViewController = ForgotViewController()
   
   // MARK: - load
   override func loadView() {
@@ -21,10 +24,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-
-    if let user = Remote.Auth.currentUser {
-      print(user)
-//      login(user: "bob")
+    if recentlySignedUp {
+      dismissViewControllerAnimated(false, completion: nil)
     }
   }
   
@@ -37,6 +38,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - deinit
   deinit {
+    print("login deinit")
     dealloc()
   }
   
@@ -51,64 +53,56 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     view.addGestureRecognizer(tap)
   }
   
-  func dismissKeyboard() {
+  internal func dismissKeyboard() {
     view.endEditing(true)
   }
   
-  func keyboardNotification(notification: NSNotification) {
+  internal func keyboardNotification(notification: NSNotification) {
     if let bottomConstraint = bottomConstraint {
       Util.handleKeyboardScrollView(keyboardNotification: notification, scrollViewBottomConstraint: bottomConstraint, view: view)
     }
   }
   
   // MARK: - buttons
-  func attemptLogin(button: UIButton) {
+  internal func attemptLogin(button: UIButton) {
     buttonPressed(button: button)
     
+    // validate
+    let email: String  = emailTextField.text!.trim
+    let password: String  = passwordTextField.text!.trim
     
-    modalLoading.show(self)
-    
-    Util.delay(2) {
-      self.modalLoading.close()
+    if !email.isEmail {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.EmailInvalid.message, textField: emailTextField)
     }
-//
-//    let error = AccessBusinessLogic.validateLogin(emailTextField: emailTextField, passwordTextField: passwordTextField)
-//    if error != .Success {
-//      AccessBusinessLogic.displayError(controller: self, error: error) {
-//        switch error {
-//        case .PasswordInvalid, .PasswordIncorrect: AccessBusinessLogic.textFieldClearAndSelect(textField: self.passwordTextField)
-//        default: AccessBusinessLogic.textFieldClearAndSelect(textField: self.emailTextField)
-//        }
-//      }
-//      return
-//    }
-//    
-//    Remote.Auth.login(email: emailTextField.text!, password: passwordTextField.text!) { error in
-//      if let error = error {
-//        
-//      }
-//      print(error)
-//    }
     
+    if password.isEmpty {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.PasswordMissing.message, textField: emailTextField)
+    }
     
- 
-//    self.dismissViewControllerAnimated(true, completion: nil)
+    // login
+    modalLoading.show(self)
+    Remote.Auth.login(email: emailTextField.text!, password: passwordTextField.text!) { error in
+      self.modalLoading.hide() {
+        if let error = error {
+          return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
+        } else {
+          self.dismissViewControllerAnimated(false, completion: nil)
+        }
+      }
+    }
   }
   
-  func login(user user: String) {
-    
-  }
-  
-  func showSignup(button: UIButton) {
+  internal func showSignup(button: UIButton) {
     buttonPressed(button: button)
-    self.clearTextFields()
-    self.navigationController?.pushViewController(SignupViewController(), animated: true)
+    clearTextFields()
+    signupController.previousController = self
+    navigationController?.pushViewController(signupController, animated: true)
   }
   
-  func showForgot(button: UIButton) {
+  internal func showForgot(button: UIButton) {
     buttonPressed(button: button)
-    self.clearTextFields()
-    self.navigationController?.pushViewController(ForgotViewController(), animated: true)
+    clearTextFields()
+    navigationController?.pushViewController(forgotController, animated: true)
   }
   
   // MARK: - helper

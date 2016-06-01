@@ -16,6 +16,7 @@ class AccessNavigationController: UINavigationController {
   }
   
   private func setupGestures() {
+    // tap navigation bar
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
     tap.cancelsTouchesInView = false
     navigationBar.addGestureRecognizer(tap)
@@ -24,6 +25,4 @@ class AccessNavigationController: UINavigationController {
   func dismissKeyboard(sender: UITapGestureRecognizer) {
     view.endEditing(true)
   }
-  
-  // TODO: need to dismiss controller before going to menu
 }

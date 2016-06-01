@@ -8,6 +8,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   let passwordTextField: UITextField = UITextField()
   let signupButton: UIButton = UIButton()
   var bottomConstraint: NSLayoutConstraint?
+  weak var previousController: LoginViewController?
+  lazy var modalLoading: ModalLoadingController = ModalLoadingController()
   
   // MARK: - load
   override func loadView() {
@@ -17,84 +19,63 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     listenKeyboard()
   }
   
-  // MARK: - create
   private func setupView() {
     bottomConstraint = AccessSetup.createSignup(controller: self, firstName: firstNameTextField, lastName: lastNameTextField, email: emailTextField, password: passwordTextField, signup: signupButton)
-    signupButton.addTarget(self, action: #selector(attemptSignup), forControlEvents: .TouchUpInside)
+    signupButton.addTarget(self, action: #selector(attemptSignup(_:)), forControlEvents: .TouchUpInside)
   }
   
-  private func setupKeyboard() {
+  // MARK: - appear
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
     firstNameTextField.becomeFirstResponder()
-    firstNameTextField.delegate = self
-    lastNameTextField.delegate = self
-    emailTextField.delegate = self
-    passwordTextField.delegate = self
-    UITextField.setTapOrder(fields: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField])
   }
-  
-  // MARK: - buttons
-  func attemptSignup() {
-    dismissKeyboard()
-    displayLoading(message: "Creating account")
-    //    showActivityIndicatory(view)
-    return
-    
-    //    let firstName: String = firstNameTextField.text!.trim
-    //    let lastName: String  = lastNameTextField.text!.trim
-    //    let email: String  = emailTextField.text!.trim
-    //    let password: String  = passwordTextField.text!.trim
-    //    let fullName = (firstName + lastName).trim
-    //
-    //    if firstName.isEmpty {
-    //      return displayError(message: "Invalid first name", textField: firstNameTextField)
-    //    }
-    //
-    //    if lastName.isEmpty {
-    //      return displayError(message: "Invalid last name", textField: lastNameTextField)
-    //    }
-    //
-    //    if !email.isEmail {
-    //      return displayError(message: "Invalid email", textField: emailTextField)
-    //    }
-    //
-    //    if !password.isPassword {
-    //      return displayError(message: "Passwords must be longer than 6 with uppercase, lowercase, and number characters", textField: passwordTextField)
-    //    }
-    //
-    //    Remote.Auth.signup(email: email, password: password, name: fullName) { (error) in
-    //      if let error = error {
-    //        return self.displayError(message: error, textField: nil)
-    //      }
-    //      self.dismissViewControllerAnimated(true, completion: nil)
-    //    }
-  }
-  
-  
-  func displayError(message message: String, textField: UITextField?) {
-    let ac = UIAlertController(title: message, message: nil, preferredStyle: .Alert)
-    ac.addAction(UIAlertAction(title: "Okay", style: .Default) { action in
-      if let textField = textField {
-        textField.becomeFirstResponder()
-      }
-      })
-    presentViewController(ac, animated: true, completion: nil)
-  }
-  
-  func displayLoading(message message: String) {
-    let message = message + "\n\n\n"
-    let alert = UIAlertController(title: nil, message: message, preferredStyle: .Alert)
-    let indicator = UIActivityIndicatorView()
-    alert.view.addSubview(indicator)
-    indicator.translatesAutoresizingMaskIntoConstraints = false
-    indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge
-    indicator.color = Constant.Color.button
-    indicator.startAnimating()
-    NSLayoutConstraint.activateConstraints([
-      NSLayoutConstraint(item: indicator, attribute: .CenterX, relatedBy: .Equal, toItem: alert.view, attribute: .CenterX, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: indicator, attribute: .CenterY, relatedBy: .Equal, toItem: alert.view, attribute: .CenterY, multiplier: 1, constant: 0),
-      ])
 
-    presentViewController(alert, animated: true, completion: nil)
+  // MARK: - buttons
+  internal func attemptSignup(button: UIButton) {
+    buttonPressed(button: button)
+    
+    let firstName: String = firstNameTextField.text!.trim
+    let lastName: String  = lastNameTextField.text!.trim
+    let email: String  = emailTextField.text!.trim
+    let password: String  = passwordTextField.text!.trim
+    let fullName = (firstName + lastName).trim
+    
+    if firstName.isEmpty {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.FirstNameInvalid.message, textField: firstNameTextField)
+    }
+    
+    if lastName.isEmpty {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.LastNameInvalid.message, textField: lastNameTextField)
+    }
+    
+    if !email.isEmail {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.EmailInvalid.message, textField: emailTextField)
+    }
+    
+    if !password.isPassword {
+      return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.PasswordInvalid.message, textField: passwordTextField)
+    }
+    
+    modalLoading.show(self)
+    Remote.Auth.signup(email: email, password: password, name: fullName) { (error) in
+      self.modalLoading.hide() {
+        if let error = error {
+          return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
+        }
+        self.navigateToMenu()
+      }
+    }
+  }
+  
+  // MARK: - helper
+  private func navigateToMenu() {
+    previousController?.recentlySignedUp = true
+    self.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
+  private func buttonPressed(button button: UIButton) {
+    dismissKeyboard()
+    Util.animateButtonPress(button: button)
   }
   
   // MARK: - deinit
@@ -103,21 +84,17 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   }
   
   private func dealloc() {
+    previousController = nil
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
   }
   
   // MARK: - keyboard
-  func textFieldDidEndEditing(textField: UITextField) {
-    //    if let email = emailTextField.text?.trim, let passwordOne = passwordOneTextField.text?.trim, let passwordTwo = passwordTwoTextField.text?.trim {
-    //      if email.length > 0 && passwordOne.length > 0 && passwordTwo.length > 0 {
-    //        attemptSignup()
-    //      }
-    //    }
-  }
-  
-  private func textFieldClearAndSelect(textField textField: UITextField) {
-    textField.text = ""
-    textField.becomeFirstResponder()
+  private func setupKeyboard() {
+    firstNameTextField.delegate = self
+    lastNameTextField.delegate = self
+    emailTextField.delegate = self
+    passwordTextField.delegate = self
+    UITextField.setTapOrder(fields: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField])
   }
   
   private func listenKeyboard() {
