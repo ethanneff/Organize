@@ -20,7 +20,7 @@ class ModalTutorialViewController: UIViewController {
     case Indent
     case Reminder
     case Delete
-//    case Undo // TODO: v2
+    //    case Undo // TODO: v2
     case Collapse
     case Reorder
     case Edit
@@ -36,7 +36,7 @@ class ModalTutorialViewController: UIViewController {
       case .Indent: return "Swipe right or left to indent"
       case .Reminder: return "Swipe right to set a reminder"
       case .Delete: return "Swipe right to delete"
-//      case .Undo: return "Shake to undo last action"
+      //      case .Undo: return "Shake to undo last action"
       case .Collapse: return "Double tap to collapse"
       case .Reorder: return "Hold to reorder"
       case .Edit: return "Tap to edit or create"
@@ -50,7 +50,7 @@ class ModalTutorialViewController: UIViewController {
       case .Indent: return UIImage(named: "shot-indent")!
       case .Reminder: return UIImage(named: "shot-reminder")!
       case .Delete: return UIImage(named: "shot-delete")!
-//      case .Undo: return UIImage(named: "shot-undo")!
+      //      case .Undo: return UIImage(named: "shot-undo")!
       case .Collapse: return UIImage(named: "shot-collapse")!
       case .Reorder: return UIImage(named: "shot-reorder")!
       case .Edit: return UIImage(named: "shot-edit")!
@@ -95,43 +95,45 @@ class ModalTutorialViewController: UIViewController {
     modal.addSubview(topSeparator)
     modal.addSubview(button!)
     
-    progressWidthConstraint = progress!.widthAnchor.constraintGreaterThanOrEqualToAnchor(modal.widthAnchor, multiplier: 0, constant: 0)
+    progressWidthConstraint = NSLayoutConstraint(item: progress!, attribute: .Width, relatedBy: .Equal, toItem: modal, attribute: .Width, multiplier: 0, constant: 0)
     
     NSLayoutConstraint.activateConstraints([
-      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
-      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
-      modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: 0.7, constant: 50),
-      modal.heightAnchor.constraintLessThanOrEqualToAnchor(view.heightAnchor, multiplier: 0.6, constant: 100),
+      NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: 0.7, constant: 50),
+      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.6, constant: 100),
       
-      message!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      message!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      message!.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.padding),
-      message!.heightAnchor.constraintEqualToConstant(Constant.Button.height),
+      NSLayoutConstraint(item: message!, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: message!, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: message!, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: Constant.Button.padding),
+      NSLayoutConstraint(item: message!, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
       
-      messageSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      messageSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      messageSeparator.topAnchor.constraintEqualToAnchor(message!.bottomAnchor, constant: Constant.Button.padding/2),
-      messageSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      image!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      image!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      image!.topAnchor.constraintEqualToAnchor(messageSeparator.bottomAnchor, constant: Constant.Button.padding),
-      image!.bottomAnchor.constraintEqualToAnchor(progress!.topAnchor, constant: -Constant.Button.padding),
+      NSLayoutConstraint(item: messageSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: messageSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: messageSeparator, attribute: .Top, relatedBy: .Equal, toItem: message!, attribute: .Bottom, multiplier: 1, constant: Constant.Button.padding/2),
+      NSLayoutConstraint(item: messageSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: image!, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: image!, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: image!, attribute: .Top, relatedBy: .Equal, toItem: messageSeparator, attribute: .Bottom, multiplier: 1, constant: Constant.Button.padding),
+      NSLayoutConstraint(item: image!, attribute: .Bottom, relatedBy: .Equal, toItem: progress!, attribute: .Top, multiplier: 1, constant: -Constant.Button.padding),
       
       progressWidthConstraint!,
-      progress!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      progress!.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
-      progress!.heightAnchor.constraintEqualToConstant(progressHeight),
+      NSLayoutConstraint(item: progress!, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: progress!, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparator, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: progress!, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: progressHeight),
       
-      topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparator.bottomAnchor.constraintEqualToAnchor(button!.topAnchor),
-      topSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      button!.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      button!.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      button!.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      button!.heightAnchor.constraintEqualToConstant(Constant.Button.height),
+      NSLayoutConstraint(item: topSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: button!, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
+ 
+      NSLayoutConstraint(item: button!, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button!, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button!, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button!, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
       ])
   }
   
