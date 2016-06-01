@@ -130,7 +130,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.scrollIndicatorInsets = UIEdgeInsetsZero
     tableView.layoutMargins = UIEdgeInsetsZero
     tableView.tableFooterView = UIView(frame: CGRect.zero)
-    tableView.cellLayoutMarginsFollowReadableWidth = false
+    if #available(iOS 9.0, *) {
+      tableView.cellLayoutMarginsFollowReadableWidth = false
+    }
     
     // constraints
     tableView.translatesAutoresizingMaskIntoConstraints = false

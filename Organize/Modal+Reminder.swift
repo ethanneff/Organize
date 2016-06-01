@@ -118,80 +118,88 @@ class ModalReminderViewController: UIViewController {
     modal.addSubview(midSeparatorTwo)
     
     NSLayoutConstraint.activateConstraints([
-      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
-      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
-      modal.widthAnchor.constraintLessThanOrEqualToAnchor(view.widthAnchor, multiplier: buttonMultiplier*buttonColumns, constant: modalWidthPadding),
-      modal.heightAnchor.constraintGreaterThanOrEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier*buttonRows, constant: modalHeightPadding),
+      NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: buttonMultiplier*buttonColumns, constant: modalWidthPadding),
+      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier*buttonRows, constant: modalHeightPadding),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: buttonOne, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonOne, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorTwo, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonOne, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonOne.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonOne.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonOne.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonTwo, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorOne, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonTwo, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorTwo, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonTwo, attribute: .Width, relatedBy: .Equal, toItem: buttonOne, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonTwo, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonTwo.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonTwo.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonTwo.widthAnchor.constraintEqualToAnchor(buttonOne.widthAnchor),
-      buttonTwo.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonThree, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonThree, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorTwo, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonThree, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorTwo, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonThree, attribute: .Width, relatedBy: .Equal, toItem: buttonOne, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonThree, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: buttonFour, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonFour, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorThree, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonFour, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonThree.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonThree.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonThree.bottomAnchor.constraintEqualToAnchor(topSeparatorTwo.bottomAnchor),
-      buttonThree.widthAnchor.constraintEqualToAnchor(buttonOne.widthAnchor),
-      buttonThree.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonFive, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorOne, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonFive, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorThree, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonFive, attribute: .Width, relatedBy: .Equal, toItem: buttonFour, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonFive, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonFour.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonFour.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonFour.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonSix, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSix, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorTwo, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSix, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparatorThree, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSix, attribute: .Width, relatedBy: .Equal, toItem: buttonFour, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSix, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: buttonSeven, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSeven, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonSeven, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonFive.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonFive.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonFive.widthAnchor.constraintEqualToAnchor(buttonFour.widthAnchor),
-      buttonFive.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonEight, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorOne, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonEight, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonEight, attribute: .Width, relatedBy: .Equal, toItem: buttonSeven, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonEight, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
       
-      buttonSix.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonSix.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonSix.bottomAnchor.constraintEqualToAnchor(topSeparatorThree.bottomAnchor),
-      buttonSix.widthAnchor.constraintEqualToAnchor(buttonFour.widthAnchor),
-      buttonSix.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: buttonNine, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonNine, attribute: .Leading, relatedBy: .Equal, toItem: midSeparatorTwo, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonNine, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonNine, attribute: .Width, relatedBy: .Equal, toItem: buttonSeven, attribute: .Width, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: buttonNine, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: buttonMultiplier, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: topSeparatorOne, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorOne, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorOne, attribute: .Bottom, relatedBy: .Equal, toItem: buttonOne, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorOne, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       
-      buttonSeven.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      buttonSeven.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonSeven.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: topSeparatorTwo, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorTwo, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorTwo, attribute: .Bottom, relatedBy: .Equal, toItem: buttonFour, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorTwo, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       
-      buttonEight.leadingAnchor.constraintEqualToAnchor(midSeparatorOne.trailingAnchor),
-      buttonEight.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonEight.widthAnchor.constraintEqualToAnchor(buttonSeven.widthAnchor),
-      buttonEight.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: topSeparatorThree, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorThree, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorThree, attribute: .Bottom, relatedBy: .Equal, toItem: buttonSeven, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparatorThree, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       
-      buttonNine.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      buttonNine.leadingAnchor.constraintEqualToAnchor(midSeparatorTwo.trailingAnchor),
-      buttonNine.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      buttonNine.widthAnchor.constraintEqualToAnchor(buttonSeven.widthAnchor),
-      buttonNine.heightAnchor.constraintEqualToAnchor(view.heightAnchor, multiplier: buttonMultiplier),
+      NSLayoutConstraint(item: midSeparatorOne, attribute: .Leading, relatedBy: .Equal, toItem: buttonSeven, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorOne, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorOne, attribute: .Top, relatedBy: .Equal, toItem: topSeparatorOne, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorOne, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       
-      topSeparatorOne.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorOne.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorOne.bottomAnchor.constraintEqualToAnchor(buttonOne.topAnchor),
-      topSeparatorOne.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      topSeparatorTwo.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorTwo.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorTwo.bottomAnchor.constraintEqualToAnchor(buttonFour.topAnchor),
-      topSeparatorTwo.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      topSeparatorThree.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparatorThree.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparatorThree.bottomAnchor.constraintEqualToAnchor(buttonSeven.topAnchor),
-      topSeparatorThree.heightAnchor.constraintEqualToConstant(Modal.separator),
-      
-      midSeparatorOne.leadingAnchor.constraintEqualToAnchor(buttonSeven.trailingAnchor),
-      midSeparatorOne.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparatorOne.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
-      midSeparatorOne.widthAnchor.constraintEqualToConstant(Modal.separator),
-      
-      midSeparatorTwo.leadingAnchor.constraintEqualToAnchor(buttonEight.trailingAnchor),
-      midSeparatorTwo.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparatorTwo.topAnchor.constraintEqualToAnchor(topSeparatorOne.topAnchor),
-      midSeparatorTwo.widthAnchor.constraintEqualToConstant(Modal.separator),
+      NSLayoutConstraint(item: midSeparatorTwo, attribute: .Leading, relatedBy: .Equal, toItem: buttonEight, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorTwo, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorTwo, attribute: .Top, relatedBy: .Equal, toItem: topSeparatorOne, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparatorTwo, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       ])
   }
   
