@@ -16,62 +16,69 @@ class SettingViewController: UIViewController {
   }
   
   enum Button: Int  {
-    case NotebookHeader
-    case ChangeTitle
-    //    case ChangeNotebook
-    case CollapseAll
-    case UncollapseAll
-    case DeleteAll
+    case Notebook
+    case NotebookTitle
+    case NotebookNotebook
+    case NotebookCollapse
+    case NotebookUncollapse
+    case NotebookDeleteCompleted
     
-    case SettingsHeader
-    case ViewTutorial
-    //    case ToggleSound
-    //    case ToggleColor
+    case Settings
+    case SettingsTutorial
+    case SettingsSound
+    case SettingsColor
     
-    case SocialHeader
-    case SendFeedback
-    case ShareApp
+    case Social
+    case SocialFeedback
+    case SocialShare
     
-    case AccountHeader
-    case ChangeEmail
-    case ChangePassword
-    case DeleteAccount
-
-    case Logout
+    case Account
+    case AccountEmail
+    case AccountPassword
+    case AccountDelete
+    case AccountLogout
     
     static var count: Int {
-      return Logout.hashValue+1
+      return AccountLogout.hashValue+1
     }
     
     var header: Bool {
       switch self {
-      case .NotebookHeader, .SocialHeader, .SettingsHeader, .AccountHeader: return true
+      case .Notebook, .Social, .Settings, .Account: return true
       default: return false
+      }
+    }
+    
+    var active: Bool {
+      switch self {
+      case .NotebookNotebook, .SettingsSound, .SettingsColor: return false
+      default: return true
       }
     }
     
     var title: String {
       switch self {
-      case .NotebookHeader: return "Notebook"
-      case .ChangeTitle: return "Change title"
-      case .CollapseAll: return "Collapse all"
-      case .UncollapseAll: return "Expand all"
-      case .DeleteAll: return "Delete completed"
+      case .Notebook: return "Notebook"
+      case .NotebookTitle: return "Change title"
+      case .NotebookNotebook: return "Change notebook"
+      case .NotebookCollapse: return "Collapse all"
+      case .NotebookUncollapse: return "Expand all"
+      case .NotebookDeleteCompleted: return "Delete completed"
         
-      case .SettingsHeader: return "Settings"
-      case .ViewTutorial: return "View tutorial"
-        //      case .ToggleSound: return "Toggle sound" // TODO: based on appstate
-        //      case .ToggleColor: return "Toggle color" // TODO: based on app state
+      case .Settings: return "Settings"
+      case .SettingsTutorial: return "View tutorial"
+      case .SettingsSound: return "Toggle sound" // TODO: based on appstate
+      case .SettingsColor: return "Toggle color" // TODO: based on app state
         
-      case .SocialHeader: return "Social"
-      case .SendFeedback: return "Send feedback"
-      case .ShareApp: return "Share the app"
+      case .Social: return "Social"
+      case .SocialFeedback: return "Send feedback"
+      case .SocialShare: return "Share the app"
         
-      case .AccountHeader: return "Account"
-      case .ChangeEmail: return "Change email"
-      case .ChangePassword: return "Change password"
-      case .DeleteAccount: return "Delete account"
-      case .Logout: return "Logout"
+      case .Account: return "Account"
+      case .AccountEmail: return "Change email"
+      case .AccountPassword: return "Change password"
+      case .AccountDelete: return "Delete account"
+      case .AccountLogout: return "Logout"
       }
     }
   }
@@ -89,6 +96,9 @@ class SettingViewController: UIViewController {
     var prev: UIButton = UIButton()
     for i in 0..<Button.count {
       if let info = Button(rawValue: i) {
+        if !info.active {
+          continue
+        }
         let button = UIButton()
         let enabled: Bool = info.header ? false : true
         let color: UIColor = info.header ? Constant.Color.border : Constant.Color.button

@@ -311,20 +311,29 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
-    case .Logout: logout()
-    case .DeleteAccount: modalAccountDelete()
-      case .ChangeEmail: modalAccountDelete()
-      case .ChangePassword: modalAccountDelete()
+    case .NotebookTitle: temp()
+    case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
+    case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
+    case .NotebookDeleteCompleted: modalDeleteAll()
       
+    case .SettingsTutorial: modalTutorial()
       
-      //    case .Collapse: notebook.collapseAll(tableView: tableView)
-      //    case .Uncollapse: notebook.uncollapseAll(tableView: tableView)
-      //    case .Delete: modalDeleteAll()
-      //    case .Feedback: modalFeedback()
-    //    case .Tutorial: modalTutorial()
+    case .SocialFeedback: modalFeedback()
+    case .SocialShare: temp()
+      
+    case .AccountEmail:  temp()
+    case .AccountPassword:  temp()
+    case .AccountDelete: modalAccountDelete()
+    case .AccountLogout: logout()
+  
     default: break
     }
   }
+
+  private func temp() {
+    print("temp")
+  }
+  
   
   private func logout() {
     Remote.Auth.logout()

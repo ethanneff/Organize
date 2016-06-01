@@ -4,7 +4,7 @@ class IntroNavigationController: UINavigationController {
   override func loadView() {
     super.loadView()
     whiteStatusBarText()
-    pushViewController(IntroViewController(), animated: false)
+    pushViewController(IntroViewController(), animated: true)
   }
   
   override func viewDidAppear(animated: Bool) {
