@@ -60,12 +60,13 @@ class Modal {
       title.font = .boldSystemFontOfSize(Modal.textSize)
       title.text = titleText
       title.translatesAutoresizingMaskIntoConstraints = false
-      constraints.append(title.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor))
-      constraints.append(title.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor))
-      constraints.append(title.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.padding))
-      constraints.append(title.heightAnchor.constraintEqualToConstant(Constant.Button.height))
+      
+      constraints.append(NSLayoutConstraint(item: title, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0))
+      constraints.append(NSLayoutConstraint(item: title, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0))
+      constraints.append(NSLayoutConstraint(item: title, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: Constant.Button.padding))
+      constraints.append(NSLayoutConstraint(item: title, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
     }
-
+    
     NSLayoutConstraint.activateConstraints(constraints)
   }
   

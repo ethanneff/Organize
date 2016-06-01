@@ -56,7 +56,7 @@ class ModalDatePickerViewController: UIViewController {
     Modal.animateIn(modal: modal, background: view, completion: nil)
     picker.minimumDate = NSDate().dateByAddingTimeInterval(1*60)
   }
-
+  
   // MARK: - close
   private func close(date date: NSDate?) {
     Modal.animateOut(modal: modal, background: view) {
@@ -89,38 +89,38 @@ class ModalDatePickerViewController: UIViewController {
     
     picker.minuteInterval = pickerMinuteInterval
     picker.translatesAutoresizingMaskIntoConstraints = false
-  
+    
     NSLayoutConstraint.activateConstraints([
-      modal.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
-      modal.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor),
-      modal.widthAnchor.constraintEqualToConstant(modalWidth),
-      modal.heightAnchor.constraintEqualToConstant(modalHeight),
+      NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalWidth),
+      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalHeight),
       
-      picker.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      picker.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      picker.topAnchor.constraintEqualToAnchor(modal.topAnchor, constant: Constant.Button.height),
-      picker.bottomAnchor.constraintEqualToAnchor(topSeparator.topAnchor),
+      NSLayoutConstraint(item: picker, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: picker, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: picker, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: Constant.Button.height),
+      NSLayoutConstraint(item: picker, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparator, attribute: .Top, multiplier: 1, constant: 0),
       
-      no.trailingAnchor.constraintEqualToAnchor(midSeparator.leadingAnchor),
-      no.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      no.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      no.heightAnchor.constraintEqualToConstant(Constant.Button.height),
+      NSLayoutConstraint(item: no, attribute: .Trailing, relatedBy: .Equal, toItem: midSeparator, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: no, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: no, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: no, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
       
-      yes.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      yes.leadingAnchor.constraintEqualToAnchor(midSeparator.trailingAnchor),
-      yes.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      yes.heightAnchor.constraintEqualToConstant(Constant.Button.height),
-      yes.widthAnchor.constraintEqualToAnchor(no.widthAnchor),
+      NSLayoutConstraint(item: yes, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: yes, attribute: .Leading, relatedBy: .Equal, toItem: midSeparator, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: yes, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: yes, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      NSLayoutConstraint(item: yes, attribute: .Width, relatedBy: .Equal, toItem: no, attribute: .Width, multiplier: 1, constant: 0),
       
-      topSeparator.leadingAnchor.constraintEqualToAnchor(modal.leadingAnchor),
-      topSeparator.trailingAnchor.constraintEqualToAnchor(modal.trailingAnchor),
-      topSeparator.bottomAnchor.constraintEqualToAnchor(yes.topAnchor),
-      topSeparator.heightAnchor.constraintEqualToConstant(Modal.separator),
+      NSLayoutConstraint(item: topSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: yes, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       
-      midSeparator.leadingAnchor.constraintEqualToAnchor(no.trailingAnchor),
-      midSeparator.bottomAnchor.constraintEqualToAnchor(modal.bottomAnchor),
-      midSeparator.heightAnchor.constraintEqualToAnchor(no.heightAnchor),
-      midSeparator.widthAnchor.constraintEqualToConstant(Modal.separator),
+      NSLayoutConstraint(item: midSeparator, attribute: .Leading, relatedBy: .Equal, toItem: no, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Height, relatedBy: .Equal, toItem: no, attribute: .Height, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Modal.separator),
       ])
   }
   
