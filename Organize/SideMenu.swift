@@ -117,62 +117,60 @@ class SideMenu: UIViewController {
     // below navigation bar
     parent.edgesForExtendedLayout = .None
     
-    // get the superview's layout
-    let margins = parent.view.layoutMarginsGuide
-    
+    // constraints
     var constraints:[NSLayoutConstraint] = []
-    constraints += createContainerChild(margins: margins)
-    constraints += createContainerLeft(margins: margins)
-    constraints += createContainerRight(margins: margins)
+    constraints += createContainerChild()
+    constraints += createContainerLeft()
+    constraints += createContainerRight()
     NSLayoutConstraint.activateConstraints(constraints)
   }
   
-  private func createContainerChild(margins margins: UILayoutGuide) -> [NSLayoutConstraint] {
+  private func createContainerChild() -> [NSLayoutConstraint] {
     addContainer(container: child)
     child.view.translatesAutoresizingMaskIntoConstraints = false
     
     return [
-      child.view.topAnchor.constraintEqualToAnchor(margins.topAnchor),
-      child.view.bottomAnchor.constraintEqualToAnchor(parent.view.bottomAnchor),
-      child.view.centerXAnchor.constraintEqualToAnchor(parent.view.centerXAnchor),
-      child.view.widthAnchor.constraintEqualToAnchor(parent.view.widthAnchor),
+      NSLayoutConstraint(item: child.view, attribute: .Top, relatedBy: .Equal, toItem: parent.view, attribute: .TopMargin, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: child.view, attribute: .Bottom, relatedBy: .Equal, toItem: parent.view, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: child.view, attribute: .CenterX, relatedBy: .Equal, toItem: parent.view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: child.view, attribute: .Width, relatedBy: .Equal, toItem: parent.view, attribute: .Width, multiplier: 1, constant: 0),
     ]
   }
   
-  private func createContainerLeft(margins margins: UILayoutGuide) -> [NSLayoutConstraint] {
+  private func createContainerLeft() -> [NSLayoutConstraint] {
     if let left = left {
       addContainer(container: left)
       left.view.translatesAutoresizingMaskIntoConstraints = false
       return [
-        left.view.topAnchor.constraintEqualToAnchor(margins.topAnchor),
-        left.view.bottomAnchor.constraintEqualToAnchor(parent.view.bottomAnchor),
+        NSLayoutConstraint(item: left.view, attribute: .Top, relatedBy: .Equal, toItem: parent.view, attribute: .TopMargin, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: left.view, attribute: .Bottom, relatedBy: .Equal, toItem: parent.view, attribute: .Bottom, multiplier: 1, constant: 0),
       ] + createContainerLeftConstraints()
     }
     return []
   }
   
-  private func createContainerRight(margins margins: UILayoutGuide) -> [NSLayoutConstraint] {
+  private func createContainerRight() -> [NSLayoutConstraint] {
     if let right = right {
       addContainer(container: right)
       right.view.translatesAutoresizingMaskIntoConstraints = false
      
       return [
-        right.view.topAnchor.constraintEqualToAnchor(margins.topAnchor),
-        right.view.bottomAnchor.constraintEqualToAnchor(parent.view.bottomAnchor),
+        NSLayoutConstraint(item: right.view, attribute: .Top, relatedBy: .Equal, toItem: parent.view, attribute: .TopMargin, multiplier: 1, constant: 0),
+        NSLayoutConstraint(item: right.view, attribute: .Bottom, relatedBy: .Equal, toItem: parent.view, attribute: .Bottom, multiplier: 1, constant: 0),
       ] + createContainerRightConstraints()
     }
     return []
   }
   
   private func createContainerRightConstraints() -> [NSLayoutConstraint] {
-    rightConstraintSide = right!.view.trailingAnchor.constraintEqualToAnchor(parent.view.trailingAnchor, constant: rightWidth)
-    rightConstraintWidth = right!.view.widthAnchor.constraintEqualToConstant(rightWidth)
+    rightConstraintSide = NSLayoutConstraint(item: right!.view, attribute: .Trailing, relatedBy: .Equal, toItem: parent.view, attribute: .Trailing, multiplier: 1, constant: rightWidth)
+    rightConstraintWidth = NSLayoutConstraint(item: right!.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: rightWidth)
     return [rightConstraintSide!, rightConstraintWidth!]
   }
   
   private func createContainerLeftConstraints() -> [NSLayoutConstraint] {
-    leftConstraintSide = left!.view.leadingAnchor.constraintEqualToAnchor(parent.view.leadingAnchor, constant: -leftWidth)
-    leftConstraintWidth = left!.view.widthAnchor.constraintEqualToConstant(leftWidth)
+    leftConstraintSide = NSLayoutConstraint(item: left!.view, attribute: .Leading, relatedBy: .Equal, toItem: parent.view, attribute: .Leading, multiplier: 1, constant: -leftWidth)
+    leftConstraintWidth = NSLayoutConstraint(item: left!.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: leftWidth)
     return [leftConstraintSide!, leftConstraintWidth!]
   }
   
