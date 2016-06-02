@@ -128,11 +128,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.separatorInset = UIEdgeInsetsZero
     tableView.separatorColor = Constant.Color.border
     tableView.scrollIndicatorInsets = UIEdgeInsetsZero
-    tableView.layoutMargins = UIEdgeInsetsZero
     tableView.tableFooterView = UIView(frame: CGRect.zero)
     if #available(iOS 9.0, *) {
       tableView.cellLayoutMarginsFollowReadableWidth = false
     }
+    tableView.layoutMargins = UIEdgeInsetsZero
     
     // constraints
     tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -327,11 +327,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .AccountPassword:  temp()
     case .AccountDelete: modalAccountDelete()
     case .AccountLogout: logout()
-  
+      
     default: break
     }
   }
-
+  
   private func temp() {
     print("temp")
   }
