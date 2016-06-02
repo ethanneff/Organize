@@ -65,7 +65,7 @@ struct Remote {
       loadingModal.show(controller)
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
-          loadingModal.hide {
+          loadingModal.hide(controller) {
             completion(error: authError(code: error.code))
           }
         }
@@ -73,7 +73,7 @@ struct Remote {
           let changeRequest = user.profileChangeRequest()
           changeRequest.displayName = name
           changeRequest.commitChangesWithCompletion() { (error) in
-            loadingModal.hide {
+            loadingModal.hide(controller) {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
@@ -88,7 +88,7 @@ struct Remote {
     static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
       loadingModal.show(controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
-        loadingModal.hide {
+        loadingModal.hide(controller) {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
@@ -101,7 +101,7 @@ struct Remote {
     static func resetPassword(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
       loadingModal.show(controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
-        loadingModal.hide {
+        loadingModal.hide(controller) {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
@@ -127,7 +127,7 @@ struct Remote {
       let loadingModal = ModalLoadingController()
       loadingModal.show(controller)
       FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
-        loadingModal.hide {
+        loadingModal.hide(controller) {
           if let error = error {
             completion(error: error.localizedDescription)
           } else {

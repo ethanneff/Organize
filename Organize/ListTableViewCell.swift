@@ -23,7 +23,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   // TODO: figure out why to make a property... swipe gets deinit otherwise
   var swipe: SwipeCell?
   
-  // MARK: init
+  // MARK: - init
   override func awakeFromNib() {
     super.awakeFromNib()
   }
@@ -51,8 +51,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     setupSwipe(cell: self)
   }
   
-  
-  // MARK: dealloc
+  // MARK: - dealloc
   private func dealloc() {
     titleLabel?.removeFromSuperview()
     accessoryButton?.removeFromSuperview()
@@ -64,8 +63,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     dealloc()
   }
   
-  
-  // MARK: create
+  // MARK: - create
   private func setupView() {
     titleLabel = UILabel()
     titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
@@ -78,7 +76,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     
     reminderView = UIView()
     addSubview(reminderView!)
-    
   }
   
   private func setupCellDefaults() {
@@ -130,7 +127,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
       }
     }
   }
-  
   
   // MARK: load
   func updateCell(note note: Note) {

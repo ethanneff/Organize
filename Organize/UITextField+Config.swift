@@ -13,7 +13,7 @@ extension UITextField {
     self.layer.masksToBounds = true
   }
   
-  class func setTapOrder(fields fields: [UITextField]) {
+  class func setTabOrder(fields fields: [UITextField]) {
     guard let last = fields.last else {
       return
     }

@@ -1,6 +1,6 @@
 import UIKit
 
-class ForgotViewController: UIViewController {
+class ForgotViewController: UIViewController, UITextFieldDelegate {
   // MARK: - properties
   let emailTextField: UITextField = UITextField()
   let forgotButton: UIButton = UIButton()
@@ -10,6 +10,7 @@ class ForgotViewController: UIViewController {
   override func loadView() {
     super.loadView()
     setupView()
+    setupKeyboard()
     listenKeyboard()
   }
   
@@ -45,14 +46,16 @@ class ForgotViewController: UIViewController {
   }
   
   // MARK: - helper
-  private func navigateBack() {
-    Report.sharedInstance.track(event: "forgot")
-    self.dismissViewControllerAnimated(true, completion: nil)
-  }
-  
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
+  }
+  
+  private func navigateBack() {
+    Report.sharedInstance.track(event: "forgot")
+    emailTextField.text = ""
+    navigationController?.popViewControllerAnimated(true)
   }
   
   // MARK: - deinit
@@ -65,10 +68,19 @@ class ForgotViewController: UIViewController {
   }
   
   // MARK: - keyboard
+  private func setupKeyboard() {
+    emailTextField.delegate = self
+  }
+  
   private func listenKeyboard() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardNotification(_:)), name: UIKeyboardWillChangeFrameNotification, object: nil)
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
     view.addGestureRecognizer(tap)
+  }
+  
+  func textFieldShouldReturn(textField: UITextField) -> Bool {
+    attemptForgot(forgotButton)
+    return true
   }
   
   func dismissKeyboard() {

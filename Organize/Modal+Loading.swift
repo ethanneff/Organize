@@ -20,12 +20,12 @@ class ModalLoadingController: UIViewController {
   func show(parentController: UIViewController) {
     Util.threadMain {
       Modal.show(parentController: parentController, modalController: self, modal: self.modal)
-      Util.toggleNetworkIndicator(on: false)
+      Util.toggleNetworkIndicator(on: true)
     }
   }
   
   // MARK: - close
-  func hide(parentController: UIViewController? = nil, completion: (() -> ())? = nil) {
+  func hide(parentController: UIViewController, completion: (() -> ())? = nil) {
     Util.threadMain {
       Modal.animateOut(modal: self.modal, background: self.view) {
         Util.toggleNetworkIndicator(on: false)

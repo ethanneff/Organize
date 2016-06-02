@@ -18,12 +18,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   override func loadView() {
     super.loadView()
     setupView()
+    setupKeyboard()
     listenKeyboard()
   }
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    if recentlySignedUp {
+    if let _ = Remote.Auth.currentUser {
       dismissViewControllerAnimated(false, completion: nil)
     }
   }
@@ -45,6 +46,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   }
   
   // MARK: - keyboard
+  private func setupKeyboard() {
+    emailTextField.delegate = self
+    passwordTextField.delegate = self
+    UITextField.setTabOrder(fields: [emailTextField, passwordTextField])
+  }
+  
   private func listenKeyboard() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardNotification(_:)), name: UIKeyboardWillChangeFrameNotification, object: nil)
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -60,6 +67,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
       Util.handleKeyboardScrollView(keyboardNotification: notification, scrollViewBottomConstraint: bottomConstraint, view: view)
     }
   }
+  
+  func textFieldShouldReturn(textField: UITextField) -> Bool {
+    if textField === passwordTextField {
+      attemptLogin(loginButton)
+    }
+    return true
+  }
+  
   
   // MARK: - buttons
   internal func attemptLogin(button: UIButton) {
@@ -80,7 +95,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // login
     Remote.Auth.login(controller: self, email: emailTextField.text!, password: passwordTextField.text!) { error in
       if let error = error {
-        return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)
+        return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: self.emailTextField)
       }
       self.navigateToMenu()
     }
@@ -102,13 +117,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   // MARK: - helper
   private func navigateToMenu() {
     Report.sharedInstance.track(event: "login")
-    self.dismissViewControllerAnimated(false, completion: nil)
+    dismissViewControllerAnimated(false, completion: nil)
   }
   
   
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
   }
   
   private func clearTextFields() {

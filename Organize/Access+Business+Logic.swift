@@ -30,6 +30,7 @@ class AccessBusinessLogic {
   class func displayErrorAlert(controller controller: UIViewController, message: String, textField: UITextField?) {
     let alert = UIAlertController(title: message, message: nil, preferredStyle: .Alert)
     alert.addAction(UIAlertAction(title: "Okay", style: .Default) { action in
+      Util.playSound(systemSound: .Tap)
       if let textField = textField {
         textField.becomeFirstResponder()
       }

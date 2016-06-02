@@ -64,15 +64,16 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
   }
   
   // MARK: - helper
-  private func navigateToMenu() {
-    Report.sharedInstance.track(event: "signup")
-    previousController?.recentlySignedUp = true
-    self.dismissViewControllerAnimated(true, completion: nil)
-  }
-  
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)
+    Util.playSound(systemSound: .Tap)
+  }
+  
+  private func navigateToMenu() {
+    Report.sharedInstance.track(event: "signup")
+    self.previousController?.recentlySignedUp = true
+    self.dismissViewControllerAnimated(true, completion: nil)
   }
   
   // MARK: - deinit
@@ -91,7 +92,14 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     lastNameTextField.delegate = self
     emailTextField.delegate = self
     passwordTextField.delegate = self
-    UITextField.setTapOrder(fields: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField])
+    UITextField.setTabOrder(fields: [firstNameTextField, lastNameTextField, emailTextField, passwordTextField])
+  }
+  
+  func textFieldShouldReturn(textField: UITextField) -> Bool {
+    if textField === passwordTextField {
+      attemptSignup(signupButton)
+    }
+    return true
   }
   
   private func listenKeyboard() {
