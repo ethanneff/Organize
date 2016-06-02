@@ -45,7 +45,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
   
   // MARK: - create
   private func createNavButtons() {
-    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Search, target: self, action: #selector(leftNavButtonPressed(_:)))
+//    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Search, target: self, action: #selector(leftNavButtonPressed(_:)))
     navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Organize, target: self, action: #selector(rightNavButtonPressed(_:)))
   }
   
