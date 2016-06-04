@@ -55,6 +55,8 @@
 		675038081CD178F30061EC6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038021CD178F30061EC6E /* LoginViewController.swift */; };
 		675038091CD178F30061EC6E /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038031CD178F30061EC6E /* SignupViewController.swift */; };
 		6750380A1CD178F30061EC6E /* ForgotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038041CD178F30061EC6E /* ForgotViewController.swift */; };
+		67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF521D0225C1000B6D43 /* Modal+Error.swift */; };
+		67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF541D022964000B6D43 /* Modal+TextField.swift */; };
 		67D8441E1CD2847B004C144F /* Swipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D8441D1CD2847B004C144F /* Swipe.swift */; };
 		DF12C4E0915BFFB22E1BE63F /* Pods_Organize.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22F7A6BE983A67D347E343ED /* Pods_Organize.framework */; };
 /* End PBXBuildFile section */
@@ -114,6 +116,8 @@
 		675038021CD178F30061EC6E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		675038031CD178F30061EC6E /* SignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		675038041CD178F30061EC6E /* ForgotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotViewController.swift; sourceTree = "<group>"; };
+		67CEDF521D0225C1000B6D43 /* Modal+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Error.swift"; sourceTree = "<group>"; };
+		67CEDF541D022964000B6D43 /* Modal+TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+TextField.swift"; sourceTree = "<group>"; };
 		67D8441D1CD2847B004C144F /* Swipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Swipe.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -338,6 +342,8 @@
 				67299B631CE243660066728E /* Modal+NoteDetail.swift */,
 				670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */,
 				6733EE3B1CFE4347006BC486 /* Modal+Loading.swift */,
+				67CEDF521D0225C1000B6D43 /* Modal+Error.swift */,
+				67CEDF541D022964000B6D43 /* Modal+TextField.swift */,
 			);
 			name = modals;
 			sourceTree = "<group>";
@@ -514,6 +520,7 @@
 				67244C851CE3998F0038D343 /* ReorderTableView.swift in Sources */,
 				675038081CD178F30061EC6E /* LoginViewController.swift in Sources */,
 				675037EC1CD176570061EC6E /* UITextField+Config.swift in Sources */,
+				67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */,
 				675037F11CD176600061EC6E /* SwipeCell.swift in Sources */,
 				675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */,
 				675038071CD178F30061EC6E /* Access+Business+Logic.swift in Sources */,
@@ -526,6 +533,7 @@
 				675038051CD178F30061EC6E /* AccessNavigationController.swift in Sources */,
 				675037DA1CD176570061EC6E /* MenuViewController.swift in Sources */,
 				675037DE1CD176570061EC6E /* Note.swift in Sources */,
+				67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */,
 				675037E61CD176570061EC6E /* UIButton+Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -637,7 +645,7 @@
 				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Organize/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.eneff.app.organize;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -653,7 +661,7 @@
 				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Organize/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.eneff.app.organize;
 				PRODUCT_NAME = "$(TARGET_NAME)";

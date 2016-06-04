@@ -61,7 +61,7 @@ class ModalLoadingController: UIViewController {
   }
   
   private func createIndicator() -> UIActivityIndicatorView {
-    let indicator = UIActivityIndicatorView()
+    let indicator: UIActivityIndicatorView = UIActivityIndicatorView()
     indicator.translatesAutoresizingMaskIntoConstraints = false
     indicator.activityIndicatorViewStyle = .WhiteLarge
     indicator.color = Constant.Color.button

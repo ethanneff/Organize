@@ -313,18 +313,18 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
-    case .NotebookTitle: temp()
+    case .NotebookTitle: modalNotebookTitle()
     case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
     case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .NotebookDeleteCompleted: modalDeleteAll()
+    case .NotebookDeleteCompleted: modalDeleteCompleted()
       
     case .SettingsTutorial: modalTutorial()
       
-    case .SocialFeedback: modalFeedback()
-    case .SocialShare: temp()
+    case .SocialFeedback: modalSocialFeedback()
+    case .SocialShare: modalSocialShare()
       
-    case .AccountEmail:  temp()
-    case .AccountPassword:  temp()
+    case .AccountEmail: modalAccountEmail()
+    case .AccountPassword: modalAccountPassword()
     case .AccountDelete: modalAccountDelete()
     case .AccountLogout: logout()
       
@@ -332,15 +332,40 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  private func temp() {
-    print("temp")
+  
+  // MARK: - modal social
+  private func modalSocialFeedback() {
+    if MFMailComposeViewController.canSendMail() {
+      let mail = MFMailComposeViewController()
+      mail.mailComposeDelegate = self
+      mail.setToRecipients(["ethan-neff@msn.com"])
+      mail.setSubject("I have feedback for your Organize app!")
+      mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
+      presentViewController(mail, animated: true, completion: nil)
+    } else {
+      modalError(title: "Could not send email", message: "Please check your email configuration and try again", completion: nil)
+    }
   }
   
+  func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    controller.dismissViewControllerAnimated(true, completion: nil)
+    switch result.rawValue {
+    case 2: Util.playSound(systemSound: .BeepBoBoopSuccess)
+    default: Util.playSound(systemSound: .BeepBoBoopFailure)
+    }
+  }
   
-  private func logout() {
-    Remote.Auth.logout()
-    Report.sharedInstance.track(event: "logout")
-    self.dismissViewControllerAnimated(true, completion: nil)
+  private func modalSocialShare() {
+    
+  }
+  
+  // MARK: - modal account
+  private func modalAccountEmail() {
+    
+  }
+  
+  private func modalAccountPassword() {
+    
   }
   
   private func modalAccountDelete() {
@@ -355,6 +380,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
+  
+  private func logout() {
+    Remote.Auth.logout()
+    Report.sharedInstance.track(event: "logout")
+    self.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
   
   
   
@@ -440,16 +472,23 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
+  // MARK: - modal notebook title
+  private func modalNotebookTitle() {
+    let m = ModalTextField()
+    m.placeholder = "hello"
+    m.show(controller: self, dismissible: true) { output in
+      print(output)
+    }
+  }
   
-  
-  // MARK: - modal delete
+  // MARK: - modal notebook delete all
   private func modalDelete(indexPath indexPath: NSIndexPath) {
     modalAlertConfirmation(title: "Permanently delete?") {
       self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
     }
   }
   
-  private func modalDeleteAll() {
+  private func modalDeleteCompleted() {
     if notebook.display.count > 0 {
       modalAlertConfirmation(title: "Permanently delete all completed?") {
         self.notebook.deleteAll(tableView: self.tableView)
@@ -477,31 +516,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  
-  // MARK: - modal feedback
-  private func modalFeedback() {
-    if MFMailComposeViewController.canSendMail() {
-      let mail = MFMailComposeViewController()
-      mail.mailComposeDelegate = self
-      mail.setToRecipients(["ethan-neff@msn.com"])
-      mail.setSubject("I have feedback for your Organize app!")
-      mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
-      presentViewController(mail, animated: true, completion: nil)
-    } else {
-      modalError(title: "Could not send email", message: "Please check your email configuration and try again", completion: nil)
-    }
-  }
-  
-  func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
-    controller.dismissViewControllerAnimated(true, completion: nil)
-    switch result.rawValue {
-    case 2: Util.playSound(systemSound: .BeepBoBoopSuccess)
-    default: Util.playSound(systemSound: .BeepBoBoopFailure)
-    }
-  }
-  
-  
-  
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
     modalNoteDetail.delegate = self
@@ -519,17 +533,42 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  
   // MARK: - modal helper functions
   private func modalPresent(controller controller: UIViewController) {
     controller.modalPresentationStyle = .OverCurrentContext
     presentViewController(controller, animated: false, completion: nil)
   }
   
+  
+  private func modalAlertTextField(title title: String?, message: String?, placeholder: String?, text: String?, completion: () -> ()) {
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+    
+    alert.addTextFieldWithConfigurationHandler({ textField in
+      textField.borderStyle = .RoundedRect
+      textField.tintColor = Constant.Color.button
+      textField.keyboardType = .Default
+      textField.returnKeyType = .Done
+      textField.placeholder = placeholder
+      textField.text = text
+    })
+    
+    // TODO: same as modal confirmation
+    let confirm = UIAlertAction(title: "Okay", style: .Default) { action in
+      Util.playSound(systemSound: .Tap)
+      completion()
+    }
+    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
+      Util.playSound(systemSound: .Tap)
+    }
+    alert.addAction(confirm)
+    alert.addAction(cancel)
+    presentViewController(alert, animated: true, completion: nil)
+  }
+  
   private func modalAlertConfirmation(title title: String, completion: () -> ()) {
     let alert = UIAlertController(title: title, message: nil, preferredStyle: .Alert)
     let confirm = UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .BeepBoBoopFailure)
+      Util.playSound(systemSound: .BeepBoBoopSuccess)
       completion()
     }
     let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
