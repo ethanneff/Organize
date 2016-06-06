@@ -28,6 +28,10 @@ class ModalError: Modalz {
   let modalMaxHeight: CGFloat = Constant.Button.height*12
   
   
+  enum OutputKeys: String {
+    case None
+  }
+  
   // MARK: - init
   override init() {
     super.init()
@@ -99,6 +103,7 @@ class ModalError: Modalz {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
+    Util.playSound(systemSound: .Tap)
     hide()
   }
 }

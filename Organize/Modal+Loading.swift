@@ -1,72 +1,55 @@
+//
+//  Modal+Loading.swift
+//  Organize
+//
+//  Created by Ethan Neff on 6/6/16.
+//  Copyright © 2016 Ethan Neff. All rights reserved.
+//
+
 import UIKit
 
-class ModalLoadingController: UIViewController {
+class ModalLoading: Modalz {
   // MARK: - properties
-  let modal: UIView = UIView()
-  
+  var indicator: UIActivityIndicatorView!
   let modalWidth: CGFloat = Constant.Button.height*2
   let modalHeight: CGFloat = Constant.Button.height*2
   
+  enum OutputKeys: String {
+    case None
+  }
+  
+  // MARK: - init
+  override init() {
+    super.init()
+    createViews()
+    createConstraints()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init coder not implemented")
+  }
+  
   // MARK: - deinit
   deinit {
-    dealloc()
-  }
-  
-  private func dealloc() {
-    Modal.clear(background: view)
-  }
-  
-  // MARK: - open
-  func show(parentController: UIViewController) {
-    Util.threadMain {
-      Modal.show(parentController: parentController, modalController: self, modal: self.modal)
-      Util.toggleNetworkIndicator(on: true)
-    }
-  }
-  
-  // MARK: - close
-  func hide(parentController: UIViewController, completion: (() -> ())? = nil) {
-    Util.threadMain {
-      Modal.animateOut(modal: self.modal, background: self.view) {
-        Util.toggleNetworkIndicator(on: false)
-        self.dismissViewControllerAnimated(false, completion: {
-          if let completion = completion {
-            completion()
-          }
-        })
-      }
-    }
+    
   }
   
   // MARK: - create
-  override func loadView() {
-    super.loadView()
-    setupView()
+  private func createViews() {
+    indicator = createIndicator()
+    modal.addSubview(indicator)
   }
   
-  private func setupView() {
-    let indicator = createIndicator()
-    Modal.createModalTemplate(background: view, modal: modal, titleText: nil)
-    modal.addSubview(indicator)
-    
+  private func createConstraints() {
     NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalHeight),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalWidth),
       NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalWidth),
-      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalHeight),
       
       NSLayoutConstraint(item: indicator, attribute: .CenterX, relatedBy: .Equal, toItem: modal, attribute: .CenterX, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: indicator, attribute: .CenterY, relatedBy: .Equal, toItem: modal, attribute: .CenterY, multiplier: 1, constant: 0),
       ])
   }
-  
-  private func createIndicator() -> UIActivityIndicatorView {
-    let indicator: UIActivityIndicatorView = UIActivityIndicatorView()
-    indicator.translatesAutoresizingMaskIntoConstraints = false
-    indicator.activityIndicatorViewStyle = .WhiteLarge
-    indicator.color = Constant.Color.button
-    indicator.startAnimating()
-    
-    return indicator
-  }
 }
+

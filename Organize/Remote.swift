@@ -12,11 +12,11 @@ import Firebase
 struct Remote {
   
   struct Auth {
-    static let loadingModal: ModalLoadingController = ModalLoadingController()
+    static let loadingModal: ModalLoading = ModalLoading()
     
     private static func authError(code code: Int) -> String {
       switch code {
-        // TODO: word better
+      // TODO: word better
       case 17000: return "Invalid custom token"
       case 17002: return "Custom token mismatch"
       case 17004: return "Invalid credentials"
@@ -62,10 +62,11 @@ struct Remote {
     }
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
-      loadingModal.show(controller)
+      loadingModal.show(controller: controller)
+      
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
-          loadingModal.hide(controller) {
+          loadingModal.hide {
             completion(error: authError(code: error.code))
           }
         }
@@ -73,7 +74,7 @@ struct Remote {
           let changeRequest = user.profileChangeRequest()
           changeRequest.displayName = name
           changeRequest.commitChangesWithCompletion() { (error) in
-            loadingModal.hide(controller) {
+            loadingModal.hide {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
@@ -86,9 +87,9 @@ struct Remote {
     }
     
     static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
-      loadingModal.show(controller)
+      loadingModal.show(controller: controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
-        loadingModal.hide(controller) {
+        loadingModal.hide {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
@@ -99,9 +100,9 @@ struct Remote {
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
-      loadingModal.show(controller)
+      loadingModal.show(controller: controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
-        loadingModal.hide(controller) {
+        loadingModal.hide {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
@@ -124,10 +125,9 @@ struct Remote {
     }
     
     static func delete(controller controller: UIViewController, completion: (error: String?) -> ()) {
-      let loadingModal = ModalLoadingController()
-      loadingModal.show(controller)
+      loadingModal.show(controller: controller)
       FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
-        loadingModal.hide(controller) {
+        loadingModal.hide {
           if let error = error {
             completion(error: error.localizedDescription)
           } else {

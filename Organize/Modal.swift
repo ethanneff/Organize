@@ -252,6 +252,23 @@ extension Modalz {
     return indicator
   }
   
+  private func createProgress() -> UIView {
+    let view = UIView()
+    view.backgroundColor = Constant.Color.button
+    view.translatesAutoresizingMaskIntoConstraints = false
+    
+    return view
+  }
+  
+  private func createImageView(image image: UIImage) -> UIImageView {
+    let imageView = UIImageView()
+    imageView.image = image
+    imageView.contentMode = .ScaleAspectFit
+    imageView.translatesAutoresizingMaskIntoConstraints = false
+    
+    return imageView
+  }
+  
   internal func createButton(confirm confirm: Bool) -> UIButton {
     let button: UIButton = UIButton()
     button.tag = Int(confirm)

@@ -87,6 +87,7 @@ class Util {
             }
         })
     })
+    Util.playSound(systemSound: .Tap)
   }
   
   // sounds
@@ -134,7 +135,7 @@ class Util {
   
   
   // keyboard
-  class func handleKeyboardScrollView(keyboardNotification keyboardNotification: NSNotification, scrollViewBottomConstraint: NSLayoutConstraint, view: UIView) {
+  class func handleKeyboardScrollView(keyboardNotification keyboardNotification: NSNotification, scrollViewBottomConstraint: NSLayoutConstraint, view: UIView, constant: CGFloat? = nil) {
     if let userInfo = keyboardNotification.userInfo {
       let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
       let endFrameHeight: CGFloat = endFrame?.size.height ?? 0.0
@@ -145,11 +146,19 @@ class Util {
       if endFrame?.origin.y >= UIScreen.mainScreen().bounds.size.height {
         scrollViewBottomConstraint.constant = 0.0
       } else {
-        scrollViewBottomConstraint.constant = -endFrameHeight
+        scrollViewBottomConstraint.constant = -endFrameHeight + (constant ?? 0)
       }
       UIView.animateWithDuration(duration, delay: NSTimeInterval(0), options: animationCurve, animations: {
         view.layoutIfNeeded()
         }, completion: nil)
     }
   }
+  
+  class func keyboardHeight(notification notification: NSNotification) -> CGFloat {
+    if let userInfo = notification.userInfo, let keyboardHeight = userInfo[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size.height {
+      return keyboardHeight
+    }
+    return 0
+  }
+  
 }

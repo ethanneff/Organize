@@ -474,11 +474,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal notebook title
   private func modalNotebookTitle() {
-    let m = ModalTextField()
-    m.placeholder = "hello"
-    m.show(controller: self, dismissible: true) { output in
-      print(output)
-    }
+    let m = ModalTutorial()
+    m.show(controller: self, dismissible: true)
   }
   
   // MARK: - modal notebook delete all
