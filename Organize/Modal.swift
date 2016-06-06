@@ -1,143 +1,6 @@
 import UIKit
 
-class Modal {
-  static let animationDuration: NSTimeInterval = 0.2
-  static let radius: CGFloat = 15
-  static let separator: CGFloat = 0.5
-  static let textSize: CGFloat = 17
-  static let textYes: String = "Done"
-  static let textNo: String = "Cancel"
-  
-  static func animateIn(modal modal: UIView, background: UIView, completion: (() -> ())?) {
-    modal.transform = CGAffineTransformMakeScale(0.01, 0.01)
-    background.alpha = 0
-    UIView.animateWithDuration(animationDuration, delay: 0.0, options: .CurveEaseOut, animations: {
-      modal.transform = CGAffineTransformIdentity
-      background.alpha = 1
-    }) { finished in
-      if let completion = completion {
-        completion()
-      }
-    }
-  }
-  
-  static func animateOut(modal modal: UIView, background: UIView, completion: () -> ()) {
-    modal.transform = CGAffineTransformIdentity
-    background.alpha = 1
-    UIView.animateWithDuration(animationDuration, delay: 0.0, options: .CurveEaseOut, animations: {
-      modal.transform = CGAffineTransformMakeScale(0.01, 0.01)
-      background.alpha = 0
-    }) { finished in
-      completion()
-    }
-  }
-  
-  static func clear(background background: UIView) {
-    for v in background.subviews {
-      v.removeFromSuperview()
-    }
-    background.removeFromSuperview()
-  }
-  
-  static func createModalTemplate(background background: UIView, modal: UIView, titleText: String?) {
-    var constraints: [NSLayoutConstraint] = []
-    
-    // background
-    background.backgroundColor = Constant.Color.backdrop
-    background.addSubview(modal)
-    
-    // modal
-    modal.backgroundColor = Constant.Color.background
-    modal.layer.cornerRadius = Modal.radius
-    modal.layer.masksToBounds = true
-    modal.translatesAutoresizingMaskIntoConstraints = false
-    
-    if let titleText = titleText {
-      let title = UILabel()
-      modal.addSubview(title)
-      
-      title.textAlignment = .Center
-      title.font = .boldSystemFontOfSize(Modal.textSize)
-      title.text = titleText
-      title.translatesAutoresizingMaskIntoConstraints = false
-      
-      constraints.append(NSLayoutConstraint(item: title, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0))
-      constraints.append(NSLayoutConstraint(item: title, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0))
-      constraints.append(NSLayoutConstraint(item: title, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: Constant.Button.padding))
-      constraints.append(NSLayoutConstraint(item: title, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
-    }
-    
-    NSLayoutConstraint.activateConstraints(constraints)
-  }
-  
-  static func createModal() -> UIView {
-    let modal = UIView()
-    modal.backgroundColor = Constant.Color.background
-    modal.layer.cornerRadius = Modal.radius
-    modal.layer.masksToBounds = true
-    modal.translatesAutoresizingMaskIntoConstraints = false
-    
-    return modal
-  }
-  
-  static func updateBackdrop(controllerView controllerView: UIView) -> UIView {
-    controllerView.backgroundColor = Constant.Color.backdrop
-    
-    return controllerView
-  }
-  
-  static func createSeparator() -> UIView {
-    let separator = UIView()
-    separator.backgroundColor = Constant.Color.border
-    separator.translatesAutoresizingMaskIntoConstraints = false
-    
-    return separator
-  }
-  
-  static func createTextField(text text: String?, placeholder: String?) -> UITextField {
-    let textField = UITextField()
-    textField.text = text
-    textField.placeholder = placeholder
-    textField.returnKeyType = .Done
-    textField.textAlignment = .Center
-    textField.font = UIFont.boldSystemFontOfSize(Modal.textSize)
-    textField.translatesAutoresizingMaskIntoConstraints = false
-    textField.tintColor = Constant.Color.button
-    
-    return textField
-  }
-  
-  static func createButton(confirm confirm: Bool) -> UIButton {
-    let button = UIButton()
-    button.tag = Int(confirm)
-    button.layer.cornerRadius = Modal.radius
-    button.setTitle(confirm ? Modal.textYes: Modal.textNo, forState: .Normal)
-    button.setTitleColor(Constant.Color.button, forState: .Normal)
-    button.setTitleColor(Constant.Color.border, forState: .Highlighted)
-    button.titleLabel?.font = confirm ? .systemFontOfSize(Modal.textSize) : .boldSystemFontOfSize(Modal.textSize)
-    button.translatesAutoresizingMaskIntoConstraints = false
-    
-    return button
-  }
-  
-  
-  static func show(parentController parentController: UIViewController, modalController: UIViewController, modal: UIView) {
-    modalController.modalPresentationStyle = .OverCurrentContext
-    parentController.presentViewController(modalController, animated: false, completion: nil)
-    animateIn(modal: modal, background: modalController.view, completion: nil)
-  }
-}
-
-
-
-
-
-
-
-
-
-
-class Modalz: UIViewController {
+class Modal: UIViewController {
   // MARK: - properties
   var modal: UIView!
   
@@ -200,7 +63,7 @@ class Modalz: UIViewController {
   }
 }
 
-extension Modalz {
+extension Modal {
   // MARK: - animation
   private func animateOut(completion: () -> ()) {
     modal.transform = CGAffineTransformIdentity
@@ -231,12 +94,13 @@ extension Modalz {
   }
 }
 
-extension Modalz {
+extension Modal {
   // MARK: - create
-  internal func createTitle() -> UILabel {
+  internal func createTitle(title text: String?) -> UILabel {
     let title: UILabel = UILabel()
+    title.text = text
     title.textAlignment = .Center
-    title.font = .boldSystemFontOfSize(Modal.textSize)
+    title.font = .boldSystemFontOfSize(buttonFontSize)
     title.translatesAutoresizingMaskIntoConstraints = false
     
     return title
@@ -252,7 +116,7 @@ extension Modalz {
     return indicator
   }
   
-  private func createProgress() -> UIView {
+  internal func createProgress() -> UIView {
     let view = UIView()
     view.backgroundColor = Constant.Color.button
     view.translatesAutoresizingMaskIntoConstraints = false
@@ -260,7 +124,7 @@ extension Modalz {
     return view
   }
   
-  private func createImageView(image image: UIImage) -> UIImageView {
+  internal func createImageView(image image: UIImage) -> UIImageView {
     let imageView = UIImageView()
     imageView.image = image
     imageView.contentMode = .ScaleAspectFit
@@ -269,11 +133,12 @@ extension Modalz {
     return imageView
   }
   
-  internal func createButton(confirm confirm: Bool) -> UIButton {
+  internal func createButton(title title: String?, confirm: Bool) -> UIButton {
     let button: UIButton = UIButton()
+    let title = title ?? "hello" //confirm ? buttonConfirmTitle: buttonCancelTitle
     button.tag = Int(confirm)
     button.layer.cornerRadius = radius
-    button.setTitle(confirm ? buttonConfirmTitle: buttonCancelTitle, forState: .Normal)
+    button.setTitle(title, forState: .Normal)
     button.setTitleColor(Constant.Color.button, forState: .Normal)
     button.setTitleColor(Constant.Color.border, forState: .Highlighted)
     button.titleLabel?.font = confirm ? .systemFontOfSize(buttonFontSize) : .boldSystemFontOfSize(buttonFontSize)
@@ -286,7 +151,7 @@ extension Modalz {
     let textField = UITextField()
     textField.returnKeyType = .Done
     textField.textAlignment = .Center
-    textField.font = UIFont.boldSystemFontOfSize(Modal.textSize)
+    textField.font = UIFont.boldSystemFontOfSize(buttonFontSize)
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.tintColor = Constant.Color.button
     

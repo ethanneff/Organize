@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ModalError: Modalz {
+class ModalError: Modal {
   // MARK: - properties
   var error: String? {
     didSet {
@@ -50,9 +50,9 @@ class ModalError: Modalz {
   
   // MARK: - create
   private func createViews() {
-    label = createTitle()
+    label = createTitle(title: nil)
     topSeparator = createSeparator()
-    button = createButton(confirm: true)
+    button = createButton(title: nil, confirm: true)
     
     modal.addSubview(label)
     modal.addSubview(topSeparator)

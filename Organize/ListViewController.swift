@@ -2,7 +2,7 @@ import UIKit
 import MessageUI
 import Firebase
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ModalDatePickerDelegate, ModalReminderDelegate, ModalNoteDetailDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate, MFMailComposeViewControllerDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate, MFMailComposeViewControllerDelegate {
   // MARK: - properties
   var notebook: Notebook
   
@@ -20,11 +20,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }()
   
   // properties to reload the modals faster (instead of creating each time) - lazy for rare modals
-  let modalNoteDetail: ModalNoteDetailViewController = ModalNoteDetailViewController()
-  lazy var modalReminder: ModalReminderViewController = ModalReminderViewController()
-  lazy var modalDatePicker: ModalDatePickerViewController = ModalDatePickerViewController()
-  
-  
+//  let modalNoteDetail: ModalNoteDetailViewController = ModalNoteDetailViewController()
+//  lazy var modalReminder: ModalReminderViewController = ModalReminderViewController()
+//  lazy var modalDatePicker: ModalDatePickerViewController = ModalDatePickerViewController()
+//  
+//  
   
   // MARK: - init
   init() {
@@ -430,10 +430,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
     let note = notebook.display[indexPath.row]
     if !note.completed {
-      modalReminder.delegate = self
-      modalReminder.data = note.reminder ?? nil
-      modalReminder.indexPath = indexPath
-      modalPresent(controller: modalReminder)
+//      modalReminder.delegate = self
+//      modalReminder.data = note.reminder ?? nil
+//      modalReminder.indexPath = indexPath
+//      modalPresent(controller: modalReminder)
     }
   }
   
@@ -461,10 +461,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal date picker
   func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
-    modalDatePicker.delegate = self
-    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
-    modalDatePicker.indexPath = indexPath
-    modalPresent(controller: modalDatePicker)
+//    modalDatePicker.delegate = self
+//    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
+//    modalDatePicker.indexPath = indexPath
+//    modalPresent(controller: modalDatePicker)
   }
   
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
@@ -508,17 +508,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal tutorial
   private func modalTutorial() {
-    let controller = ModalTutorialViewController()
-    modalPresent(controller: controller)
+//    let controller = ModalTutorialViewController()
+//    modalPresent(controller: controller)
   }
   
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
-    modalNoteDetail.delegate = self
-    modalNoteDetail.indexPath = indexPath
-    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
-    modalPresent(controller: modalNoteDetail)
+//    modalNoteDetail.delegate = self
+//    modalNoteDetail.indexPath = indexPath
+//    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
+//    modalPresent(controller: modalNoteDetail)
   }
   
   func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool) {

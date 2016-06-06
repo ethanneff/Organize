@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ModalLoading: Modalz {
+class ModalLoading: Modal {
   // MARK: - properties
   var indicator: UIActivityIndicatorView!
   let modalWidth: CGFloat = Constant.Button.height*2

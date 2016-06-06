@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ModalTextField: Modalz, UITextFieldDelegate {
+class ModalTextField: Modal, UITextFieldDelegate {
   // MARK: - properties
   var text: String? {
     didSet {
@@ -58,8 +58,8 @@ class ModalTextField: Modalz, UITextFieldDelegate {
     textField = createTextField()
     topSeparator = createSeparator()
     midSeparator = createSeparator()
-    yes = createButton(confirm: true)
-    no = createButton(confirm: false)
+    yes = createButton(title: nil, confirm: true)
+    no = createButton(title: nil, confirm: false)
     
     modal.addSubview(textField)
     modal.addSubview(topSeparator)
@@ -130,6 +130,7 @@ class ModalTextField: Modalz, UITextFieldDelegate {
       }
     }
     Util.animateButtonPress(button: button)
+
     hide()
   }
   
