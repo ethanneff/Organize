@@ -204,3 +204,53 @@ extension Modal {
     modalHeightConstraint.constant = label.frame.size.height+Constant.Button.height+separatorHeight+Constant.Button.padding*2
   }
 }
+
+
+extension Modal {
+  // MARK: - constraints
+  internal func constraintButtonDoubleBottom(topSeparator topSeparator: UIView, midSeparator: UIView, left: UIButton, right: UIButton) {
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: topSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: right, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: midSeparator, attribute: .Leading, relatedBy: .Equal, toItem: left, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: right, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: midSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      NSLayoutConstraint(item: midSeparator, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: left, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: left, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: left, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: right, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: right, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: right, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      NSLayoutConstraint(item: right, attribute: .Width, relatedBy: .Equal, toItem: left, attribute: .Width, multiplier: 1, constant: 0),
+      ])
+  }
+  
+  internal func constraintButtonSingleBottom(topSeparator topSeparator: UIView, button: UIButton) {
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: topSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Bottom, relatedBy: .Equal, toItem: button, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: topSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: button, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      ])
+  }
+}
