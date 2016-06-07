@@ -11,17 +11,17 @@ import UIKit
 
 class ModalDatePicker: Modal {
   // MARK: - properties
-  var header: UILabel!
-  var topSeparator: UIView!
-  var midSeparator: UIView!
-  var yes: UIButton!
-  var no: UIButton!
-  var picker: UIDatePicker!
+  private var header: UILabel!
+  private var topSeparator: UIView!
+  private var midSeparator: UIView!
+  private var yes: UIButton!
+  private var no: UIButton!
+  private var picker: UIDatePicker!
   
-  let modalWidth: CGFloat = 290
-  let modalHeight: CGFloat = 290
-  let modalTitleText: String = "Pick a date"
-  let pickerMinuteInterval: Int = 5
+  private let modalWidth: CGFloat = 290
+  private let modalHeight: CGFloat = 290
+  private let modalTitleText: String = "Pick a date"
+  private let pickerMinuteInterval: Int = 5
   
   enum OutputKeys: String {
     case Date

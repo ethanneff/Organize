@@ -2,16 +2,16 @@ import UIKit
 
 class Modal: UIViewController {
   // MARK: - properties
-  var modal: UIView!
+  internal var modal: UIView!
   
-  var completion: completionBlock
-  var tapToClose: UITapGestureRecognizer = UITapGestureRecognizer()
-  let animationDuration: NSTimeInterval = 0.25
-  let radius: CGFloat = 15
-  let separatorHeight: CGFloat = 0.5
-  let buttonConfirmTitle: String = "Okay"
-  let buttonCancelTitle: String = "Cancel"
-  let buttonFontSize: CGFloat = 17
+  internal var completion: completionBlock
+  internal var tapToClose: UITapGestureRecognizer = UITapGestureRecognizer()
+  internal let animationDuration: NSTimeInterval = 0.25
+  internal let radius: CGFloat = 15
+  internal let separatorHeight: CGFloat = 0.5
+  internal let buttonConfirmTitle: String = "Okay"
+  internal let buttonCancelTitle: String = "Cancel"
+  internal let buttonFontSize: CGFloat = 17
   
   typealias completionBlock = ((output: [String: AnyObject]) -> ())?
   

@@ -10,20 +10,18 @@ import UIKit
 
 class ModalTutorial: Modal {
   // MARK: - properties
-  var indicator: UIActivityIndicatorView!
+  private var message: UILabel!
+  private var image: UIImageView!
+  private var button: UIButton!
+  private var progress: UIView!
+  private var progressWidthConstraint: NSLayoutConstraint!
+  private var messageSeparator: UIView!
+  private var topSeparator: UIView!
   
-  var message: UILabel!
-  var image: UIImageView!
-  var button: UIButton!
-  var progress: UIView!
-  var progressWidthConstraint: NSLayoutConstraint!
-  var messageSeparator: UIView!
-  var topSeparator: UIView!
-  
-  let progressHeight: CGFloat = 3
-  let progressAnimation: Double = 0.4
-  let modalWidthConstant: CGFloat = 180
-  let modalHeightConstant: CGFloat = 140
+  private let progressHeight: CGFloat = 3
+  private let progressAnimation: Double = 0.4
+  private let modalWidthConstant: CGFloat = 180
+  private let modalHeightConstant: CGFloat = 140
   
   enum OutputKeys: String {
     case None

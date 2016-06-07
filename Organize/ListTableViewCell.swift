@@ -155,7 +155,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
       titleLabel?.text = title
     }
     
-    
     // accessoryButton
     accessoryButton?.enabled = true
     if note.collapsed {

@@ -21,12 +21,13 @@ class ModalTextField: Modal, UITextFieldDelegate {
     }
   }
   var limit: Int?
-  var textField: UITextField!
-  var yes: UIButton!
-  var no: UIButton!
-  var topSeparator: UIView!
-  var midSeparator: UIView!
-  var modalCenterYConstraint: NSLayoutConstraint!
+  
+  private var textField: UITextField!
+  private var yes: UIButton!
+  private var no: UIButton!
+  private var topSeparator: UIView!
+  private var midSeparator: UIView!
+  private var modalCenterYConstraint: NSLayoutConstraint!
   
   enum OutputKeys: String {
     case Text

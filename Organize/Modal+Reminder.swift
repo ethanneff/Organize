@@ -16,34 +16,34 @@ class ModalReminder: Modal {
     }
   }
   
-  var header: UILabel!
-  var buttonOne: UIButton!
-  var buttonTwo: UIButton!
-  var buttonThree: UIButton!
-  var buttonFour: UIButton!
-  var buttonFive: UIButton!
-  var buttonSix: UIButton!
-  var buttonSeven: UIButton!
-  var buttonEight: UIButton!
-  var buttonNine: UIButton!
+  private var header: UILabel!
+  private var buttonOne: UIButton!
+  private var buttonTwo: UIButton!
+  private var buttonThree: UIButton!
+  private var buttonFour: UIButton!
+  private var buttonFive: UIButton!
+  private var buttonSix: UIButton!
+  private var buttonSeven: UIButton!
+  private var buttonEight: UIButton!
+  private var buttonNine: UIButton!
   
-  var topSeparatorOne: UIView!
-  var topSeparatorTwo: UIView!
-  var topSeparatorThree: UIView!
+  private var topSeparatorOne: UIView!
+  private var topSeparatorTwo: UIView!
+  private var topSeparatorThree: UIView!
   
-  var midSeparatorOne: UIView!
-  var midSeparatorTwo: UIView!
+  private var midSeparatorOne: UIView!
+  private var midSeparatorTwo: UIView!
   
-  let buttonHeight: CGFloat = 75
-  let buttonMultiplier: CGFloat = 0.18
-  let buttonRows: CGFloat = 3
-  let buttonColumns: CGFloat = 3
-  let buttonTitleRows: Int = 2
-  let buttonTitleFontSize: CGFloat = 13
+  private let buttonHeight: CGFloat = 75
+  private let buttonMultiplier: CGFloat = 0.18
+  private let buttonRows: CGFloat = 3
+  private let buttonColumns: CGFloat = 3
+  private let buttonTitleRows: Int = 2
+  private let buttonTitleFontSize: CGFloat = 13
   
-  let modalTitleText: String = "Pick a reminder"
-  let modalHeightPadding: CGFloat = 60
-  let modalWidthPadding: CGFloat = 100
+  private let modalTitleText: String = "Pick a reminder"
+  private let modalHeightPadding: CGFloat = 60
+  private let modalWidthPadding: CGFloat = 100
   
   enum OutputKeys: String {
     case ReminderType

@@ -10,9 +10,9 @@ import UIKit
 
 class ModalLoading: Modal {
   // MARK: - properties
-  var indicator: UIActivityIndicatorView!
-  let modalWidth: CGFloat = Constant.Button.height*2
-  let modalHeight: CGFloat = Constant.Button.height*2
+  private var indicator: UIActivityIndicatorView!
+  private let modalWidth: CGFloat = Constant.Button.height*2
+  private let modalHeight: CGFloat = Constant.Button.height*2
   
   enum OutputKeys: String {
     case None

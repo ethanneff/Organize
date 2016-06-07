@@ -16,16 +16,16 @@ class ModalError: Modal {
     }
   }
   
-  var label: UILabel!
-  var yes: UIButton!
-  var topSeparator: UIView!
-  var modalWidthConstraint: NSLayoutConstraint!
-  var modalHeightConstraint: NSLayoutConstraint!
+  private var label: UILabel!
+  private var yes: UIButton!
+  private var topSeparator: UIView!
+  private var modalWidthConstraint: NSLayoutConstraint!
+  private var modalHeightConstraint: NSLayoutConstraint!
   
-  let modalMinWidth: CGFloat = Constant.Button.height*2
-  let modalMaxWidth: CGFloat = Constant.Button.height*6
-  let modalMinHeight: CGFloat = Constant.Button.height*2
-  let modalMaxHeight: CGFloat = Constant.Button.height*6
+  private let modalMinWidth: CGFloat = Constant.Button.height*2
+  private let modalMaxWidth: CGFloat = Constant.Button.height*6
+  private let modalMinHeight: CGFloat = Constant.Button.height*2
+  private let modalMaxHeight: CGFloat = Constant.Button.height*6
   
   enum OutputKeys: String {
     case None
