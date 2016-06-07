@@ -26,9 +26,9 @@ class ModalConfirmation: Modal {
   var modalHeightConstraint: NSLayoutConstraint!
   
   let modalMinWidth: CGFloat = Constant.Button.height*5
-  let modalMaxWidth: CGFloat = Constant.Button.height*7
+  let modalMaxWidth: CGFloat = Constant.Button.height*6
   let modalMinHeight: CGFloat = Constant.Button.height*2
-  let modalMaxHeight: CGFloat = Constant.Button.height*7
+  let modalMaxHeight: CGFloat = Constant.Button.height*6
   
   enum OutputKeys: String {
     case None
@@ -47,7 +47,7 @@ class ModalConfirmation: Modal {
   
   // MARK: - deinit
   deinit {
-    print("confirmation deinit")
+
   }
   
   // MARK: - create
@@ -68,7 +68,6 @@ class ModalConfirmation: Modal {
     no.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
   }
   
-  
   private func createConstraints() {
     modalWidthConstraint = NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalMinWidth)
     modalHeightConstraint = NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: modalMinHeight)
@@ -84,12 +83,14 @@ class ModalConfirmation: Modal {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    if button.tag == 1 {
-      if let completion = completion {
-        completion(output: [:])
+    Util.animateButtonPress(button: button)
+    
+    hide() {
+      if button.tag == 1 {
+        if let completion = self.completion {
+          completion(output: [:])
+        }
       }
     }
-    Util.animateButtonPress(button: button)
-    hide()
   }
 }

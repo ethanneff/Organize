@@ -176,7 +176,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   // MARK: buttons
   func accessoryButtonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
-    Util.playSound(systemSound: .Tap)
     delegate?.cellAccessoryButtonPressed(cell: self)
   }
 }

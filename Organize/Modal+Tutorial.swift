@@ -88,7 +88,7 @@ class ModalTutorial: Modal {
   
   // MARK: - deinit
   deinit {
-    print("tutorial deinit")
+
   }
   
   // MARK: - create
@@ -170,7 +170,11 @@ class ModalTutorial: Modal {
     Util.animateButtonPress(button: button)
     
     if button.tag >= Slide.count-1 {
-      hide()
+      hide() {
+        if let completion = self.completion {
+           completion(output: [:])
+        }
+      }
       return
     }
     if button.tag == Slide.count-2 {

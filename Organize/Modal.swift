@@ -26,7 +26,7 @@ class Modal: UIViewController {
   }
   
   deinit {
-    print("Modal deinit")
+
   }
   
   // MARK: - public
@@ -46,13 +46,14 @@ class Modal: UIViewController {
   }
   
   func hide(completion: (() -> ())? = nil) {
+    Util.playSound(systemSound: .Tap)
     Util.threadMain {
-      self.completion = nil
       self.animateOut() {
         self.dismissViewControllerAnimated(false, completion: {
           if let completion = completion {
             completion()
           }
+          self.completion = nil
         })
       }
     }
@@ -106,7 +107,7 @@ extension Modal {
     title.textAlignment = .Center
     title.font = .boldSystemFontOfSize(buttonFontSize)
     title.translatesAutoresizingMaskIntoConstraints = false
-    
+  
     return title
   }
   
@@ -170,6 +171,15 @@ extension Modal {
     return separator
   }
   
+  internal func createDatePicker(minuteInterval minuteInterval: Int) -> UIDatePicker {
+    let datePicker: UIDatePicker = UIDatePicker()
+    datePicker.minuteInterval = minuteInterval
+    datePicker.translatesAutoresizingMaskIntoConstraints = false
+    datePicker.minimumDate = NSDate().dateByAddingTimeInterval(1*60)
+    
+    return datePicker
+  }
+  
   internal func createModal() -> UIView {
     let modal: UIView = UIView()
     modal.backgroundColor = Constant.Color.background
@@ -199,9 +209,9 @@ extension Modal {
     let expectedSize = label.sizeThatFits(maxLabelSize)
     let actualSize = CGSizeMake(minLabelSize.width > expectedSize.width ?  minLabelSize.width : expectedSize.width, expectedSize.height > maxLabelSize.height ? maxLabelSize.height : expectedSize.height)
     
-    label.frame = CGRectMake(Constant.Button.padding, Constant.Button.padding, actualSize.width, actualSize.height)
-    modalWidthConstraint.constant = label.frame.size.width+Constant.Button.padding*2
-    modalHeightConstraint.constant = label.frame.size.height+Constant.Button.height+separatorHeight+Constant.Button.padding*2
+    label.frame = CGRectMake(Constant.Button.padding*2, Constant.Button.padding*1.5, actualSize.width, actualSize.height)
+    modalWidthConstraint.constant = label.frame.size.width+Constant.Button.padding*4
+    modalHeightConstraint.constant = label.frame.size.height+Constant.Button.height+separatorHeight+Constant.Button.padding*2.5
   }
 }
 
@@ -251,6 +261,15 @@ extension Modal {
       NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: modal, attribute: .Bottom, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+      ])
+  }
+  
+  internal func constraintHeader(header header: UIView) {
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: header, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: header, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: header, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: Constant.Button.padding*1.2),
+      NSLayoutConstraint(item: header, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
       ])
   }
 }

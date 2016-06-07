@@ -28,13 +28,12 @@ class AccessBusinessLogic {
   }
   
   class func displayErrorAlert(controller controller: UIViewController, message: String, textField: UITextField?) {
-    let alert = UIAlertController(title: message, message: nil, preferredStyle: .Alert)
-    alert.addAction(UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .Tap)
+    let modal = ModalError()
+    modal.message = message
+    modal.show(controller: controller, dismissible: true) { (output) in
       if let textField = textField {
         textField.becomeFirstResponder()
       }
-      })
-    controller.presentViewController(alert, animated: true, completion: nil)
+    }
   }
 }

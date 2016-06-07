@@ -7,9 +7,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   var notebook: Notebook
   
   lazy var tableView: UITableView = ReorderTableView()
-  var addButton: UIButton?
-  var gestureDoubleTap: UITapGestureRecognizer?
-  var gestureSingleTap: UITapGestureRecognizer?
+  weak var addButton: UIButton!
   weak var menuDelegate: MenuViewController?
   
   lazy var refreshControl: UIRefreshControl = {
@@ -21,11 +19,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // modals (let for common, lazy for rare)
   let modalNoteDetail: ModalNoteDetail = ModalNoteDetail()
-  //  lazy var modalTutorial: ModalTutorial = ModalTutorial()
-  //  lazy var modalTextField: ModalTextField = ModalTextField()
-  //  lazy var modalReminder: ModalReminder = ModalReminder()
-  //  lazy var modalDatePicker: ModalDatePicker = ModalDatePicker()
-  //  lazy var modalError: ModalError = ModalError()
   
   // MARK: - init
   init() {
@@ -50,6 +43,32 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     createGestures()
   }
   
+  // MARK: - deinit
+  deinit {
+    print("list deinit)")
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
+    // FIXME: dismiss viewcontollor does not call deinit (reference cycle)
+  }
+  
+  // MARK: - error
+  override func didReceiveMemoryWarning() {
+    super.didReceiveMemoryWarning()
+  }
+  
+  // MARK: - appear
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    // shake
+    self.becomeFirstResponder()
+  }
+  
+  
+  // MARK: - load
+  internal func applicationDidBecomeActiveNotification() {
+    // update reminder icons
+    tableView.reloadData()
+  }
+  
   private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
@@ -62,48 +81,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func loadListeners() {
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationWillResignActiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
-  
-  
-  // MARK: - load
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    // shake
-    self.becomeFirstResponder()
-  }
-  
-  
-  
-  // MARK: - deinit
-  deinit {
-    print("list deinit)")
-    // FIXME: dismiss viewcontollor does not call deinit (reference cycle)
-    dealloc()
-  }
-  
-  private func dealloc() {
-    addButton = nil
-    gestureDoubleTap = nil
-    gestureSingleTap = nil
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
-  }
-  
-  func applicationWillResignActiveNotification() {
-    
-  }
-  
-  func applicationDidBecomeActiveNotification() {
-    // update reminder icons
-    tableView.reloadData()
-  }
-  
-  
-  
-  // MARK: - create
   private func createTableView() {
     // add
     view.addSubview(tableView)
@@ -173,35 +153,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     addButton = button
   }
   
-  func addButtonPressed(button: UIButton) {
-    Util.animateButtonPress(button: button)
-    modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
-    Util.playSound(systemSound: .Tap)
-  }
-  
   private func createGestures() {
     // double tap
-    gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
-    gestureDoubleTap!.numberOfTapsRequired = 2
-    gestureDoubleTap!.numberOfTouchesRequired = 1
-    tableView.addGestureRecognizer(gestureDoubleTap!)
+    let gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
+    gestureDoubleTap.numberOfTapsRequired = 2
+    gestureDoubleTap.numberOfTouchesRequired = 1
+    tableView.addGestureRecognizer(gestureDoubleTap)
     
     // single tap
-    gestureSingleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedSingleTap(_:)))
-    gestureSingleTap!.numberOfTapsRequired = 1
-    gestureSingleTap!.numberOfTouchesRequired = 1
-    gestureSingleTap!.requireGestureRecognizerToFail(gestureDoubleTap!)
-    tableView.addGestureRecognizer(gestureSingleTap!)
+    let gestureSingleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedSingleTap(_:)))
+    gestureSingleTap.numberOfTapsRequired = 1
+    gestureSingleTap.numberOfTouchesRequired = 1
+    gestureSingleTap.requireGestureRecognizerToFail(gestureDoubleTap)
+    tableView.addGestureRecognizer(gestureSingleTap)
   }
-  
-  
-  
-  // MARK: - error
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-  }
-  
-  
   
   // MARK: - tableview datasource
   func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -224,50 +189,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return cell
   }
   
-  
-  
-  // MARK - cell accessory button
-  func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
-    if let indexPath = tableView.indexPathForCell(cell) {
-      let item = notebook.display[indexPath.row]
-      if item.collapsed {
-        notebook.uncollapse(indexPath: indexPath, tableView: tableView)
-      } else {
-        modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
-      }
-    }
-  }
-  
-  
-  
-  // MARK - swipe
-  func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
-    if let indexPath = tableView.indexPathForCell(cell) {
-      switch type {
-      case .Complete:
-        notebook.complete(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .BeepBeepSuccess)
-      case .Indent:
-        notebook.indent(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .Tap)
-      case .Reminder:
-        modalReminderDisplay(indexPath: indexPath)
-        Util.playSound(systemSound: .Tap)
-      case .Uncomplete:
-        notebook.uncomplete(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .BeepBeepFailure)
-      case .Unindent:
-        notebook.unindent(indexPath: indexPath, tableView: tableView)
-        Util.playSound(systemSound: .Tap)
-      case .Delete:
-        modalDelete(indexPath: indexPath)
-        Util.playSound(systemSound: .Tap)
-      }
-    }
-  }
-  
-  
-  
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     if Constant.App.release {
@@ -275,14 +196,24 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     } else {
       notebook = Notebook.getDefault()
     }
-    // TODO: do i need reloadData? (maybe if changing display to equal notes)
-    tableView.reloadData()
     notebook.uncollapseAll(tableView: tableView)
     refreshControl.endRefreshing()
   }
   
-  
-  
+  // MARK - swipe
+  func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
+    Util.playSound(systemSound: .Tap)
+    if let indexPath = tableView.indexPathForCell(cell) {
+      switch type {
+      case .Complete: notebook.complete(indexPath: indexPath, tableView: tableView)
+      case .Indent: notebook.indent(indexPath: indexPath, tableView: tableView)
+      case .Reminder: displayReminder(indexPath: indexPath)
+      case .Uncomplete: notebook.uncomplete(indexPath: indexPath, tableView: tableView)
+      case .Unindent: notebook.unindent(indexPath: indexPath, tableView: tableView)
+      case .Delete: displayDeleteCell(indexPath: indexPath)
+      }
+    }
+  }
   
   // MARK: - reorder
   func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ()) {
@@ -310,118 +241,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   
-  
-  // MARK: - buttons
-  func settingsButtonPressed(button button: SettingViewController.Button) {
-    switch button {
-    case .NotebookTitle: displayNotebookTitle()
-    case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
-    case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .NotebookDeleteCompleted: displayDeleteCompleted()
-      
-    case .SettingsTutorial: displayTutorial()
-    case .SocialFeedback: modalSocialFeedback()
-    case .SocialShare: modalSocialShare()
-      
-    case .AccountEmail: displayAccountEmail()
-    case .AccountPassword: modalAccountPassword()
-    case .AccountDelete: modalAccountDelete()
-    case .AccountLogout: logout()
-      
-    default: break
-    }
-  }
-  
-  
-  // MARK: - modals
-  private func displayNotebookTitle() {
-    let modal = ModalTextField()
-    modal.limit = 25
-    modal.placeholder = "notebook title"
-    modal.show(controller: self, dismissible: true) { output in
-      if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String, let menuController = self.navigationController?.childViewControllers.first as? MenuViewController {
-        menuController.createNavTitle(title: title)
-        // TODO: Save
-      }
-    }
-  }
-  
-  private func displayTutorial() {
-    let modal = ModalTutorial()
-    modal.show(controller: self, dismissible: true)
-  }
-  
-  private func displayDeleteCompleted() {
-    let modal = ModalConfirmation()
-    modal.message = "hello"
-    modal.show(controller: self, dismissible: false) { (output) in
-      print(output)
-    }
-  }
-  
-  private func displayAccountEmail() {
-    let modal = ModalError()
-    modal.message = "ashodiasnsad oaisnd aosnd oasndo ansdo nasod naosdn oas odano dnsaodn oasnd oasndonasodn oasndo asnod nasodn oasnod naodn oaind ioansodi nasoda"
-    modal.show(controller: self, dismissible: true)
-  }
-  
-  // MARK: - modal social
-  private func modalSocialFeedback() {
-    if MFMailComposeViewController.canSendMail() {
-      let mail = MFMailComposeViewController()
-      mail.mailComposeDelegate = self
-      mail.setToRecipients(["ethan-neff@msn.com"])
-      mail.setSubject("I have feedback for your Organize app!")
-      mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
-      presentViewController(mail, animated: true, completion: nil)
-    } else {
-      modalError(title: "Could not send email", message: "Please check your email configuration and try again", completion: nil)
-    }
-  }
-  
-  func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
-    controller.dismissViewControllerAnimated(true, completion: nil)
-    switch result.rawValue {
-    case 2: Util.playSound(systemSound: .BeepBoBoopSuccess)
-    default: Util.playSound(systemSound: .BeepBoBoopFailure)
-    }
-  }
-  
-  private func modalSocialShare() {
-    
-  }
-  
-  // MARK: - modal account
-  private func modalAccountEmail() {
-    
-  }
-  
-  private func modalAccountPassword() {
-    
-  }
-  
-  private func modalAccountDelete() {
-    modalAlertConfirmation(title: "Permanently delete account?") {
-      Remote.Auth.delete(controller: self) { error in
-        if let error = error {
-          self.modalError(title: error, message: nil, completion: nil)
-        } else {
-          Report.sharedInstance.track(event: "delete account")
-          self.logout()
-        }
-      }
-    }
-  }
-  
-  private func logout() {
-    Remote.Auth.logout()
-    Report.sharedInstance.track(event: "logout")
-    self.dismissViewControllerAnimated(true, completion: nil)
-  }
-  
-  
-  
-  
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
@@ -444,7 +263,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
   // MARK: - shake
   override func canBecomeFirstResponder() -> Bool {
     return true
@@ -452,32 +270,120 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
-      // TODO: v2
-      // modalUndo()
+      // FIXME: v2
+      displayUndo()
     }
   }
   
+  // MARK: - buttons
+  func settingsButtonPressed(button button: SettingViewController.Button) {
+    switch button {
+    case .NotebookTitle: displayNotebookTitle()
+    case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
+    case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
+    case .NotebookDeleteCompleted: displayDeleteCompleted()
+      
+    case .SettingsTutorial: displayTutorial()
+      
+    case .SocialFeedback: displaySocialFeedback()
+    case .SocialShare: displaySocialShare()
+      
+    case .AccountEmail: displayAccountEmail()
+    case .AccountPassword: displayAccountPassword()
+    case .AccountDelete: displayAccountDelete()
+    case .AccountLogout: logout()
+      
+    default: break
+    }
+  }
   
-  // MARK: - modal reminder
-  func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
+  func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
+    if let indexPath = tableView.indexPathForCell(cell) {
+      let item = notebook.display[indexPath.row]
+      if item.collapsed {
+        notebook.uncollapse(indexPath: indexPath, tableView: tableView)
+      } else {
+        modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
+      }
+    }
+  }
+  
+  func addButtonPressed(button: UIButton) {
+    Util.animateButtonPress(button: button)
+    modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
+  }
+  
+  private func logout() {
+    Remote.Auth.logout()
+    Report.sharedInstance.track(event: "logout")
+    self.dismissViewControllerAnimated(true, completion: nil)
+  }
+  
+  // MARK: - modals
+  private func displayNotebookTitle() {
+    let modal = ModalTextField()
+    modal.limit = 25
+    // TODO: get notebook title (add field)
+    modal.placeholder = "notebook title"
+    modal.show(controller: self, dismissible: true) { output in
+      if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String, let menuController = self.navigationController?.childViewControllers.first as? MenuViewController {
+        menuController.createNavTitle(title: title)
+        // TODO: Save
+      }
+    }
+  }
+  
+  private func displayTutorial() {
+    let modal = ModalTutorial()
+    modal.show(controller: self, dismissible: true)
+  }
+  
+  private func displayDeleteCompleted() {
+    let modal = ModalConfirmation()
+    modal.message = "Permanently delete all completed?"
+    modal.show(controller: self, dismissible: false) { (output) in
+      self.notebook.deleteAll(tableView: self.tableView)
+    }
+  }
+  
+  private func displayDeleteCell(indexPath indexPath: NSIndexPath) {
+    let modal = ModalConfirmation()
+    modal.message = "Permanently delete?"
+    modal.show(controller: self, dismissible: false) { (output) in
+      self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
+    }
+  }
+  
+  private func displayReminder(indexPath indexPath: NSIndexPath) {
     let note = notebook.display[indexPath.row]
     if !note.completed {
-      //      modalReminder.delegate = self
-      //      modalReminder.data = note.reminder ?? nil
-      //      modalReminder.indexPath = indexPath
-      //      modalPresent(controller: modalReminder)
+      let modal = ModalReminder()
+      modal.reminder = note.reminder ?? nil
+      modal.show(controller: self, dismissible: true, completion: { (output) in
+        if let id = output[ModalReminder.OutputKeys.ReminderType.rawValue] as? Int, let reminderType = ReminderType(rawValue: id) {
+          if reminderType == .Date {
+            if let reminder = self.notebook.display[indexPath.row].reminder where reminder.type == .Date {
+              // delete custom date
+              self.createReminder(indexPath: indexPath, type: reminderType, date: nil)
+            } else {
+              // create custom date
+              self.displayReminderDatePicker(indexPath: indexPath)
+            }
+          } else {
+            // delete and create select date
+            self.createReminder(indexPath: indexPath, type: reminderType, date: nil)
+          }
+        }
+      })
     }
   }
   
-  func modalReminderValue(indexPath indexPath: NSIndexPath, reminderType: ReminderType) {
-    if reminderType == .Date {
-      if let reminder = notebook.display[indexPath.row].reminder where reminder.type == .Date {
-        createReminder(indexPath: indexPath, type: reminderType, date: nil)
-      } else {
-        modalDatePickerDisplay(indexPath: indexPath)
+  private func displayReminderDatePicker(indexPath indexPath: NSIndexPath) {
+    let modal = ModalDatePicker()
+    modal.show(controller: self, dismissible: true) { (output) in
+      if let date = output[ModalDatePicker.OutputKeys.Date.rawValue] as? NSDate {
+        self.createReminder(indexPath: indexPath, type: .Date, date: date)
       }
-    } else {
-      createReminder(indexPath: indexPath, type: reminderType, date: nil)
     }
   }
   
@@ -489,59 +395,80 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
-  
-  // MARK: - modal date picker
-  func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
-    //    modalDatePicker.delegate = self
-    //    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
-    //    modalDatePicker.indexPath = indexPath
-    //    modalPresent(controller: modalDatePicker)
+  private func displaySocialShare() {
+    
   }
   
-  func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
-    createReminder(indexPath: indexPath, type: .Date, date: date)
-  }
-  
-  
-  // MARK: - modal notebook title
-  
-  // MARK: - modal notebook delete all
-  private func modalDelete(indexPath indexPath: NSIndexPath) {
-    modalAlertConfirmation(title: "Permanently delete?") {
-      self.notebook.delete(indexPath: indexPath, tableView: self.tableView)
+  private func displaySocialFeedback() {
+    if MFMailComposeViewController.canSendMail() {
+      let mail = MFMailComposeViewController()
+      mail.mailComposeDelegate = self
+      mail.setToRecipients(["ethan.neff@eneff.com"])
+      mail.setSubject("I have feedback for your Organize app!")
+      mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
+      presentViewController(mail, animated: true, completion: nil)
+    } else {
+      let modal = ModalError()
+      modal.message = "Please check your email configuration and try again"
+      modal.show(controller: self)
     }
   }
   
-  private func modalDeleteCompleted() {
-    if notebook.display.count > 0 {
-      modalAlertConfirmation(title: "Permanently delete all completed?") {
-        self.notebook.deleteAll(tableView: self.tableView)
+  func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    controller.dismissViewControllerAnimated(true, completion: nil)
+    switch result.rawValue {
+    default: Util.playSound(systemSound: .Tap)
+    }
+  }
+  
+  private func displayAccountEmail() {
+    let modal = ModalTextField();
+    // TODO: get previous email
+    modal.placeholder = "previous email"
+    modal.show(controller: self, dismissible: true) { (output) in
+      if let email = output[ModalTextField.OutputKeys.Text.rawValue] as? String where email.isEmail {
+        // TODO: change user email and logout
+      } else {
+        let modal = ModalError()
+        modal.message = AccessBusinessLogic.ErrorMessage.EmailInvalid.message
+        modal.show(controller: self) { (output) in
+          self.displayAccountEmail()
+        }
       }
     }
   }
   
-  
-  
-  // MARK: - modal undo
-  private func modalUndo() {
-    if notebook.history.count > 0 {
-      modalAlertConfirmation(title: "Undo last action?") {
-        self.notebook.undo(tableView: self.tableView)
+  private func displayAccountPassword() {
+    let modal = ModalTextField()
+    modal.placeholder = "new password"
+    modal.show(controller: self, dismissible: true) { (output) in
+      if let password = output[ModalTextField.OutputKeys.Text.rawValue] as? String where password.isPassword {
+        // TODO: change user password and logout
+      } else {
+        let modal = ModalError()
+        modal.message = AccessBusinessLogic.ErrorMessage.PasswordInvalid.message
+        modal.show(controller: self, dismissible: true) { (output) in
+          self.displayAccountEmail()
+        }
       }
     }
   }
   
+  private func displayAccountDelete() {
+    let modal = ModalConfirmation()
+    modal.message = "Permanently delete account and all data?"
+    modal.show(controller: self, dismissible: false) { (output) in
+      // TODO: delet account and logout
+    }
+  }
   
-  
-  // MARK: - modal tutorial
-  //  private func displayModalTutorial() {
-  //
-  //
-  ////    let controller = ModalTutorialViewController()
-  ////    modalPresent(controller: controller)
-  //  }
-  
+  private func displayUndo() {
+    let modal = ModalConfirmation()
+    modal.message = "Undo last action?"
+    modal.show(controller: self, dismissible: false) { (output) in
+      self.notebook.undo(tableView: self.tableView)
+    }
+  }
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
@@ -557,61 +484,5 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     } else {
       notebook.update(indexPath: indexPath, tableView: tableView, note: note)
     }
-  }
-  
-  
-  // MARK: - modal helper functions
-  private func modalPresent(controller controller: UIViewController) {
-    controller.modalPresentationStyle = .OverCurrentContext
-    presentViewController(controller, animated: false, completion: nil)
-  }
-  
-  
-  private func modalAlertTextField(title title: String?, message: String?, placeholder: String?, text: String?, completion: () -> ()) {
-    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-    
-    alert.addTextFieldWithConfigurationHandler({ textField in
-      textField.borderStyle = .RoundedRect
-      textField.tintColor = Constant.Color.button
-      textField.keyboardType = .Default
-      textField.returnKeyType = .Done
-      textField.placeholder = placeholder
-      textField.text = text
-    })
-    
-    // TODO: same as modal confirmation
-    let confirm = UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .Tap)
-      completion()
-    }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
-      Util.playSound(systemSound: .Tap)
-    }
-    alert.addAction(confirm)
-    alert.addAction(cancel)
-    presentViewController(alert, animated: true, completion: nil)
-  }
-  
-  private func modalAlertConfirmation(title title: String, completion: () -> ()) {
-    let alert = UIAlertController(title: title, message: nil, preferredStyle: .Alert)
-    let confirm = UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .BeepBoBoopSuccess)
-      completion()
-    }
-    let cancel = UIAlertAction(title: "Cancel", style: .Cancel) { action in
-      Util.playSound(systemSound: .Tap)
-    }
-    alert.addAction(confirm)
-    alert.addAction(cancel)
-    presentViewController(alert, animated: true, completion:nil)
-  }
-  
-  private func modalError(title title: String, message: String?, completion: (() -> ())?) {
-    let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-    let delete = UIAlertAction(title: "Okay", style: .Default) { action in
-      Util.playSound(systemSound: .BeepBoBoopFailure)
-    }
-    alert.addAction(delete)
-    presentViewController(alert, animated: true, completion:nil)
   }
 }

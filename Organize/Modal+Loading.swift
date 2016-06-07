@@ -31,7 +31,7 @@ class ModalLoading: Modal {
   
   // MARK: - deinit
   deinit {
-    print("Loading deinit")
+
   }
   
   // MARK: - create

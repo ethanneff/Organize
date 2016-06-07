@@ -23,9 +23,9 @@ class ModalError: Modal {
   var modalHeightConstraint: NSLayoutConstraint!
   
   let modalMinWidth: CGFloat = Constant.Button.height*2
-  let modalMaxWidth: CGFloat = Constant.Button.height*7
+  let modalMaxWidth: CGFloat = Constant.Button.height*6
   let modalMinHeight: CGFloat = Constant.Button.height*2
-  let modalMaxHeight: CGFloat = Constant.Button.height*7
+  let modalMaxHeight: CGFloat = Constant.Button.height*6
   
   enum OutputKeys: String {
     case None
@@ -44,7 +44,7 @@ class ModalError: Modal {
   
   // MARK: - deinit
   deinit {
-    print("error deinit")
+
   }
   
   // MARK: - create
@@ -77,6 +77,10 @@ class ModalError: Modal {
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
-    hide()
+    hide() {
+      if let completion = self.completion {
+        completion(output: [:])
+      }
+    }
   }
 }

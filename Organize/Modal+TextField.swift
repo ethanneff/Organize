@@ -46,7 +46,6 @@ class ModalTextField: Modal, UITextFieldDelegate {
   
   // MARK: - deinit
   deinit {
-    print("texttfield deinit")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
   }
   
@@ -105,14 +104,15 @@ class ModalTextField: Modal, UITextFieldDelegate {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    if button.tag == 1 {
-      if let completion = completion, let text = textField?.text?.trim where text.length > 0 {
-        completion(output: [OutputKeys.Text.rawValue: text])
-      }
-    }
     Util.animateButtonPress(button: button)
     
-    hide()
+    hide() {
+      if button.tag == 1 {
+        if let completion = self.completion, let text = self.textField?.text?.trim where text.length > 0 {
+          completion(output: [OutputKeys.Text.rawValue: text])
+        }
+      }
+    }
   }
   
   // MARK: - keyboard
@@ -122,7 +122,9 @@ class ModalTextField: Modal, UITextFieldDelegate {
   }
   
   internal func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-    guard let text = textField.text else { return true }
+    guard let text = textField.text, let limit = limit else {
+      return true
+    }
     let newLength = text.characters.count + string.characters.count - range.length
     return newLength <= limit
   }
