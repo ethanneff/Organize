@@ -375,6 +375,15 @@ class Notebook: NSObject, NSCoding, Copying {
     }
   }
   
+  var hasCompleted: Bool {
+    for note in self.notes {
+      if note.completed {
+        return true
+      }
+    }
+    return false
+  }
+  
   // MARK: - REORDER
   func reorderBeforeLift(indexPath indexPath: NSIndexPath, tableView: UITableView, completion: () -> ()) {
     Util.threadBackground {

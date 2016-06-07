@@ -1,22 +1,10 @@
-///*
 //
-// // add delegate
-// class ViewController: UIViewController, ModalDatePickerDelegate {}
+//  Modal+DatePicker.swift
+//  Organize
 //
-// // call modal controller
-// func modalDatePickerDisplay() {
-// let controller = ModalDatePickerViewController()
-// controller.delegate = self
-// controller.modalPresentationStyle = .OverCurrentContext
-// presentViewController(controller, animated: false, completion: nil)
-// }
+//  Created by Ethan Neff on 6/7/16.
+//  Copyright © 2016 Ethan Neff. All rights reserved.
 //
-// // get date back from modal controller
-// func modalDatePickerValue(date date: NSDate) {
-//
-// }
-//
-// */
 
 
 import UIKit

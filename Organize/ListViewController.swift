@@ -284,9 +284,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .NotebookDeleteCompleted: displayDeleteCompleted()
       
     case .SettingsTutorial: displayTutorial()
-      
     case .SocialFeedback: displaySocialFeedback()
-    case .SocialShare: displaySocialShare()
       
     case .AccountEmail: displayAccountEmail()
     case .AccountPassword: displayAccountPassword()
@@ -303,14 +301,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       if item.collapsed {
         notebook.uncollapse(indexPath: indexPath, tableView: tableView)
       } else {
-        modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
+        displayNoteDetail(indexPath: NSIndexPath(forRow: indexPath.row+1, inSection: indexPath.section), create: true)
       }
     }
   }
   
   func addButtonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
-    modalNoteDetailDisplay(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
+    displayNoteDetail(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
   }
   
   private func logout() {
@@ -339,10 +337,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func displayDeleteCompleted() {
-    let modal = ModalConfirmation()
-    modal.message = "Permanently delete all completed?"
-    modal.show(controller: self, dismissible: false) { (output) in
-      self.notebook.deleteAll(tableView: self.tableView)
+    if notebook.hasCompleted {
+      let modal = ModalConfirmation()
+      modal.message = "Permanently delete all completed?"
+      modal.show(controller: self, dismissible: false) { (output) in
+        self.notebook.deleteAll(tableView: self.tableView)
+      }
     }
   }
   
@@ -395,10 +395,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  private func displaySocialShare() {
-    
-  }
-  
   private func displaySocialFeedback() {
     if MFMailComposeViewController.canSendMail() {
       let mail = MFMailComposeViewController()
@@ -427,6 +423,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.show(controller: self, dismissible: true) { (output) in
       if let email = output[ModalTextField.OutputKeys.Text.rawValue] as? String where email.isEmail {
         Remote.Auth.changeEmail(controller: self, email: email, completion: { error in
+          // FIXME: catch error 17014 and force logout?
+          // FIXME: if no wifi on simulator, causes a flash in modals because loading.hide happens before loading.show finshes
           let message = error ?? "Log back in with your new email"
           let modal = ModalError()
           modal.message = message
@@ -493,6 +491,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.show(controller: self, dismissible: false) { (output) in
       self.notebook.undo(tableView: self.tableView)
     }
+  }
+  
+  private func displayNoteDetail(indexPath indexPath: NSIndexPath, create: Bool) {
+    print("note detail")
   }
   
   // MARK: - modal note detail

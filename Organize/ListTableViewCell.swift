@@ -157,12 +157,18 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     
     
     // accessoryButton
+    accessoryButton?.enabled = true
     if note.collapsed {
       accessoryButton?.setTitle(String(note.children), forState: .Normal)
       accessoryButton?.setTitleColor(Constant.Color.border, forState: .Normal)
     } else {
       accessoryButton?.setTitle("+", forState: .Normal)
       accessoryButton?.setTitleColor(Constant.Color.button, forState: .Normal)
+      
+      if note.completed {
+        accessoryButton?.setTitleColor(Constant.Color.border, forState: .Normal)
+        accessoryButton?.enabled = false
+      }
     }
     
     // reminder view

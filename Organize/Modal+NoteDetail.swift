@@ -1,9 +1,11 @@
-//import UIKit
 //
-//protocol ModalNoteDetailDelegate: class {
-//  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool)
-//  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
-//}
+//  Modal+NoteDetail.swift
+//  Organize
+//
+//  Created by Ethan Neff on 6/7/16.
+//  Copyright © 2016 Ethan Neff. All rights reserved.
+//
+
 
 class ModalNoteDetail: Modal {
   
