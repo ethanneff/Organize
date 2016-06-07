@@ -159,6 +159,7 @@ extension Modal {
     textField.font = UIFont.boldSystemFontOfSize(buttonFontSize)
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.tintColor = Constant.Color.button
+    textField.autocapitalizationType = .None
     
     return textField
   }

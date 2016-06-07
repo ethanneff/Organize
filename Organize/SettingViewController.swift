@@ -51,7 +51,7 @@ class SettingViewController: UIViewController {
     
     var active: Bool {
       switch self {
-      case .NotebookNotebook, .SettingsSound, .SettingsColor: return false
+      case .NotebookNotebook, .SettingsSound, .SettingsColor, .SocialShare, .Social: return false
       default: return true
       }
     }
@@ -65,7 +65,7 @@ class SettingViewController: UIViewController {
       case .NotebookUncollapse: return "Expand all"
       case .NotebookDeleteCompleted: return "Delete completed"
         
-      case .Settings: return "Settings"
+      case .Settings: return "App"
       case .SettingsTutorial: return "View tutorial"
       case .SettingsSound: return "Toggle sound" // TODO: based on appstate
       case .SettingsColor: return "Toggle color" // TODO: based on app state
@@ -105,7 +105,7 @@ class SettingViewController: UIViewController {
         
         let topItem: UIView = i == 0 ? scrollView : prev
         let topAttribute: NSLayoutAttribute = i == 0 ? .Top : .Bottom
-        let topConstant: CGFloat = i == 0 ? Constant.Button.padding : info.header ? Constant.Button.height : 0
+        let topConstant: CGFloat = i == 0 ? Constant.Button.padding : info.header ? Constant.Button.padding*2 : 0
         
         button.tag = i
         button.setTitle(info.title, forState: .Normal)

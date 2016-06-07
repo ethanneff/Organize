@@ -45,20 +45,8 @@ struct Remote {
       }
     }
     
-    static var currentUser: FIRUser? {
-      if let user = FIRAuth.auth()?.currentUser {
-        for profile in user.providerData {
-          print(profile)
-          //          let providerID = profile.providerID
-          //          let uid = profile.uid;  // Provider-specific UID
-          //          let name = profile.displayName
-          //          let email = profile.email
-          //          let photoURL = profile.photoURL
-        }
-        return user
-      } else {
-        return nil
-      }
+    static var user: FIRUser? {
+      return FIRAuth.auth()?.currentUser ?? nil
     }
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
@@ -112,12 +100,38 @@ struct Remote {
       }
     }
     
-    static func changePassword() {
+    static func changeEmail(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+      guard let user = FIRAuth.auth()?.currentUser else {
+        return  completion(error: authError(code: 0))
+      }
       
+      loadingModal.show(controller: controller)
+      user.updateEmail(email) { error in
+        loadingModal.hide {
+          if let error = error {
+            completion(error: authError(code: error.code))
+          } else {
+            completion(error: nil)
+          }
+        }
+      }
     }
     
-    static func changeEmail() {
+    static func changePassword(controller controller: UIViewController, password: String, completion: (error: String?) -> ()) {
+      guard let user = FIRAuth.auth()?.currentUser else {
+        return  completion(error: authError(code: 0))
+      }
       
+      loadingModal.show(controller: controller)
+      user.updatePassword(password) { error in
+        loadingModal.hide {
+          if let error = error {
+            completion(error: authError(code: error.code))
+          } else {
+            completion(error: nil)
+          }
+        }
+      }
     }
     
     static func logout() {

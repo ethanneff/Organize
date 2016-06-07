@@ -422,12 +422,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func displayAccountEmail() {
-    let modal = ModalTextField();
-    // TODO: get previous email
-    modal.placeholder = "previous email"
+    let modal = ModalTextField()
+    modal.placeholder = Remote.Auth.user?.email ?? "new email"
     modal.show(controller: self, dismissible: true) { (output) in
       if let email = output[ModalTextField.OutputKeys.Text.rawValue] as? String where email.isEmail {
-        // TODO: change user email and logout
+        Remote.Auth.changeEmail(controller: self, email: email, completion: { error in
+          let message = error ?? "Log back in with your new email"
+          let modal = ModalError()
+          modal.message = message
+          modal.show(controller: self) { (output) in
+            if let _ = error { } else {
+              self.logout()
+            }
+          }
+        })
       } else {
         let modal = ModalError()
         modal.message = AccessBusinessLogic.ErrorMessage.EmailInvalid.message
@@ -443,7 +451,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.placeholder = "new password"
     modal.show(controller: self, dismissible: true) { (output) in
       if let password = output[ModalTextField.OutputKeys.Text.rawValue] as? String where password.isPassword {
-        // TODO: change user password and logout
+        Remote.Auth.changePassword(controller: self, password: password, completion: { error in
+          let message = error ?? "Log back in with your new password"
+          let modal = ModalError()
+          modal.message = message
+          modal.show(controller: self) { (output) in
+            if let _ = error { } else {
+              self.logout()
+            }
+          }
+        })
       } else {
         let modal = ModalError()
         modal.message = AccessBusinessLogic.ErrorMessage.PasswordInvalid.message
@@ -456,9 +473,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func displayAccountDelete() {
     let modal = ModalConfirmation()
-    modal.message = "Permanently delete account and all data?"
-    modal.show(controller: self, dismissible: false) { (output) in
-      // TODO: delet account and logout
+    modal.message = "Permanently delete account and all data related to it?"
+    modal.show(controller: self, dismissible: true) { (output) in
+      Remote.Auth.delete(controller: self, completion: { (error) in
+        if let error = error {
+          let modal = ModalError()
+          modal.message = error
+          modal.show(controller: self)
+        } else {
+          self.logout()
+        }
+      })
     }
   }
   

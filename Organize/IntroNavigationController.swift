@@ -13,9 +13,9 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
+    print("determineController")
     Util.delay(Constant.App.loadingDelay) {
-      if let user = Remote.Auth.currentUser {
-        print(user)
+      if let _ = Remote.Auth.user {
         self.displayController(navController: MenuNavigationController())
       } else {
         self.displayController(navController: AccessNavigationController())

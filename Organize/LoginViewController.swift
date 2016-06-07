@@ -24,7 +24,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    if let _ = Remote.Auth.currentUser {
+    if let _ = Remote.Auth.user {
       dismissViewControllerAnimated(false, completion: nil)
     }
   }
