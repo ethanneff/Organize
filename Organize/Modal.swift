@@ -25,6 +25,10 @@ class Modal: UIViewController {
     fatalError("init coder not implemented")
   }
   
+  deinit {
+    print("Modal deinit")
+  }
+  
   // MARK: - public
   func show(controller controller: UIViewController, dismissible: Bool = false, completion: completionBlock = nil) {
     Util.threadMain {
@@ -135,7 +139,7 @@ extension Modal {
   
   internal func createButton(title title: String?, confirm: Bool) -> UIButton {
     let button: UIButton = UIButton()
-    let title = title ?? "hello" //confirm ? buttonConfirmTitle: buttonCancelTitle
+    let title = title ?? (confirm ? buttonConfirmTitle : buttonCancelTitle)
     button.tag = Int(confirm)
     button.layer.cornerRadius = radius
     button.setTitle(title, forState: .Normal)
@@ -179,5 +183,24 @@ extension Modal {
     
     return modal
   }
-  
+}
+
+extension Modal {
+  // MARK: - dynamic label
+  internal func updateLabel(text text: String?, label: UILabel, modalMinWidth: CGFloat, modalMaxWidth: CGFloat, modalMinHeight: CGFloat, modalMaxHeight: CGFloat, modalWidthConstraint: NSLayoutConstraint, modalHeightConstraint: NSLayoutConstraint) {
+    label.translatesAutoresizingMaskIntoConstraints = true
+    label.text = text
+    label.textAlignment = .Center
+    label.numberOfLines = 0
+    label.font = .boldSystemFontOfSize(buttonFontSize)
+    label.lineBreakMode = .ByTruncatingTail
+    let minLabelSize = CGSizeMake(modalMinWidth, modalMinHeight/2);
+    let maxLabelSize = CGSizeMake(modalMaxWidth, modalMaxHeight);
+    let expectedSize = label.sizeThatFits(maxLabelSize)
+    let actualSize = CGSizeMake(minLabelSize.width > expectedSize.width ?  minLabelSize.width : expectedSize.width, expectedSize.height > maxLabelSize.height ? maxLabelSize.height : expectedSize.height)
+    
+    label.frame = CGRectMake(Constant.Button.padding, Constant.Button.padding, actualSize.width, actualSize.height)
+    modalWidthConstraint.constant = label.frame.size.width+Constant.Button.padding*2
+    modalHeightConstraint.constant = label.frame.size.height+Constant.Button.height+separatorHeight+Constant.Button.padding*2
+  }
 }

@@ -22,8 +22,8 @@ class ModalTutorial: Modal {
   
   let progressHeight: CGFloat = 3
   let progressAnimation: Double = 0.4
-  let modalWidthConstan: CGFloat = 100
-  let modalHeightConstan: CGFloat = 100
+  let modalWidthConstant: CGFloat = 180
+  let modalHeightConstant: CGFloat = 140
   
   enum OutputKeys: String {
     case None
@@ -88,7 +88,7 @@ class ModalTutorial: Modal {
   
   // MARK: - deinit
   deinit {
-    
+    print("tutorial deinit")
   }
   
   // MARK: - create
@@ -118,8 +118,8 @@ class ModalTutorial: Modal {
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: 0.3, constant: 180),
-      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.4, constant: 140),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: 0.3, constant: modalWidthConstant),
+      NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.4, constant: modalHeightConstant),
       ])
     
     NSLayoutConstraint.activateConstraints([
@@ -174,7 +174,7 @@ class ModalTutorial: Modal {
       return
     }
     if button.tag == Slide.count-2 {
-      button.setTitle("Done", forState: .Normal)
+      button.setTitle(buttonConfirmTitle, forState: .Normal)
       button.titleLabel?.font = .boldSystemFontOfSize(buttonFontSize)
     }
     

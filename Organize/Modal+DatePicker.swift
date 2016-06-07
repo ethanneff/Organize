@@ -17,6 +17,15 @@
 // }
 // 
 // */
+
+
+import UIKit
+
+class ModalDatePicker: Modal {
+  
+}
+
+
 //
 //import UIKit
 //

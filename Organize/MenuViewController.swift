@@ -49,7 +49,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
     navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Organize, target: self, action: #selector(rightNavButtonPressed(_:)))
   }
   
-  private func createNavTitle(title title: String) {
+  internal func createNavTitle(title title: String) {
     navigationItem.title = title
   }
   

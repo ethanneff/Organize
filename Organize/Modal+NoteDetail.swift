@@ -4,6 +4,11 @@
 //  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool)
 //  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool)
 //}
+
+class ModalNoteDetail: Modal {
+  
+}
+
 //
 //class ModalNoteDetailViewController: UIViewController, UITextViewDelegate {
 //  // MARK: - properties

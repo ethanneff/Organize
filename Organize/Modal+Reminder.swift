@@ -17,6 +17,15 @@
 // }
 // 
 // */
+
+
+import UIKit
+
+class ModalReminder: Modal {
+  
+}
+
+
 //
 //import UIKit
 //

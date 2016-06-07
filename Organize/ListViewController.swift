@@ -2,7 +2,7 @@ import UIKit
 import MessageUI
 import Firebase
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate, MFMailComposeViewControllerDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate {
   // MARK: - properties
   var notebook: Notebook
   
@@ -19,12 +19,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return refreshControl
   }()
   
-  // properties to reload the modals faster (instead of creating each time) - lazy for rare modals
-//  let modalNoteDetail: ModalNoteDetailViewController = ModalNoteDetailViewController()
-//  lazy var modalReminder: ModalReminderViewController = ModalReminderViewController()
-//  lazy var modalDatePicker: ModalDatePickerViewController = ModalDatePickerViewController()
-//  
-//  
+  // modals (let for common, lazy for rare)
+  let modalNoteDetail: ModalNoteDetail = ModalNoteDetail()
+  //  lazy var modalTutorial: ModalTutorial = ModalTutorial()
+  //  lazy var modalTextField: ModalTextField = ModalTextField()
+  //  lazy var modalReminder: ModalReminder = ModalReminder()
+  //  lazy var modalDatePicker: ModalDatePicker = ModalDatePicker()
+  //  lazy var modalError: ModalError = ModalError()
   
   // MARK: - init
   init() {
@@ -313,17 +314,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button {
-    case .NotebookTitle: modalNotebookTitle()
+    case .NotebookTitle: displayNotebookTitle()
     case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
     case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
-    case .NotebookDeleteCompleted: modalDeleteCompleted()
+    case .NotebookDeleteCompleted: displayDeleteCompleted()
       
-    case .SettingsTutorial: modalTutorial()
-      
+    case .SettingsTutorial: displayTutorial()
     case .SocialFeedback: modalSocialFeedback()
     case .SocialShare: modalSocialShare()
       
-    case .AccountEmail: modalAccountEmail()
+    case .AccountEmail: displayAccountEmail()
     case .AccountPassword: modalAccountPassword()
     case .AccountDelete: modalAccountDelete()
     case .AccountLogout: logout()
@@ -332,6 +332,38 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
+  
+  // MARK: - modals
+  private func displayNotebookTitle() {
+    let modal = ModalTextField()
+    modal.limit = 25
+    modal.placeholder = "notebook title"
+    modal.show(controller: self, dismissible: true) { output in
+      if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String, let menuController = self.navigationController?.childViewControllers.first as? MenuViewController {
+        menuController.createNavTitle(title: title)
+        // TODO: Save
+      }
+    }
+  }
+  
+  private func displayTutorial() {
+    let modal = ModalTutorial()
+    modal.show(controller: self, dismissible: true)
+  }
+  
+  private func displayDeleteCompleted() {
+    let modal = ModalConfirmation()
+    modal.message = "hello"
+    modal.show(controller: self, dismissible: false) { (output) in
+      print(output)
+    }
+  }
+  
+  private func displayAccountEmail() {
+    let modal = ModalError()
+    modal.message = "ashodiasnsad oaisnd aosnd oasndo ansdo nasod naosdn oas odano dnsaodn oasnd oasndonasodn oasndo asnod nasodn oasnod naodn oaind ioansodi nasoda"
+    modal.show(controller: self, dismissible: true)
+  }
   
   // MARK: - modal social
   private func modalSocialFeedback() {
@@ -430,10 +462,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func modalReminderDisplay(indexPath indexPath: NSIndexPath) {
     let note = notebook.display[indexPath.row]
     if !note.completed {
-//      modalReminder.delegate = self
-//      modalReminder.data = note.reminder ?? nil
-//      modalReminder.indexPath = indexPath
-//      modalPresent(controller: modalReminder)
+      //      modalReminder.delegate = self
+      //      modalReminder.data = note.reminder ?? nil
+      //      modalReminder.indexPath = indexPath
+      //      modalPresent(controller: modalReminder)
     }
   }
   
@@ -461,10 +493,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modal date picker
   func modalDatePickerDisplay(indexPath indexPath: NSIndexPath) {
-//    modalDatePicker.delegate = self
-//    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
-//    modalDatePicker.indexPath = indexPath
-//    modalPresent(controller: modalDatePicker)
+    //    modalDatePicker.delegate = self
+    //    modalDatePicker.data = notebook.display[indexPath.row].reminder ?? nil
+    //    modalDatePicker.indexPath = indexPath
+    //    modalPresent(controller: modalDatePicker)
   }
   
   func modalDatePickerValue(indexPath indexPath: NSIndexPath, date: NSDate) {
@@ -473,10 +505,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   
   // MARK: - modal notebook title
-  private func modalNotebookTitle() {
-    let m = ModalTutorial()
-    m.show(controller: self, dismissible: true)
-  }
   
   // MARK: - modal notebook delete all
   private func modalDelete(indexPath indexPath: NSIndexPath) {
@@ -507,18 +535,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   
   // MARK: - modal tutorial
-  private func modalTutorial() {
-//    let controller = ModalTutorialViewController()
-//    modalPresent(controller: controller)
-  }
+  //  private func displayModalTutorial() {
+  //
+  //
+  ////    let controller = ModalTutorialViewController()
+  ////    modalPresent(controller: controller)
+  //  }
   
   
   // MARK: - modal note detail
   func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
-//    modalNoteDetail.delegate = self
-//    modalNoteDetail.indexPath = indexPath
-//    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
-//    modalPresent(controller: modalNoteDetail)
+    //    modalNoteDetail.delegate = self
+    //    modalNoteDetail.indexPath = indexPath
+    //    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
+    //    modalPresent(controller: modalNoteDetail)
   }
   
   func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool) {

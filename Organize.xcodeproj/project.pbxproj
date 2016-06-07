@@ -55,6 +55,7 @@
 		675038081CD178F30061EC6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038021CD178F30061EC6E /* LoginViewController.swift */; };
 		675038091CD178F30061EC6E /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038031CD178F30061EC6E /* SignupViewController.swift */; };
 		6750380A1CD178F30061EC6E /* ForgotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038041CD178F30061EC6E /* ForgotViewController.swift */; };
+		67A6E5611D0640B000ABB2BC /* Modal+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */; };
 		67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF521D0225C1000B6D43 /* Modal+Error.swift */; };
 		67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF541D022964000B6D43 /* Modal+TextField.swift */; };
 		67D8441E1CD2847B004C144F /* Swipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D8441D1CD2847B004C144F /* Swipe.swift */; };
@@ -116,6 +117,7 @@
 		675038021CD178F30061EC6E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		675038031CD178F30061EC6E /* SignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		675038041CD178F30061EC6E /* ForgotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotViewController.swift; sourceTree = "<group>"; };
+		67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Confirmation.swift"; sourceTree = "<group>"; };
 		67CEDF521D0225C1000B6D43 /* Modal+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Error.swift"; sourceTree = "<group>"; };
 		67CEDF541D022964000B6D43 /* Modal+TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+TextField.swift"; sourceTree = "<group>"; };
 		67D8441D1CD2847B004C144F /* Swipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Swipe.swift; sourceTree = "<group>"; };
@@ -344,6 +346,7 @@
 				6733EE3B1CFE4347006BC486 /* Modal+Loading.swift */,
 				67CEDF521D0225C1000B6D43 /* Modal+Error.swift */,
 				67CEDF541D022964000B6D43 /* Modal+TextField.swift */,
+				67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */,
 			);
 			name = modals;
 			sourceTree = "<group>";
@@ -525,6 +528,7 @@
 				675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */,
 				675038071CD178F30061EC6E /* Access+Business+Logic.swift in Sources */,
 				670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */,
+				67A6E5611D0640B000ABB2BC /* Modal+Confirmation.swift in Sources */,
 				675037E51CD176570061EC6E /* ListViewController.swift in Sources */,
 				675037DB1CD176570061EC6E /* Modal.swift in Sources */,
 				670963071CEE3DD60043D2A5 /* AppState.swift in Sources */,
