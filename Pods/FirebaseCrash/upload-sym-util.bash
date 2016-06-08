@@ -36,12 +36,16 @@ else
     }
 fi
 
+xcdebug () {
+    if ((VERBOSE)); then xcnote "$*"; fi
+}
+
 # Locate the script directory.
 
 script_dir () {
     local SCRIPT
 
-    if [[ "$0" = */* ]]; then SCRIPT="$0"; else SCRIPT="./$0"; fi
+    if [[ "$0" == */* ]]; then SCRIPT="$0"; else SCRIPT="./$0"; fi
 
     while [[ -L "$SCRIPT" ]]; do
         local LINK="$(readlink "$SCRIPT")"
@@ -120,7 +124,7 @@ tok_property () {
 fcr_verify_svc_plist () {
     for key in "${FCR_SVC_KEYS[@]}"; do
         if ! svc_property "$key" >/dev/null; then
-            xcwarning "$key not found in $SVC_PLIST."
+            xcdebug "$key not found in $SVC_PLIST. Service account invalid."
             return 1
         fi
     done
@@ -133,7 +137,7 @@ fcr_verify_svc_plist () {
 fcr_verify_tok_plist () {
     for key in "${FCR_TOK_KEYS[@]}"; do
         if ! tok_property "$key" >/dev/null; then
-            xcwarning "$key not found in $TOK_PLIST."
+            xcdebug "$key not found in $TOK_PLIST. Token invalid."
             return 1
         fi
     done
@@ -144,7 +148,7 @@ fcr_verify_tok_plist () {
     fi
 
     if (($(tok_property expires_at) <= NOW)); then
-        ((VERBOSE)) && xcnote "Token well-formed but expired."
+        xcdebug "Token well-formed but expired."
         return 1
     fi
 }
@@ -162,18 +166,16 @@ fcr_legacy_format_conversion_0 () {
 
     ((VERSION < 1)) || return
 
-    xcnote "Converting certificate information to version 1."
-
     for key in "${FCR_SVC_KEYS[@]}"; do
         if ! (APP_KEY='' svc_property "$key" >/dev/null 2>&1); then
-            xcerror "Current service account information unsalvagable."
-
-            /usr/libexec/PlistBuddy "$SVC_PLIST" -c 'Clear dict' 2>/dev/null
-            /usr/libexec/PlistBuddy "$TOK_PLIST" -c 'Clear dict' 2>/dev/null
+            /usr/libexec/PlistBuddy "$SVC_PLIST" -c 'Clear dict' >/dev/null 2>&1
+            /usr/libexec/PlistBuddy "$TOK_PLIST" -c 'Clear dict' >/dev/null 2>&1
 
             return
         fi
     done
+
+    xcnote "Converting certificate information to version 1."
 
     /usr/libexec/PlistBuddy "$SVC_PLIST" \
         -c "Copy : :$APP_KEY" \
@@ -222,26 +224,33 @@ fcr_authenticate () {
     # If the certificate property list does not contain the required
     # keys, delete it and the token property list.
     if ! fcr_verify_svc_plist; then
-        xcnote "Invalid certificate information for $FIREBASE_APP_ID."
+        xcdebug "Invalid certificate information for $FIREBASE_APP_ID."
         /usr/libexec/PlistBuddy "$SVC_PLIST" -c "Delete $APP_KEY" >/dev/null 2>&1
         /usr/libexec/PlistBuddy "$TOK_PLIST" -c "Delete $APP_KEY" >/dev/null 2>&1
     else
-        ((VERBOSE)) && xcnote "Certificate information valid."
+        xcdebug "Certificate information valid."
     fi
 
     # If the token will expire in the next sixty seconds (or already
     # has), reload it.
     if ! fcr_verify_tok_plist; then
+        xcdebug "Token is invalid. Refreshing..."
         if ! fcr_verify_svc_plist; then
+            xcdebug "Service account information is invalid. Requesting reload..."
+            if [[ "$SERVICE_ACCOUNT_FILE" && -f "$SERVICE_ACCOUNT_FILE" ]]; then
+                xcdebug "Using $SERVICE_ACCOUNT_FILE for credentials."
+            else
+                SERVICE_ACCOUNT_FILE="$(/usr/bin/osascript -e 'the POSIX path of (choose file with prompt "Where is the service account file?" of type "public.json")' 2>/dev/null)"
+            fi
+
             /usr/libexec/PlistBuddy "$SVC_PLIST" \
-                -c "Add :version integer" \
-                -c "Set :version 1"
-            local JSON_FILE="$(/usr/bin/osascript -e 'the POSIX path of (choose file with prompt "Where is the service account file?" of type "public.json")' 2>/dev/null)"
-            if [[ "$JSON_FILE" && -f "$JSON_FILE" ]]; then
-                /usr/bin/plutil -replace "$APP_KEY" -json "$(/bin/cat "$JSON_FILE")" "$SVC_PLIST" || return 2
+                -c "Add :version integer 1"
+
+            if [[ "$SERVICE_ACCOUNT_FILE" && -f "$SERVICE_ACCOUNT_FILE" ]]; then
+                /usr/bin/plutil -replace "$APP_KEY" -json "$(/bin/cat "$SERVICE_ACCOUNT_FILE")" "$SVC_PLIST" || return 2
 
                 if fcr_verify_svc_plist; then
-                    ((VERBOSE)) && xcnote "Installed service account file into $SVC_PLIST."
+                    xcdebug "Installed service account file into $SVC_PLIST."
                 else
                     /usr/libexec/PlistBuddy "$SVC_PLIST" -c "Delete $APP_KEY" >/dev/null 2>&1
                     xcerror "Unable to parse service account file."
@@ -253,7 +262,7 @@ fcr_authenticate () {
             fi
         fi
 
-        ((VERBOSE)) && xcnote "Requesting OAuth2 token using installed credentials."
+        xcdebug "Requesting OAuth2 token using installed credentials."
 
         TOKEN_URI="$(svc_property token_uri)"
         CLIENT_EMAIL="$(svc_property client_email)"
@@ -272,24 +281,37 @@ fcr_authenticate () {
                 -c "Add :version integer 1" >/dev/null 2>&1
         fi
 
-        TOKEN_JSON="$(curl $CURLOPT -s -d grant_type='urn:ietf:params:oauth:grant-type:jwt-bearer' -d assertion="$JWT" "$TOKEN_URI")"
+        fcr_mktemp TOKEN_JSON
 
-        /usr/bin/plutil -replace "$APP_KEY" -json "$TOKEN_JSON" \
+        HTTP_STATUS="$(curl $CURLOPT -o "$TOKEN_JSON" -s -d grant_type='urn:ietf:params:oauth:grant-type:jwt-bearer' -d assertion="$JWT" -w '%{http_code}' "$TOKEN_URI")"
+
+        if [[ "$HTTP_STATUS" == 403 ]]; then
+            xcerror "Invalid certificate. Unable to retrieve OAuth2 token."
+            /usr/libexec/PlistBuddy "$SVC_PLIST" -c "Delete $APP_KEY" >/dev/null 2>&1
+            return 2
+        fi
+
+        /usr/bin/plutil -replace "$APP_KEY" -json "$(cat "$TOKEN_JSON")" \
             "$TOK_PLIST" || return 1
 
         EXPIRES_AT="$(($(tok_property expires_in) + NOW))"
 
         /usr/libexec/PlistBuddy "$TOK_PLIST" \
             -c "Add :$APP_KEY:expires_at integer $EXPIRES_AT" \
-            -c "Add :$APP_KEY:expiration_date date $(date -jf %s "$EXPIRES_AT")"
+            -c "Add :$APP_KEY:expiration_date date $(date -jf %s "$EXPIRES_AT")" >/dev/null 2>&1
+
+        if ! fcr_verify_tok_plist; then
+            xcwarning "Token returned is not valid. If this error persists, remove the certificate."
+            xcnote "To remove the certificate, execute the following command: defaults delete com.google.SymbolUpload $APP_KEY"
+            xcnote "You will need to reinstall the JSON credential file."
+        fi
     else
-        ((VERBOSE)) && xcnote "Token still valid."
+        xcdebug "Token still valid."
         EXPIRES_AT="$(tok_property expires_at)"
     fi
 
-    ((VERBOSE)) && xcnote "Token will expire at $(date -jf %s +'%r %Z' "$EXPIRES_AT")."
-
-    ((VERBOSE > 1)) && xcnote "Using service account with key $(svc_property private_key_id)"
+    xcdebug "Token will expire at $(date -jf %s +'%r %Z' "$EXPIRES_AT")."
+    xcdebug "Using service account with key $(svc_property private_key_id)"
 
     BEARER_TOKEN="$(tok_property access_token)"
 
@@ -329,11 +351,23 @@ fcr_upload_files() {
     fi
 
     for FILE; do
-        ((VERBOSE)) && xcnote "Get signed URL for uploading."
+        xcdebug "Get signed URL for uploading."
 
         URL="$FCR_BASE_URL/v1/apps/$FIREBASE_APP_ID"
 
-        curl $CURLOPT -sL -H "X-Ios-Bundle-Identifier: $FCR_BUNDLE_ID" -H "Authorization: Bearer $BEARER_TOKEN" -X POST -d '' "$URL/symbolFileUploadLocation?key=$FIREBASE_API_KEY" >|"$FILE_UPLOAD_LOCATION_PLIST" || return 1
+        HTTP_STATUS="$(curl $CURLOPT -o "$FILE_UPLOAD_LOCATION_PLIST" -sL -H "X-Ios-Bundle-Identifier: $FCR_BUNDLE_ID" -H "Authorization: Bearer $BEARER_TOKEN" -X POST -d '' -w '%{http_code}' "$URL/symbolFileUploadLocation?key=$FIREBASE_API_KEY")"
+        STATUS=$?
+
+        if [[ "$STATUS" == 22 && "$HTTP_STATUS" == 403 ]]; then
+            xcerror "Unable to access resource. Token invalid."
+            xcnote "You will have to reinstall the service account file."
+            /usr/libexec/PlistBuddy -c "delete :$APP_KEY" "$SVC_PLIST"
+            return 2
+        elif [[ "$STATUS" != 0 ]]; then
+            xcerror "curl exited with non-zero status $STATUS."
+            ((STATUS == 22)) && xcerror "HTTP response code is $HTTP_STATUS."
+            return 2
+        fi
 
         plutil -convert binary1 "$FILE_UPLOAD_LOCATION_PLIST" || return 1
 
@@ -351,7 +385,7 @@ fcr_upload_files() {
             return 1
         fi
 
-        ((VERBOSE)) && xcnote "Upload symbol file."
+        xcdebug "Upload symbol file."
 
         HTTP_STATUS=$(curl $CURLOPT -sfL -H 'Content-Type: text/plain' -H "Authorization: Bearer $BEARER_TOKEN" -w '%{http_code}' -T "$FILE" "$UPLOAD_URL")
         STATUS=$?
@@ -364,7 +398,7 @@ fcr_upload_files() {
             return 1
         fi
 
-        ((VERBOSE)) && xcnote "Upload metadata information."
+        xcdebug "Upload metadata information."
 
         curl $CURLOPT -sL -H 'Content-Type: application/json' -H "X-Ios-Bundle-Identifier: $FCR_BUNDLE_ID" -H "Authorization: Bearer $BEARER_TOKEN" -X POST -d '{"upload_key":"'"$UPLOAD_KEY"'","symbol_file_mapping":{"symbol_type":2,"app_version":"'"$FCR_PROD_VERS"'"}}' "$URL/symbolFileMappings:upsert?key=$FIREBASE_API_KEY" >|"$META_UPLOAD_RESULT_PLIST" || return 1
         plutil -convert binary1 "$META_UPLOAD_RESULT_PLIST" || return 1

@@ -123,21 +123,21 @@ get_property () {
     VALUE="$(/usr/libexec/PlistBuddy -c "print $PROPERTY" "$PLIST" 2>/dev/null)" && echo "$VALUE"
 }
 
-if [[ ! "$FIREBASE_API_KEY" || ! "FIREBASE_APP_ID" ]]; then
-    SERVICE_PLIST="$(find "${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}" -name GoogleService-Info.plist | head -n1)"
+if [[ ! "${FIREBASE_API_KEY}" || ! "${FIREBASE_APP_ID}" ]]; then
+    : "${SERVICE_PLIST:="$(find "${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}" -name GoogleService-Info.plist | head -n1)"}"
     : "${SERVICE_PLIST:?"GoogleService-Info.plist could not be located"}"
     : "${FIREBASE_API_KEY:="$(get_property API_KEY "${SERVICE_PLIST}")"}"
     : "${FIREBASE_APP_ID:="$(get_property GOOGLE_APP_ID "${SERVICE_PLIST}")"}"
 fi
 
 if ! [[ "$FIREBASE_API_KEY" ]]; then
-    xcerror "Unable to get API_KEY from GoogleService-Info.plist."
+    xcerror "Unable to get API_KEY from ${SERVICE_PLIST}."
     xcnote "Specify FIREBASE_API_KEY in environment."
     exit 2
 fi
 
 if ! [[ "$FIREBASE_APP_ID" ]]; then
-    xcerror "Unable to get GOOGLE_APP_ID from GoogleService-Info.plist."
+    xcerror "Unable to get GOOGLE_APP_ID from ${SERVICE_PLIST}."
     xcnote "Specify FIREBASE_APP_ID in environment."
     exit 2
 fi
@@ -186,7 +186,7 @@ for ARCH in ${ARCHS?:}; do
     fcr_mktemp "$SYMBOL_FILE" SCRATCH
 
     if [[ ! -d "${DSYM_BUNDLE}" ]]; then
-        ((VERBOSE)) && xcnote "Extracting dSYM from executable."
+        xcdebug "Extracting dSYM from executable."
         fcr_mktempdir TMP_DSYM
         DSYM_BUNDLE="${TMP_DSYM}/${EXECUTABLE##*/}.dSYM"
         xcrun dsymutil -o "${DSYM_BUNDLE}" "${EXECUTABLE}"

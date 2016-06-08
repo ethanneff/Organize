@@ -103,7 +103,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
   // MARK: - create
   private func createBannerAd() {
     bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
@@ -208,11 +207,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - banner
   private func loadBannerAd() {
-    Util.delay(2) {
-      let request = GADRequest()
-      request.testDevices = Constant.App.firebaseTestDevices
-      self.bannerAd.loadRequest(request)
-    }
+    let request = GADRequest()
+    request.testDevices = Constant.App.firebaseTestDevices
+    bannerAd.loadRequest(request)
   }
   
   internal func adViewDidReceiveAd(bannerView: GADBannerView!) {

@@ -191,7 +191,7 @@ struct Remote {
       let remoteConfig: FIRRemoteConfig = FIRRemoteConfig.remoteConfig()
       remoteConfig.configSettings = FIRRemoteConfigSettings(developerModeEnabled: Constant.App.release ? false : true)!
       
-      let expirationDuration: Double = remoteConfig.configSettings.isDeveloperModeEnabled ? 0 : 3600
+      let expirationDuration: Double = remoteConfig.configSettings.isDeveloperModeEnabled ? 0 : 60*60
       remoteConfig.fetchWithExpirationDuration(expirationDuration) { (status, error) in
         if (status == .Success) {
           remoteConfig.activateFetched()
