@@ -192,14 +192,10 @@ struct Remote {
       remoteConfig.configSettings = FIRRemoteConfigSettings(developerModeEnabled: Constant.App.release ? false : true)!
       
       let expirationDuration: Double = remoteConfig.configSettings.isDeveloperModeEnabled ? 0 : 3600
-
       remoteConfig.fetchWithExpirationDuration(expirationDuration) { (status, error) in
         if (status == .Success) {
-          print("Config fetched!")
           remoteConfig.activateFetched()
           completion(config: remoteConfig)
-//          self.msglength = self.remoteConfig["friendly_msg_length"].numberValue!
-//          print("Friendly msg length config: \(self.msglength)")
         } else {
           print("Config not fetched")
           print("Error \(error)")
