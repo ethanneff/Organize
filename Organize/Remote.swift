@@ -182,26 +182,28 @@ struct Remote {
   }
   
   struct Config {
-    static func fetch() {
+    
+    enum Keys: String {
+      case ShowAds
+    }
+    
+    static func fetch(completion: (config: FIRRemoteConfig?) -> ()) {
       let remoteConfig: FIRRemoteConfig = FIRRemoteConfig.remoteConfig()
       remoteConfig.configSettings = FIRRemoteConfigSettings(developerModeEnabled: Constant.App.release ? false : true)!
       
       let expirationDuration: Double = remoteConfig.configSettings.isDeveloperModeEnabled ? 0 : 3600
 
-      
-      // cacheExpirationSeconds is set to cacheExpiration here, indicating that any previously
-      // fetched and cached config would be considered expired because it would have been fetched
-      // more than cacheExpiration seconds ago. Thus the next fetch would go to the server unless
-      // throttling is in progress. The default expiration duration is 43200 (12 hours).
       remoteConfig.fetchWithExpirationDuration(expirationDuration) { (status, error) in
         if (status == .Success) {
           print("Config fetched!")
           remoteConfig.activateFetched()
+          completion(config: remoteConfig)
 //          self.msglength = self.remoteConfig["friendly_msg_length"].numberValue!
 //          print("Friendly msg length config: \(self.msglength)")
         } else {
           print("Config not fetched")
           print("Error \(error)")
+          completion(config: nil)
         }
       }
     }

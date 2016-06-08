@@ -42,12 +42,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func initialize() {
-    loadNotebook()
-    loadListeners()
     createBannerAd()
     createTableView()
     createAddButton()
     createGestures()
+    loadNotebook()
+    loadListeners()
   }
   
   // MARK: - deinit
@@ -67,8 +67,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     super.viewDidAppear(animated)
     // shake
     becomeFirstResponder()
-    // ad
-    loadBannerAd()
+    // config
+    loadRemoteConfig()
   }
   
   
@@ -93,6 +93,18 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
   }
   
+  private func loadRemoteConfig() {
+    Remote.Config.fetch { config in
+      if let config = config {
+        if config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
+          self.loadBannerAd()
+        }
+      }
+    }
+  }
+  
+  
+  // MARK: - create
   private func createBannerAd() {
     bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
     view.addSubview(bannerAd)
