@@ -78,7 +78,8 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   // MARK: - create
   private func createViews() {
     scrollView = createScrollView()
-//    scrollView.contentSize = CGSize(width: 0, height: 200)
+    // set mininum for horizontal rotation
+    scrollView.contentSize = CGSize(width: 0, height: 300)
     
     header = createTextView()
     headerPlaceholder = createPlaceHolderLabel(textView: header)
