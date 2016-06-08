@@ -23,7 +23,13 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   private var bodyPlaceHolder: UITextView!
   private var yes: UIButton!
   private var no: UIButton!
+  
+  private var tagWhen: UIButton!
+  private var tagWhere: UIButton!
+  private var tagWhat: UIButton!
+  private var tagWho: UIButton!
   private var headerSeparator: UIView!
+    private var tagSeparator: UIView!
   private var topSeparator: UIView!
   private var midSeparator: UIView!
   private var modalHeightConstraint: NSLayoutConstraint!
@@ -72,15 +78,20 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   // MARK: - create
   private func createViews() {
     scrollView = createScrollView()
-    scrollView.backgroundColor = .lightGrayColor()
-    scrollView.contentSize = CGSize(width: 0, height: 1000)
+//    scrollView.contentSize = CGSize(width: 0, height: 200)
     
     header = createTextView()
     headerPlaceholder = createPlaceHolderLabel(textView: header)
     header.addObserver(self, forKeyPath: "contentSize", options: NSKeyValueObservingOptions.New, context: nil)
     header.textAlignment = .Center
     
+    tagWhen = createButton(title: "when", confirm: true)
+    tagWhere = createButton(title: "where", confirm: true)
+    tagWhat = createButton(title: "what", confirm: true)
+    tagWho = createButton(title: "who", confirm: true)
+    
     headerSeparator = createSeparator()
+    tagSeparator = createSeparator()
     topSeparator = createSeparator()
     midSeparator = createSeparator()
     
@@ -94,8 +105,13 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     
     modal.addSubview(scrollView)
     scrollView.addSubview(header)
-    scrollView.addSubview(headerSeparator)
     scrollView.addSubview(body)
+    scrollView.addSubview(tagWhen)
+    scrollView.addSubview(tagWhere)
+    scrollView.addSubview(tagWhat)
+    scrollView.addSubview(tagWho)
+    scrollView.addSubview(headerSeparator)
+    scrollView.addSubview(tagSeparator)
     modal.addSubview(topSeparator)
     modal.addSubview(midSeparator)
     modal.addSubview(yes)
@@ -111,7 +127,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     modalBottomConstraint = NSLayoutConstraint(item: modal, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -modalPadding)
     modalTopConstraint = NSLayoutConstraint(item: modal, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: modalPadding)
     modalCenterYConstraint =  NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0)
-    modalHeightConstraint = NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.6, constant: 80)
+    modalHeightConstraint = NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.6, constant: 120)
     
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
@@ -141,11 +157,44 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
       NSLayoutConstraint(item: headerSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
       ])
     
+//    NSLayoutConstraint.activateConstraints([
+//      NSLayoutConstraint(item: tagWhen, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhen, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+//      NSLayoutConstraint(item: tagWhen, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhen, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+//      ])
+//    NSLayoutConstraint.activateConstraints([
+//      NSLayoutConstraint(item: tagWhere, attribute: .Top, relatedBy: .Equal, toItem: tagWhen, attribute: .Bottom, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhere, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+//      NSLayoutConstraint(item: tagWhere, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhere, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+//      ])
+//    
+//    NSLayoutConstraint.activateConstraints([
+//      NSLayoutConstraint(item: tagWhat, attribute: .Top, relatedBy: .Equal, toItem: tagWhere, attribute: .Bottom, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhat, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+//      NSLayoutConstraint(item: tagWhat, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWhat, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+//      ])
+//    NSLayoutConstraint.activateConstraints([
+//      NSLayoutConstraint(item: tagWho, attribute: .Top, relatedBy: .Equal, toItem: tagWhat, attribute: .Bottom, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWho, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+//      NSLayoutConstraint(item: tagWho, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagWho, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+//      ])
+//    
+//    NSLayoutConstraint.activateConstraints([
+//      NSLayoutConstraint(item: tagSeparator, attribute: .Top, relatedBy: .Equal, toItem: tagWho, attribute: .Bottom, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+//      NSLayoutConstraint(item: tagSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+//      NSLayoutConstraint(item: tagSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+//      ])
+    
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: body, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: body, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height*5),
-      NSLayoutConstraint(item: body, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: body, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: body, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparator, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: body, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding/2),
+      NSLayoutConstraint(item: body, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding/2),
       ])
   }
   
