@@ -75,7 +75,7 @@ class Util {
   }
   
   // animation
-  class func animateButtonPress(button button: UIButton, completion: (() -> ())? = nil) {
+  class func animateButtonPress(button button: UIView, completion: (() -> ())? = nil) {
     UIView.animateWithDuration(0.05, animations: {
       button.alpha = 0.4
       }, completion: { success in

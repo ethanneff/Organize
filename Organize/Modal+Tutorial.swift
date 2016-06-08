@@ -27,7 +27,6 @@ class ModalTutorial: Modal {
     case None
   }
   
-  
   // MARK: - data
   enum Slide: Int {
     case Complete

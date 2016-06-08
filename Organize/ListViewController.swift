@@ -240,13 +240,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  
   // MARK: - gestures
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
-    if let indexPath = tableView.indexPathForRowAtPoint(location) {
-      modalNoteDetailDisplay(indexPath: indexPath, create: false)
-      Util.playSound(systemSound: .Tap)
+    if let indexPath = tableView.indexPathForRowAtPoint(location), cell = tableView.cellForRowAtIndexPath(indexPath) {
+      Util.animateButtonPress(button: cell) {
+        self.displayNoteDetail(indexPath: indexPath, create: false)
+      }
     }
   }
   
@@ -270,7 +270,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
-      // FIXME: v2
+      // FIXME: undo in v2
       displayUndo()
     }
   }
