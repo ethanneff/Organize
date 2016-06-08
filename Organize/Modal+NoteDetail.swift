@@ -22,10 +22,13 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   private var body: UITextView!
   private var bodyPlaceHolder: UITextView!
   private var yes: UIButton!
+  private var headerSeparator: UIView!
   private var topSeparator: UIView!
+  private var modalHeightConstraint: NSLayoutConstraint!
+  private var modalCenterYConstraint: NSLayoutConstraint!
+  private var modalTopConstraint: NSLayoutConstraint!
   private var modalBottomConstraint: NSLayoutConstraint!
-  private let modalPadding: CGFloat = Constant.Button.padding*2
-  
+  private let modalPadding: CGFloat = Constant.Button.padding*2.5
   
   enum OutputKeys: String {
     case None
@@ -36,6 +39,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     super.init()
     createViews()
     createConstraints()
+    listenKeyboard()
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -45,22 +49,34 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   // MARK: - deinit
   deinit {
     print("note detail deinit")
+    header.removeObserver(self, forKeyPath: "contentSize")
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
   }
   
   // MARK: - create
   private func createViews() {
-    scrollView = UIScrollView()
+    scrollView = createScrollView()
+    scrollView.backgroundColor = .lightGrayColor()
+    scrollView.contentSize = CGSize(width: 0, height: 1000)
     
-    header = UITextView()
-    body = UITextView()
+    header = createTextView()
+    header.addObserver(self, forKeyPath: "contentSize", options: NSKeyValueObservingOptions.New, context: nil)
+    header.textAlignment = .Center
+    
+    headerSeparator = createSeparator()
+    body = createTextView()
+    body.tag = 2
+    body.textAlignment = .Left
+    body.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     
     topSeparator = createSeparator()
     yes = createButton(title: "Done", confirm: true)
     
     modal.addSubview(scrollView)
-    modal.addSubview(header)
+    scrollView.addSubview(header)
+    scrollView.addSubview(headerSeparator)
     scrollView.addSubview(body)
-    
     modal.addSubview(topSeparator)
     modal.addSubview(yes)
     
@@ -69,12 +85,43 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   
   private func createConstraints() {
     modalBottomConstraint = NSLayoutConstraint(item: modal, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -modalPadding)
+    modalTopConstraint = NSLayoutConstraint(item: modal, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: modalPadding)
+    modalCenterYConstraint =  NSLayoutConstraint(item: modal, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1, constant: 0)
+    modalHeightConstraint = NSLayoutConstraint(item: modal, attribute: .Height, relatedBy: .Equal, toItem: view, attribute: .Height, multiplier: 0.6, constant: 80)
     
     NSLayoutConstraint.activateConstraints([
-      modalBottomConstraint,
-      NSLayoutConstraint(item: modal, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: modalPadding),
-      NSLayoutConstraint(item: modal, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: modalPadding),
-      NSLayoutConstraint(item: modal, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -modalPadding),
+      NSLayoutConstraint(item: modal, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: modal, attribute: .Width, relatedBy: .Equal, toItem: view, attribute: .Width, multiplier: 0.6, constant: 80),
+      modalHeightConstraint,
+      modalCenterYConstraint,
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: scrollView, attribute: .Top, relatedBy: .Equal, toItem: modal, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: scrollView, attribute: .Bottom, relatedBy: .Equal, toItem: topSeparator, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: scrollView, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: scrollView, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: header, attribute: .Top, relatedBy: .Equal, toItem: scrollView, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: header, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height*2),
+      NSLayoutConstraint(item: header, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: header, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: headerSeparator, attribute: .Top, relatedBy: .Equal, toItem: header, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: headerSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+      NSLayoutConstraint(item: headerSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: headerSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+      ])
+    
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: body, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: body, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height*5),
+      NSLayoutConstraint(item: body, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: body, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
       ])
     
     constraintButtonSingleBottom(topSeparator: topSeparator, button: yes)
@@ -116,28 +163,60 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     }
   }
   
+  // MARK: - textview
+  override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    // center vertically
+    let textView = object as! UITextView
+    var topCorrect = (textView.bounds.size.height - textView.contentSize.height * textView.zoomScale) / 2
+    topCorrect = topCorrect < 0.0 ? 0.0 : topCorrect;
+    textView.contentInset.top = topCorrect
+  }
+  
   // MARK: - keyboard
-  func keyboardWillShow(notification: NSNotification) {
-    moveModalWithKeyboard(constant: -keyboardHeight(notification: notification)-modalPadding)
+  private func listenKeyboard() {
+    header.delegate = self
+    body.delegate = self
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIKeyboardWillShowNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+    let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+    view.addGestureRecognizer(tap)
   }
   
-  func keyboardWillHide(notification: NSNotification) {
-    moveModalWithKeyboard(constant: -modalPadding)
+  internal func dismissKeyboard() {
+    view.endEditing(true)
   }
   
-  private func keyboardHeight(notification notification: NSNotification) -> CGFloat {
-    if let info  = notification.userInfo, let value = info[UIKeyboardFrameEndUserInfoKey] {
-      let rawFrame = value.CGRectValue
-      let keyboardFrame = view.convertRect(rawFrame, fromView: nil)
-      return keyboardFrame.height
-    }
-    return 0
+  internal func keyboardWillShow(notification: NSNotification) {
+    updateModalHeightConstraints(show: true, notification: notification)
   }
   
-  private func moveModalWithKeyboard(constant constant: CGFloat) {
-    modalBottomConstraint?.constant = constant
-    UIView.animateWithDuration(0.3) {
-      self.view.layoutIfNeeded()
+  internal func keyboardWillHide(notification: NSNotification) {
+    updateModalHeightConstraints(show: false, notification: notification)
+  }
+  
+  private func updateModalHeightConstraints(show show: Bool, notification: NSNotification) {
+    if let userInfo = notification.userInfo {
+      let height: CGFloat = userInfo[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size.height ?? 0
+      let duration: NSTimeInterval = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
+      let animationCurveRawNSN = userInfo[UIKeyboardAnimationCurveUserInfoKey] as? NSNumber
+      let animationCurveRaw = animationCurveRawNSN?.unsignedLongValue ?? UIViewAnimationOptions.CurveEaseInOut.rawValue
+      let animationCurve: UIViewAnimationOptions = UIViewAnimationOptions(rawValue: animationCurveRaw)
+    
+      modalBottomConstraint.constant = -height-modalPadding
+      
+      modalCenterYConstraint.active = false
+      modalHeightConstraint.active = false
+      modalTopConstraint.active = false
+      modalBottomConstraint.active = false
+      
+      modalCenterYConstraint.active = !show
+      modalHeightConstraint.active = !show
+      modalTopConstraint.active = show
+      modalBottomConstraint.active = show
+    
+      UIView.animateWithDuration(duration, delay: 0, options: animationCurve, animations: {
+        self.view.layoutIfNeeded()
+        }, completion: nil)
     }
   }
   
@@ -157,9 +236,9 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   }
   
   func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
-    if text == "\n" {
+    if textView.tag == 1 && text == "\n" {
       textView.resignFirstResponder()
-//      submitNote(confirm: true)
+      buttonPressed(yes)
     }
     
     switch textView.tag {

@@ -181,6 +181,13 @@ extension Modal {
     return datePicker
   }
   
+  internal func createScrollView() -> UIScrollView {
+    let scrollView: UIScrollView = UIScrollView()
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+
+    return scrollView
+  }
+  
   internal func createModal() -> UIView {
     let modal: UIView = UIView()
     modal.backgroundColor = Constant.Color.background

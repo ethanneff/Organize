@@ -19,8 +19,6 @@
 		67299B641CE243660066728E /* Modal+NoteDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67299B631CE243660066728E /* Modal+NoteDetail.swift */; };
 		6733EE3C1CFE4347006BC486 /* Modal+Loading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6733EE3B1CFE4347006BC486 /* Modal+Loading.swift */; };
 		6733EE3E1CFF3608006BC486 /* PushNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6733EE3D1CFF3608006BC486 /* PushNotification.swift */; };
-		67369BCB1D08636A000A210F /* Google+BannerAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67369BCA1D08636A000A210F /* Google+BannerAd.swift */; };
-		67369BCD1D0863A0000A210F /* Google+InterstitialAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67369BCC1D0863A0000A210F /* Google+InterstitialAd.swift */; };
 		675037AA1CD1764B0061EC6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675037A91CD1764B0061EC6E /* AppDelegate.swift */; };
 		675037B11CD1764B0061EC6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 675037B01CD1764B0061EC6E /* Assets.xcassets */; };
 		675037B41CD1764B0061EC6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 675037B21CD1764B0061EC6E /* LaunchScreen.storyboard */; };
@@ -81,8 +79,6 @@
 		67299B631CE243660066728E /* Modal+NoteDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+NoteDetail.swift"; sourceTree = "<group>"; };
 		6733EE3B1CFE4347006BC486 /* Modal+Loading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Loading.swift"; sourceTree = "<group>"; };
 		6733EE3D1CFF3608006BC486 /* PushNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotification.swift; sourceTree = "<group>"; };
-		67369BCA1D08636A000A210F /* Google+BannerAd.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Google+BannerAd.swift"; sourceTree = "<group>"; };
-		67369BCC1D0863A0000A210F /* Google+InterstitialAd.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Google+InterstitialAd.swift"; sourceTree = "<group>"; };
 		675037A61CD1764B0061EC6E /* Organize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Organize.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		675037A91CD1764B0061EC6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		675037B01CD1764B0061EC6E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -351,8 +347,6 @@
 				67CEDF521D0225C1000B6D43 /* Modal+Error.swift */,
 				67CEDF541D022964000B6D43 /* Modal+TextField.swift */,
 				67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */,
-				67369BCA1D08636A000A210F /* Google+BannerAd.swift */,
-				67369BCC1D0863A0000A210F /* Google+InterstitialAd.swift */,
 			);
 			name = modals;
 			sourceTree = "<group>";
@@ -498,7 +492,6 @@
 			files = (
 				675037EA1CD176570061EC6E /* UITableViewCell+Config.swift in Sources */,
 				675037DF1CD176570061EC6E /* Notebook.swift in Sources */,
-				67369BCD1D0863A0000A210F /* Google+InterstitialAd.swift in Sources */,
 				675037E91CD176570061EC6E /* UITabBarController+Config.swift in Sources */,
 				6750380A1CD178F30061EC6E /* ForgotViewController.swift in Sources */,
 				67299B641CE243660066728E /* Modal+NoteDetail.swift in Sources */,
@@ -512,7 +505,6 @@
 				6733EE3E1CFF3608006BC486 /* PushNotification.swift in Sources */,
 				675037E01CD176570061EC6E /* SettingViewController.swift in Sources */,
 				675037EE1CD176570061EC6E /* Util.swift in Sources */,
-				67369BCB1D08636A000A210F /* Google+BannerAd.swift in Sources */,
 				675037D71CD176570061EC6E /* LocalNotification.swift in Sources */,
 				675037E31CD176570061EC6E /* String+Config.swift in Sources */,
 				675037E11CD176570061EC6E /* Reminder.swift in Sources */,

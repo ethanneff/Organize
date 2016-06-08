@@ -23,9 +23,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     return refreshControl
   }()
   
-  // modals (let for common, lazy for rare)
-  let modalNoteDetail: ModalNoteDetail = ModalNoteDetail()
-  
   // MARK: - init
   init() {
     if Constant.App.release {
