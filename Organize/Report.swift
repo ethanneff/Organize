@@ -12,6 +12,7 @@ import Firebase
 class Report {
   static let sharedInstance = Report()
   
+  // TODO: move to Remote
   func track(event event: String) {
     Util.threadBackground {
       FIRAnalytics.logEventWithName(event, parameters: nil)

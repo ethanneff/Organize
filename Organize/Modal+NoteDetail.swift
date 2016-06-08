@@ -6,9 +6,86 @@
 //  Copyright © 2016 Ethan Neff. All rights reserved.
 //
 
+import UIKit
 
 class ModalNoteDetail: Modal {
+  // MARK: - properties
+  var note: Note? {
+    didSet {
+     
+    }
+  }
   
+  private var scrollView: UIScrollView!
+  private var header: UITextView!
+  private var body: UITextView!
+  private var yes: UIButton!
+  private var topSeparator: UIView!
+  private var modalBottomConstraint: NSLayoutConstraint!
+  
+  
+  enum OutputKeys: String {
+    case None
+  }
+  
+  // MARK: - init
+  override init() {
+    super.init()
+    createViews()
+    createConstraints()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init coder not implemented")
+  }
+  
+  // MARK: - deinit
+  deinit {
+   print("note detail deinit")
+  }
+  
+  // MARK: - create
+  private func createViews() {
+    scrollView = UIScrollView()
+    
+    header = UITextView()
+    body = UITextView()
+    
+    topSeparator = createSeparator()
+    yes = createButton(title: "Done", confirm: true)
+    
+    modal.addSubview(scrollView)
+    modal.addSubview(header)
+    scrollView.addSubview(body)
+    
+    modal.addSubview(topSeparator)
+    modal.addSubview(yes)
+    
+    yes.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
+  }
+  
+  private func createConstraints() {
+  modalBottomConstraint = NSLayoutConstraint(item: modal, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -Constant.Button.padding*2)
+    
+    NSLayoutConstraint.activateConstraints([
+      modalBottomConstraint,
+      NSLayoutConstraint(item: modal, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: Constant.Button.padding*2),
+      NSLayoutConstraint(item: modal, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding*2),
+      NSLayoutConstraint(item: modal, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2),
+      ])
+    
+    constraintButtonSingleBottom(topSeparator: topSeparator, button: yes)
+  }
+  
+  // MARK: - buttons
+  func buttonPressed(button: UIButton) {
+    Util.playSound(systemSound: .Tap)
+    hide() {
+      if let completion = self.completion {
+        completion(output: [:])
+      }
+    }
+  }
 }
 
 //

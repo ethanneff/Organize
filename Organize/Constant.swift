@@ -7,15 +7,19 @@
 //
 
 import UIKit
+import GoogleMobileAds
 
 struct Constant {
   
   struct App {
     static let name: String = "Organize"
     static let loadingDelay: Double = 0.8
-    static let release: Bool = false
+    static let release: Bool = true
     static let logging: Bool = false
     static let deepLink: String = "eneff.organize"
+    static let firebaseAppId: String = "ca-app-pub-4503899421913794~1486671265"
+    static let firebaseBannerAdUnitID: String = "ca-app-pub-4503899421913794/4160936069"
+    static let firebaseTestDevices = release ? [] : ["890bce2d489474fd09494eaad9f55aab", kGADSimulatorID]
   }
   
   struct Button {

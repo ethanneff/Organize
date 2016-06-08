@@ -1,14 +1,20 @@
 import UIKit
 import MessageUI
 import Firebase
+import GoogleMobileAds
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate,GADBannerViewDelegate {
   // MARK: - properties
   var notebook: Notebook
   
   lazy var tableView: UITableView = ReorderTableView()
-  weak var addButton: UIButton!
   weak var menuDelegate: MenuViewController?
+  private var addButton: UIButton!
+  private var bannerAd: GADBannerView!
+  private var bannerAdHeight: CGFloat = 50
+  private var tableViewBottomConstraint: NSLayoutConstraint!
+  private var addButtonBottomPadding: CGFloat = Constant.Button.padding*2
+  private var addButtonBottomConstraint: NSLayoutConstraint!
   
   lazy var refreshControl: UIRefreshControl = {
     let refreshControl = UIRefreshControl()
@@ -38,6 +44,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func initialize() {
     loadNotebook()
     loadListeners()
+    createBannerAd()
     createTableView()
     createAddButton()
     createGestures()
@@ -59,7 +66,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     // shake
-    self.becomeFirstResponder()
+    becomeFirstResponder()
+    // ad
+    loadBannerAd()
   }
   
   
@@ -82,6 +91,21 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func loadListeners() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
+  }
+  
+  private func createBannerAd() {
+    bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
+    view.addSubview(bannerAd)
+    bannerAd.delegate = self
+    bannerAd.rootViewController = self
+    bannerAd.adUnitID = Constant.App.firebaseBannerAdUnitID
+    bannerAd.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activateConstraints([
+      NSLayoutConstraint(item: bannerAd, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: bannerAdHeight),
+      NSLayoutConstraint(item: bannerAd, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: bannerAd, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: bannerAd, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: 0),
+      ])
   }
   
   private func createTableView() {
@@ -117,11 +141,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     // constraints
     tableView.translatesAutoresizingMaskIntoConstraints = false
+    tableViewBottomConstraint = NSLayoutConstraint(item: tableView, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: 0)
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: tableView, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: tableView, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: tableView, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: tableView, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: 0),
+      tableViewBottomConstraint,
       ])
   }
   
@@ -143,10 +168,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     button.setImage(imageView.image, forState: .Normal)
     button.setImage(imageView.image, forState: .Highlighted)
     button.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
+    addButtonBottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -addButtonBottomPadding)
     button.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activateConstraints([
-      NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2),
-      NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -Constant.Button.padding*2),
+      NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -addButtonBottomPadding),
+      addButtonBottomConstraint,
       NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
       NSLayoutConstraint(item: button, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
       ])
@@ -166,6 +192,31 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     gestureSingleTap.numberOfTouchesRequired = 1
     gestureSingleTap.requireGestureRecognizerToFail(gestureDoubleTap)
     tableView.addGestureRecognizer(gestureSingleTap)
+  }
+  
+  // MARK: - banner
+  private func loadBannerAd() {
+    Util.delay(2) {
+      let request = GADRequest()
+      request.testDevices = Constant.App.firebaseTestDevices
+      self.bannerAd.loadRequest(request)
+    }
+  }
+  
+  internal func adViewDidReceiveAd(bannerView: GADBannerView!) {
+    displayBannerAd(show: true)
+  }
+  
+  internal func adView(bannerView: GADBannerView!, didFailToReceiveAdWithError error: GADRequestError!) {
+    print("adView:didFailToReceiveAdWithError: \(error.localizedDescription)")
+  }
+  
+  private func displayBannerAd(show show: Bool) {
+    tableViewBottomConstraint.constant = show ? -bannerAdHeight : 0
+    addButtonBottomConstraint.constant = show ? -bannerAdHeight-addButtonBottomPadding : 0
+    UIView.animateWithDuration(0.3, animations: {
+      self.view.layoutIfNeeded()
+    })
   }
   
   // MARK: - tableview datasource
@@ -244,9 +295,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
     if let indexPath = tableView.indexPathForRowAtPoint(location), cell = tableView.cellForRowAtIndexPath(indexPath) {
-      Util.animateButtonPress(button: cell) {
-        self.displayNoteDetail(indexPath: indexPath, create: false)
-      }
+      Util.animateButtonPress(button: cell)
+      displayNoteDetail(indexPath: indexPath, create: false)
     }
   }
   
@@ -314,7 +364,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func logout() {
     Remote.Auth.logout()
     Report.sharedInstance.track(event: "logout")
-    self.dismissViewControllerAnimated(true, completion: nil)
+    dismissViewControllerAnimated(true, completion: nil)
   }
   
   // MARK: - modals
@@ -494,7 +544,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func displayNoteDetail(indexPath indexPath: NSIndexPath, create: Bool) {
-    print("note detail")
+    let note: Note? = create ? nil : notebook.display[indexPath.row]
+    let modal = ModalNoteDetail()
+    modal.note = note
+    modal.show(controller: self, dismissible: false) { (output) in
+      print(output)
+    }
   }
   
   // MARK: - modal note detail

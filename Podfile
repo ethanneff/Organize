@@ -7,7 +7,7 @@ target 'Organize' do
   # firebase
   pod 'Firebase'              # Properties
   pod 'Firebase/Core'         # Analytics
-  # pod 'Firebase/AdMob'        # AdMob
+  pod 'Firebase/AdMob'        # AdMob
   # pod 'Firebase/Messaging'    # Cloud Messaging / Notifications
   pod 'Firebase/Database'     # Realtime Database
   # pod 'Firebase/Invites'      # Invites
