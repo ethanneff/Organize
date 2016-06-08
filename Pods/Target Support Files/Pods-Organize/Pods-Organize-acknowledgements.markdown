@@ -29,6 +29,10 @@ Copyright 2016 Google Inc.
 
 Copyright 2016 Google Inc.
 
+## FirebaseRemoteConfig
+
+Copyright 2016 Google Inc.
+
 ## Google-Mobile-Ads-SDK
 
 Copyright 2011 Google Inc. All Rights Reserved.
@@ -38,6 +42,10 @@ Copyright 2011 Google Inc. All Rights Reserved.
 Copyright 2015 Google Inc.
 
 ## GoogleAuthUtilities
+
+Copyright 2015 Google Inc.
+
+## GoogleIPhoneUtilities
 
 Copyright 2015 Google Inc.
 
