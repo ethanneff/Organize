@@ -11,7 +11,6 @@ class Modal: UIViewController {
   internal let separatorHeight: CGFloat = 0.5
   internal let buttonConfirmTitle: String = "Okay"
   internal let buttonCancelTitle: String = "Cancel"
-  internal let buttonFontSize: CGFloat = 17
   
   typealias completionBlock = ((output: [String: AnyObject]) -> ())?
   
@@ -105,7 +104,7 @@ extension Modal {
     let title: UILabel = UILabel()
     title.text = text
     title.textAlignment = .Center
-    title.font = .boldSystemFontOfSize(buttonFontSize)
+    title.font = .boldSystemFontOfSize(Constant.Button.fontSize)
     title.translatesAutoresizingMaskIntoConstraints = false
   
     return title
@@ -146,7 +145,7 @@ extension Modal {
     button.setTitle(title, forState: .Normal)
     button.setTitleColor(Constant.Color.button, forState: .Normal)
     button.setTitleColor(Constant.Color.border, forState: .Highlighted)
-    button.titleLabel?.font = confirm ? .systemFontOfSize(buttonFontSize) : .boldSystemFontOfSize(buttonFontSize)
+    button.titleLabel?.font = confirm ? .systemFontOfSize(Constant.Button.fontSize) : .boldSystemFontOfSize(Constant.Button.fontSize)
     button.translatesAutoresizingMaskIntoConstraints = false
     
     return button
@@ -156,7 +155,7 @@ extension Modal {
     let textField = UITextField()
     textField.returnKeyType = .Done
     textField.textAlignment = .Center
-    textField.font = UIFont.boldSystemFontOfSize(buttonFontSize)
+    textField.font = UIFont.boldSystemFontOfSize(Constant.Button.fontSize)
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.tintColor = Constant.Color.button
     textField.autocapitalizationType = .None
@@ -210,7 +209,7 @@ extension Modal {
     label.text = text
     label.textAlignment = .Center
     label.numberOfLines = 0
-    label.font = .boldSystemFontOfSize(buttonFontSize)
+    label.font = .boldSystemFontOfSize(Constant.Button.fontSize)
     label.lineBreakMode = .ByTruncatingTail
     let minLabelSize = CGSizeMake(modalMinWidth, modalMinHeight/2);
     let maxLabelSize = CGSizeMake(modalMaxWidth, modalMaxHeight);

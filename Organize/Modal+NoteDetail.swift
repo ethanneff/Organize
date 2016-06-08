@@ -48,7 +48,6 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   
   // MARK: - deinit
   deinit {
-    print("note detail deinit")
     header.removeObserver(self, forKeyPath: "contentSize")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
@@ -133,7 +132,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     textView.delegate = self
     textView.returnKeyType = .Done
     textView.textAlignment = .Center
-    textView.font = UIFont.boldSystemFontOfSize(buttonFontSize)
+    textView.font = UIFont.boldSystemFontOfSize(Constant.Button.fontSize)
     textView.translatesAutoresizingMaskIntoConstraints = false
     textView.tintColor = Constant.Color.button
     

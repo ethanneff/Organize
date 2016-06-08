@@ -176,7 +176,7 @@ class ModalTutorial: Modal {
     }
     if button.tag == Slide.count-2 {
       button.setTitle(buttonConfirmTitle, forState: .Normal)
-      button.titleLabel?.font = .boldSystemFontOfSize(buttonFontSize)
+      button.titleLabel?.font = .boldSystemFontOfSize(Constant.Button.fontSize)
     }
     
     changeSlide(button: button)

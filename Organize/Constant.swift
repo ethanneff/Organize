@@ -26,6 +26,7 @@ struct Constant {
     static let height: CGFloat = 40
     static let padding: CGFloat = 10
     static let widthMultiplier: CGFloat = 0.4
+    static let fontSize: CGFloat = 17
     static func widthConstant(padding padding: CGFloat) -> CGFloat {
       return padding * -1.8 + 185
     }

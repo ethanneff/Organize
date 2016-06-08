@@ -112,6 +112,7 @@ class SettingViewController: UIViewController {
         button.setTitleColor(color, forState: .Normal)
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.enabled = enabled
+        button.titleLabel?.font = UIFont.systemFontOfSize(17)
         button.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(button)
         
