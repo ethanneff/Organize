@@ -252,6 +252,7 @@ class AccessSetup {
     button.layer.cornerRadius = 5
     button.clipsToBounds = true
     button.contentHorizontalAlignment = alignment
+    // TODO: font size in Access button is 18 while rest of app is 17 (modals and settings)
     button.backgroundColor = background ? Constant.Color.button : Constant.Color.background
     button.setTitleColor(background ? Constant.Color.background : Constant.Color.button, forState: .Normal)
     button.translatesAutoresizingMaskIntoConstraints = false

@@ -31,7 +31,19 @@ class ModalLoading: Modal {
   
   // MARK: - deinit
   deinit {
-
+    
+  }
+  
+  // MARK: - show
+  override func show(controller controller: UIViewController, dismissible: Bool = false, completion: completionBlock = nil) {
+    Util.toggleNetworkIndicator(on: true)
+    super.show(controller: controller, dismissible: false, completion: completion)
+  }
+  
+  // MARK: - hide
+  override func hide(completion: (() -> ())? = nil) {
+    Util.toggleNetworkIndicator(on: false)
+    super.hide(completion)
   }
   
   // MARK: - create
