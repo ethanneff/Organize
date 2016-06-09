@@ -59,6 +59,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     header.removeObserver(self, forKeyPath: "contentSize")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: nil)
   }
   
   // MARK: - open
@@ -73,7 +74,6 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     super.viewDidAppear(animated)
     handleTitlePlaceholderAndCursor()
   }
-  
   
   // MARK: - create
   private func createViews() {
@@ -250,8 +250,13 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     body.delegate = self
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIKeyboardWillShowNotification, object: nil)
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(rotated(_:)), name: UIDeviceOrientationDidChangeNotification, object: nil)
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
     view.addGestureRecognizer(tap)
+  }
+  
+  internal func rotated(notification: NSNotification) {
+    handleTitlePlaceholderAndCursor()
   }
   
   internal func dismissKeyboard() {
