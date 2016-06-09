@@ -18,9 +18,9 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   
   private var scrollView: UIScrollView!
   private var header: UITextView!
-  private var headerPlaceholder: UILabel!
   private var body: UITextView!
-  private var bodyPlaceHolder: UITextView!
+  private var headerPlaceholder: UILabel!
+  private var bodyPlaceholder: UILabel!
   private var yes: UIButton!
   private var no: UIButton!
   
@@ -29,7 +29,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   private var tagWhat: UIButton!
   private var tagWho: UIButton!
   private var headerSeparator: UIView!
-    private var tagSeparator: UIView!
+  private var tagSeparator: UIView!
   private var topSeparator: UIView!
   private var midSeparator: UIView!
   private var modalHeightConstraint: NSLayoutConstraint!
@@ -72,7 +72,8 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    handleTitlePlaceholderAndCursor()
+    handlePlaceholderAndCursor(textView: header, placeholder: headerPlaceholder, header: true)
+    handlePlaceholderAndCursor(textView: body, placeholder: bodyPlaceholder, header: false)
   }
   
   // MARK: - create
@@ -81,8 +82,10 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     // set mininum for horizontal rotation
     scrollView.contentSize = CGSize(width: 0, height: 300)
     
-    header = createTextView()
-    headerPlaceholder = createPlaceHolderLabel(textView: header)
+    header = createTextView(header: true)
+    body = createTextView(header: false)
+    headerPlaceholder = createPlaceholderLabel(textView: header, header: true)
+    bodyPlaceholder = createPlaceholderLabel(textView: body, header: false)
     header.addObserver(self, forKeyPath: "contentSize", options: NSKeyValueObservingOptions.New, context: nil)
     header.textAlignment = .Center
     
@@ -95,11 +98,6 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     tagSeparator = createSeparator()
     topSeparator = createSeparator()
     midSeparator = createSeparator()
-    
-    body = createTextView()
-    body.tag = 2
-    body.textAlignment = .Left
-    body.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     
     yes = createButton(title: nil, confirm: true)
     no = createButton(title: nil, confirm: false)
@@ -123,6 +121,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   }
   
   private func createConstraints() {
+    // TODO: constraint breaks when horizontal, keyboard up, on iphone
     constraintButtonDoubleBottom(topSeparator: topSeparator, midSeparator: midSeparator, left: no, right: yes)
     
     modalBottomConstraint = NSLayoutConstraint(item: modal, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -modalPadding)
@@ -158,38 +157,38 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
       NSLayoutConstraint(item: headerSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
       ])
     
-//    NSLayoutConstraint.activateConstraints([
-//      NSLayoutConstraint(item: tagWhen, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhen, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
-//      NSLayoutConstraint(item: tagWhen, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhen, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
-//      ])
-//    NSLayoutConstraint.activateConstraints([
-//      NSLayoutConstraint(item: tagWhere, attribute: .Top, relatedBy: .Equal, toItem: tagWhen, attribute: .Bottom, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhere, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
-//      NSLayoutConstraint(item: tagWhere, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhere, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
-//      ])
-//    
-//    NSLayoutConstraint.activateConstraints([
-//      NSLayoutConstraint(item: tagWhat, attribute: .Top, relatedBy: .Equal, toItem: tagWhere, attribute: .Bottom, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhat, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
-//      NSLayoutConstraint(item: tagWhat, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWhat, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
-//      ])
-//    NSLayoutConstraint.activateConstraints([
-//      NSLayoutConstraint(item: tagWho, attribute: .Top, relatedBy: .Equal, toItem: tagWhat, attribute: .Bottom, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWho, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
-//      NSLayoutConstraint(item: tagWho, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagWho, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
-//      ])
-//    
-//    NSLayoutConstraint.activateConstraints([
-//      NSLayoutConstraint(item: tagSeparator, attribute: .Top, relatedBy: .Equal, toItem: tagWho, attribute: .Bottom, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
-//      NSLayoutConstraint(item: tagSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
-//      NSLayoutConstraint(item: tagSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
-//      ])
+    //    NSLayoutConstraint.activateConstraints([
+    //      NSLayoutConstraint(item: tagWhen, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhen, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+    //      NSLayoutConstraint(item: tagWhen, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhen, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+    //      ])
+    //    NSLayoutConstraint.activateConstraints([
+    //      NSLayoutConstraint(item: tagWhere, attribute: .Top, relatedBy: .Equal, toItem: tagWhen, attribute: .Bottom, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhere, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+    //      NSLayoutConstraint(item: tagWhere, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhere, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+    //      ])
+    //
+    //    NSLayoutConstraint.activateConstraints([
+    //      NSLayoutConstraint(item: tagWhat, attribute: .Top, relatedBy: .Equal, toItem: tagWhere, attribute: .Bottom, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhat, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+    //      NSLayoutConstraint(item: tagWhat, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWhat, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+    //      ])
+    //    NSLayoutConstraint.activateConstraints([
+    //      NSLayoutConstraint(item: tagWho, attribute: .Top, relatedBy: .Equal, toItem: tagWhat, attribute: .Bottom, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWho, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
+    //      NSLayoutConstraint(item: tagWho, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagWho, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+    //      ])
+    //
+    //    NSLayoutConstraint.activateConstraints([
+    //      NSLayoutConstraint(item: tagSeparator, attribute: .Top, relatedBy: .Equal, toItem: tagWho, attribute: .Bottom, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagSeparator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: separatorHeight),
+    //      NSLayoutConstraint(item: tagSeparator, attribute: .Leading, relatedBy: .Equal, toItem: modal, attribute: .Leading, multiplier: 1, constant: 0),
+    //      NSLayoutConstraint(item: tagSeparator, attribute: .Trailing, relatedBy: .Equal, toItem: modal, attribute: .Trailing, multiplier: 1, constant: 0),
+    //      ])
     
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: body, attribute: .Top, relatedBy: .Equal, toItem: headerSeparator, attribute: .Bottom, multiplier: 1, constant: 0),
@@ -199,29 +198,29 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
       ])
   }
   
-  private func createTextView() -> UITextView {
+  private func createTextView(header header: Bool) -> UITextView {
     let textView = UITextView()
-    textView.tag = 1
+    textView.tag = header ? 1 : 2
     textView.delegate = self
     textView.returnKeyType = .Done
-    textView.textAlignment = .Center
-    textView.font = UIFont.boldSystemFontOfSize(Constant.Button.fontSize)
+    textView.textAlignment = header ? .Center : .Left
+    textView.font = header ? UIFont.boldSystemFontOfSize(Constant.Button.fontSize) : UIFont.systemFontOfSize(UIFont.systemFontSize())
     textView.translatesAutoresizingMaskIntoConstraints = false
     textView.tintColor = Constant.Color.button
     
     return textView
   }
   
-  private func createPlaceHolderLabel(textView textView: UITextView) -> UILabel {
+  private func createPlaceholderLabel(textView textView: UITextView, header: Bool) -> UILabel {
     let label = UILabel()
-    label.text = "Title"
+    label.text = header ? "Title" : "Description"
     label.font = .boldSystemFontOfSize(textView.font!.pointSize)
     label.sizeToFit()
     label.textColor = Constant.Color.border
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
     textView.addSubview(label)
-    
+
     return label
   }
   
@@ -256,7 +255,9 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   }
   
   internal func rotated(notification: NSNotification) {
-    handleTitlePlaceholderAndCursor()
+    // device rotation
+    handlePlaceholderAndCursor(textView: header, placeholder: headerPlaceholder, header: true)
+    handlePlaceholderAndCursor(textView: body, placeholder: bodyPlaceholder, header: false)
   }
   
   internal func dismissKeyboard() {
@@ -298,17 +299,22 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   }
   
   func textViewDidChange(textView: UITextView) {
-    handleTitlePlaceholderAndCursor()
+    // hide the placeholderwhen typing
+    handlePlaceholderAndCursor(textView: header, placeholder: headerPlaceholder, header: true)
+    handlePlaceholderAndCursor(textView: body, placeholder: bodyPlaceholder, header: false)
   }
   
-  private func handleTitlePlaceholderAndCursor() {
-    if let placeholder = headerPlaceholder, title = header {
-      let labelWidth = placeholder.intrinsicContentSize().width
-      let textViewTextSize = title.font!.pointSize
+  private func handlePlaceholderAndCursor(textView textView: UITextView, placeholder: UILabel, header: Bool) {
+    // FIXME: rotating device with placerholder location (need delay to get correct modal.frame.width)
+    Util.delay(0.1) {
+      let textWidth: CGFloat = placeholder.intrinsicContentSize().width
+      let textViewTextSize: CGFloat = textView.font!.pointSize
+      let x: CGFloat = (self.modal.frame.width - (header ? 0 : Constant.Button.padding/2))/2 - textWidth/2
+      let y: CGFloat = textViewTextSize/2
       
-      placeholder.frame.origin = CGPointMake(modal.frame.width/2-labelWidth/2, textViewTextSize/2)
-      placeholder.hidden = !title.text.isEmpty
-      title.textContainerInset = title.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:-labelWidth, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
+      placeholder.frame.origin = CGPointMake(x, y)
+      placeholder.hidden = !textView.text.isEmpty
+      textView.textContainerInset = textView.text.isEmpty ? UIEdgeInsets(top: textViewTextSize/2, left:-textWidth, bottom: 0, right: 0) : UIEdgeInsets(top: textViewTextSize/2, left:0, bottom: 0, right: 0)
     }
   }
   
