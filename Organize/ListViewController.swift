@@ -340,8 +340,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
     case .NotebookDeleteCompleted: displayDeleteCompleted()
       
-    case .SettingsTutorial: displayTutorial()
-    case .SocialFeedback: displaySocialFeedback()
+    case .AppTutorial: displayAppTutorial()
+    case .AppFeedback: displayAppFeedback()
+    case .AppShare: displayAppShare()
       
     case .AccountEmail: displayAccountEmail()
     case .AccountPassword: displayAccountPassword()
@@ -388,7 +389,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  private func displayTutorial() {
+  private func displayAppTutorial() {
     let modal = ModalTutorial()
     modal.show(controller: self, dismissible: true)
   }
@@ -452,7 +453,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  private func displaySocialFeedback() {
+  private func displayAppFeedback() {
     if MFMailComposeViewController.canSendMail() {
       let mail = MFMailComposeViewController()
       mail.mailComposeDelegate = self
@@ -473,6 +474,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     default: Util.playSound(systemSound: .Tap)
     }
   }
+  
+  private func displayAppShare() {
+    let shareContent: String = "Check out this app!\n\nI've been using it quite a bit and I think you'll like it too. Tell me what you think.\n\n" + Constant.App.deepLinkUrl
+    let activityViewController: ActivityViewController = ActivityViewController(activityItems: [shareContent], applicationActivities: nil)
+    activityViewController.excludedActivityTypes = [UIActivityTypeAirDrop]
+    presentViewController(activityViewController, animated: true, completion: {})
+  }
+  
   
   private func displayAccountEmail() {
     let modal = ModalTextField()

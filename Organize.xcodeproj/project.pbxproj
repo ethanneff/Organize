@@ -59,6 +59,7 @@
 		67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF521D0225C1000B6D43 /* Modal+Error.swift */; };
 		67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF541D022964000B6D43 /* Modal+TextField.swift */; };
 		67D8441E1CD2847B004C144F /* Swipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D8441D1CD2847B004C144F /* Swipe.swift */; };
+		67EF12681D0A348100D7D1C6 /* UIActivityViewController+Contant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */; };
 		DF12C4E0915BFFB22E1BE63F /* Pods_Organize.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22F7A6BE983A67D347E343ED /* Pods_Organize.framework */; };
 /* End PBXBuildFile section */
 
@@ -121,6 +122,7 @@
 		67CEDF521D0225C1000B6D43 /* Modal+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Error.swift"; sourceTree = "<group>"; };
 		67CEDF541D022964000B6D43 /* Modal+TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+TextField.swift"; sourceTree = "<group>"; };
 		67D8441D1CD2847B004C144F /* Swipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Swipe.swift; sourceTree = "<group>"; };
+		67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIActivityViewController+Contant.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,6 +282,7 @@
 				675037D11CD176570061EC6E /* UITableViewController+Config.swift */,
 				675037D21CD176570061EC6E /* UITextField+Config.swift */,
 				675037C91CD176570061EC6E /* String+Config.swift */,
+				67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */,
 			);
 			name = globals;
 			sourceTree = "<group>";
@@ -503,6 +506,7 @@
 				675037D51CD176570061EC6E /* IntroNavigationController.swift in Sources */,
 				67227B741CF9F0470042468D /* Remote.swift in Sources */,
 				6733EE3E1CFF3608006BC486 /* PushNotification.swift in Sources */,
+				67EF12681D0A348100D7D1C6 /* UIActivityViewController+Contant.swift in Sources */,
 				675037E01CD176570061EC6E /* SettingViewController.swift in Sources */,
 				675037EE1CD176570061EC6E /* Util.swift in Sources */,
 				675037D71CD176570061EC6E /* LocalNotification.swift in Sources */,

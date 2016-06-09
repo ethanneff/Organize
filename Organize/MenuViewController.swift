@@ -23,7 +23,7 @@ class MenuViewController: UIViewController, SettingsDelegate {
   
   func initialize() {
     sideMenu = SideMenu(parent: self, child: mainMenu!, left: leftMenu!, right: rightMenu!)
-    sideMenu!.rightWidth = 160
+    sideMenu!.rightWidth = 170
     sideMenu!.leftWidth = 240
     createNavButtons()
     createNavTitle(title: Constant.App.name)

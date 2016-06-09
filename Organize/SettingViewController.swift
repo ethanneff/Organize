@@ -8,7 +8,6 @@ class SettingViewController: UIViewController {
   
   weak var menu: SettingsDelegate?
   weak var delegate: SettingsDelegate?
-  lazy var scrollView: UIScrollView = UIScrollView()
   
   override func loadView() {
     super.loadView()
@@ -18,41 +17,50 @@ class SettingViewController: UIViewController {
   enum Button: Int  {
     case Notebook
     case NotebookTitle
-    case NotebookNotebook
-    case NotebookCollapse
+    case NotebookChange
     case NotebookUncollapse
+    case NotebookCollapse
     case NotebookDeleteCompleted
     
-    case Settings
-    case SettingsTutorial
-    case SettingsSound
-    case SettingsColor
-    
-    case Social
-    case SocialFeedback
-    case SocialShare
+    case App
+    case AppTutorial
+    case AppColor
+    case AppSound
+    case AppFeedback
+    case AppShare
     
     case Account
+    case AccountAchievements
     case AccountEmail
     case AccountPassword
     case AccountDelete
     case AccountLogout
     
+    case Upgrade
+    case UpgradeBuy
+    
     static var count: Int {
-      return AccountLogout.hashValue+1
+      return UpgradeBuy.hashValue+1
     }
     
     var header: Bool {
       switch self {
-      case .Notebook, .Social, .Settings, .Account: return true
+      case .Notebook, .App, .Account, .Upgrade: return true
       default: return false
       }
     }
     
     var active: Bool {
       switch self {
-      case .NotebookNotebook, .SettingsSound, .SettingsColor, .SocialShare, .Social: return false
+      case .NotebookChange, .AppSound, .AppColor, .AccountAchievements, .Upgrade, .UpgradeBuy: return false
       default: return true
+      }
+    }
+    
+    var highlighted: Bool {
+      switch self {
+      case .UpgradeBuy: return true
+      default: return false
       }
     }
     
@@ -60,25 +68,27 @@ class SettingViewController: UIViewController {
       switch self {
       case .Notebook: return "Notebook"
       case .NotebookTitle: return "Change title"
-      case .NotebookNotebook: return "Change notebook"
+      case .NotebookChange: return "Change notebook"
       case .NotebookCollapse: return "Collapse all"
       case .NotebookUncollapse: return "Expand all"
       case .NotebookDeleteCompleted: return "Delete completed"
         
-      case .Settings: return "App"
-      case .SettingsTutorial: return "View tutorial"
-      case .SettingsSound: return "Toggle sound" // TODO: based on appstate
-      case .SettingsColor: return "Toggle color" // TODO: based on app state
-        
-      case .Social: return "Social"
-      case .SocialFeedback: return "Send feedback"
-      case .SocialShare: return "Share the app"
+      case .App: return "App"
+      case .AppTutorial: return "View tutorial"
+      case .AppColor: return "Toggle color" // TODO: based on app state
+      case .AppSound: return "Toggle sound" // TODO: based on appstate
+      case .AppFeedback: return "Send feedback"
+      case .AppShare: return "Share with a friend"
         
       case .Account: return "Account"
+      case .AccountAchievements: return "View achievements"
       case .AccountEmail: return "Change email"
       case .AccountPassword: return "Change password"
       case .AccountDelete: return "Delete account"
       case .AccountLogout: return "Logout"
+        
+      case .Upgrade: return "Upgrade"
+      case .UpgradeBuy: return "Buy the dev a coffee"
       }
     }
   }
@@ -88,6 +98,7 @@ class SettingViewController: UIViewController {
     view.backgroundColor = Constant.Color.background
     
     // scroll view
+    let scrollView = UIScrollView()
     var scrollViewContentSizeHeight: CGFloat = Constant.Button.padding
     scrollView.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(scrollView)
@@ -108,11 +119,14 @@ class SettingViewController: UIViewController {
         let topConstant: CGFloat = i == 0 ? Constant.Button.padding : info.header ? Constant.Button.padding*2 : 0
         
         button.tag = i
+        button.backgroundColor = Constant.Color.background
+        button.layer.cornerRadius = 5
+        button.clipsToBounds = true
         button.setTitle(info.title, forState: .Normal)
         button.setTitleColor(color, forState: .Normal)
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.enabled = enabled
-        button.titleLabel?.font = UIFont.systemFontOfSize(17)
+        button.titleLabel?.font = .systemFontOfSize(Constant.Button.fontSize)
         button.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(button)
         
@@ -137,10 +151,7 @@ class SettingViewController: UIViewController {
   }
   
   func buttonPressed(button: UIButton) {
-    // TODO: change title (notebook needs new property title)
-    //    parentViewController?.navigationItem.title = "hello"
     Util.animateButtonPress(button: button)
-    Util.playSound(systemSound: .Tap)
     if let button = Button(rawValue: button.tag) {
       delegate?.settingsButtonPressed(button: button)
     }

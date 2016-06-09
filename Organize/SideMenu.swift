@@ -53,7 +53,7 @@ class SideMenu: UIViewController {
   internal enum Side {
     case Left
     case Right
-    case Center
+    case None
   }
   
   // MARK: - init
@@ -215,7 +215,7 @@ class SideMenu: UIViewController {
   internal func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(parent.view)
     if touchInMainContainer(location: location) {
-      toggle(side: .Center)
+      toggle(side: .None)
     }
   }
   
@@ -244,7 +244,7 @@ class SideMenu: UIViewController {
       let percentage = panPercentage(beganLocation: panBeganLocation, endedLocation: panEndedLocation)
       let correct = panCorrect(direction: direction, percentage: percentage, horizontal: panBeganHorizontal)
       if correct {
-        toggle(side: .Center)
+        toggle(side: .None)
       }
       panReset()
     default: break
@@ -301,7 +301,7 @@ class SideMenu: UIViewController {
       } else {
         rightAnimate()
       }
-    case .Center:
+    case .None:
       if isVisible(container: left?.view) {
         leftAnimate()
       } else {
@@ -347,7 +347,7 @@ class SideMenu: UIViewController {
       switch side {
       case .Left: menu.frame.origin.x -= isOpening ? -menu.frame.size.width : menu.frame.size.width
       case .Right: menu.frame.origin.x -= isOpening ? menu.frame.size.width : -menu.frame.size.width
-      case .Center: break
+      case .None: break
       }
     }) { (success) in
       menu.layer.masksToBounds = isOpening ? false : true
