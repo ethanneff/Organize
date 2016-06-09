@@ -253,7 +253,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     } else {
       notebook = Notebook.getDefault()
     }
-    tableView.reloadData()  
+    tableView.reloadData()
     notebook.uncollapseAll(tableView: tableView)
     refreshControl.endRefreshing()
   }
@@ -555,23 +555,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     let modal = ModalNoteDetail()
     modal.note = note
     modal.show(controller: self, dismissible: false) { (output) in
-      print(output)
-    }
-  }
-  
-  // MARK: - modal note detail
-  func modalNoteDetailDisplay(indexPath indexPath: NSIndexPath, create: Bool) {
-    //    modalNoteDetail.delegate = self
-    //    modalNoteDetail.indexPath = indexPath
-    //    modalNoteDetail.data = create ? nil : notebook.display[indexPath.row]
-    //    modalPresent(controller: modalNoteDetail)
-  }
-  
-  func modalNoteDetailValue(indexPath indexPath: NSIndexPath, note: Note, create: Bool) {
-    if create {
-      notebook.create(indexPath: indexPath, tableView: tableView, note: note)
-    } else {
-      notebook.update(indexPath: indexPath, tableView: tableView, note: note)
+      if let note = output[ModalNoteDetail.OutputKeys.Note.rawValue] as? Note {
+        if create {
+          self.notebook.create(indexPath: indexPath, tableView: self.tableView, note: note)
+        } else {
+          self.notebook.update(indexPath: indexPath, tableView: self.tableView, note: note)
+        }
+      }
     }
   }
 }

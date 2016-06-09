@@ -12,7 +12,8 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   // MARK: - properties
   var note: Note? {
     didSet {
-      
+      header.text = note?.title
+      body.text = note?.body
     }
   }
   
@@ -65,6 +66,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   // MARK: - open
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
+    header.becomeFirstResponder()
     handlePlaceholderAndCursor(textView: header, placeholder: headerPlaceholder, header: true)
     handlePlaceholderAndCursor(textView: body, placeholder: bodyPlaceholder, header: false)
   }
@@ -213,7 +215,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     label.hidden = !textView.text.isEmpty
     label.textAlignment = textView.textAlignment
     textView.addSubview(label)
-
+    
     return label
   }
   
@@ -221,8 +223,11 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   func buttonPressed(button: UIButton) {
     Util.playSound(systemSound: .Tap)
     hide() {
-      if let completion = self.completion where button.tag == 1 {
-        completion(output: [:])
+      if let completion = self.completion where button.tag == 1 && self.header.text.length > 0 {
+        let note = self.note ?? Note(title: "")
+        note.title = self.header.text.trim
+        note.body = self.body.text
+        completion(output: [ModalNoteDetail.OutputKeys.Note.rawValue : note])
       }
     }
   }
@@ -298,7 +303,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   }
   
   private func handlePlaceholderAndCursor(textView textView: UITextView, placeholder: UILabel, header: Bool) {
-    // FIXME: rotating device with placerholder location (need delay to get correct modal.frame.width)
+    // FIXME: rotating device with placeholder location (need delay to get correct modal.frame.width)
     Util.delay(0.1) {
       let textWidth: CGFloat = placeholder.intrinsicContentSize().width
       let textViewTextSize: CGFloat = textView.font!.pointSize
