@@ -62,7 +62,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: nil)
   }
   
-  // MARK: - open  
+  // MARK: - open
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     handlePlaceholderAndCursor(textView: header, placeholder: headerPlaceholder, header: true)

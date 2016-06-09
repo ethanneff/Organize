@@ -253,6 +253,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     } else {
       notebook = Notebook.getDefault()
     }
+    tableView.reloadData()  
     notebook.uncollapseAll(tableView: tableView)
     refreshControl.endRefreshing()
   }
