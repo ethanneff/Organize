@@ -26,7 +26,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - init
   init() {
     if Constant.App.release {
-      notebook = Notebook(notes: [], display: [], history: [])
+      notebook = Notebook(title: "Organize", notes: [], display: [], history: [])
     } else {
       notebook = Notebook.getDefault()
     }
@@ -60,14 +60,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   // MARK: - appear
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    // config
+    loadRemoteConfig()
+    // title
+    updateTitle()
+  }
+  
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     // shake
     becomeFirstResponder()
-    // config
-    loadRemoteConfig()
   }
-  
   
   // MARK: - load
   internal func applicationDidBecomeActiveNotification() {
@@ -200,6 +205,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     gestureSingleTap.numberOfTouchesRequired = 1
     gestureSingleTap.requireGestureRecognizerToFail(gestureDoubleTap)
     tableView.addGestureRecognizer(gestureSingleTap)
+  }
+  
+  private func updateTitle() {
+    if let controller = self.navigationController?.childViewControllers.first {
+      controller.navigationItem.title = notebook.title
+    }
   }
   
   // MARK: - banner
@@ -386,11 +397,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     let modal = ModalTextField()
     modal.limit = 25
     // TODO: get notebook title (add field)
-    modal.placeholder = "notebook title"
+    modal.placeholder = notebook.title
     modal.show(controller: self, dismissible: true) { output in
-      if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String, let menuController = self.navigationController?.childViewControllers.first as? MenuViewController {
-        menuController.createNavTitle(title: title)
-        // TODO: Save
+      if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String {
+        self.notebook.title = title
+        self.updateTitle()
       }
     }
   }

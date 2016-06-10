@@ -2,9 +2,14 @@ import UIKit
 
 class Notebook: NSObject, NSCoding, Copying {
   // MARK: - PROPERTIES
+  var title: String = "Organize" {
+    didSet {
+      Notebook.set(data: self)
+    }
+  }
   var notes: [Note] = []
   var display: [Note] = []
-  var history: [NotebookHistory] = []
+  private var history: [NotebookHistory] = []
   override var description: String {
     var output: String = notes.description + "\n" + display.description
     output += "\n"
@@ -20,8 +25,9 @@ class Notebook: NSObject, NSCoding, Copying {
     self.notes = notes
   }
   
-  convenience init(notes: [Note], display: [Note], history: [NotebookHistory]) {
+  convenience init(title: String, notes: [Note], display: [Note], history: [NotebookHistory]) {
     self.init(notes: notes)
+    self.title = title
     self.display = display
     self.history = history
   }
@@ -928,22 +934,25 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - SAVE
   private struct PropertyKey {
+    static let title = "title"
     static let notes = "notes"
     static let display = "display"
     static let history = "history"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
+    aCoder.encodeObject(title, forKey: PropertyKey.title)
     aCoder.encodeObject(notes, forKey: PropertyKey.notes)
     aCoder.encodeObject(display, forKey: PropertyKey.display)
     aCoder.encodeObject(history, forKey: PropertyKey.history)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
+    let title = aDecoder.decodeObjectForKey(PropertyKey.title) as! String
     let notes = aDecoder.decodeObjectForKey(PropertyKey.notes) as! [Note]
     let display = aDecoder.decodeObjectForKey(PropertyKey.display) as! [Note]
     let history = aDecoder.decodeObjectForKey(PropertyKey.history) as! [NotebookHistory]
-    self.init(notes: notes, display: display, history: history)
+    self.init(title: title, notes: notes, display: display, history: history)
   }
   
   // MARK: - ACCESS
