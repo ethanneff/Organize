@@ -17,7 +17,9 @@ class ModalTextField: Modal, UITextFieldDelegate {
   }
   var placeholder: String? {
     didSet {
-      textField.placeholder = placeholder
+      if let placeholder = placeholder {
+        textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes:[NSForegroundColorAttributeName: Constant.Color.border])
+      }
     }
   }
   var limit: Int?

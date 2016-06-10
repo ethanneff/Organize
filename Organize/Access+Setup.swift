@@ -161,7 +161,7 @@ class AccessSetup {
   
   private static func createTextFieldColumn(textField textField: UITextField, title: String, view: UIView, topItem: UIView, topAttribute: NSLayoutAttribute, first: Bool, keyboardType: KeyboardType) -> SingleColumn<UITextField> {
     // textfield
-    let textField = setupTextField(textField: textField, title: title, keyboardType: keyboardType)
+    let textField = setupTextField(textField: textField, placeholder: title, keyboardType: keyboardType)
     
     // constraints
     let constraints: [NSLayoutConstraint] = setupConstraintsFull(item: textField, view: view, topItem: topItem, topAttribute: topAttribute, topPadding: setupTopPadding(first: first))
@@ -204,8 +204,8 @@ class AccessSetup {
     let container: UIView = setupContainer(item1: textField1, item2: textField2)
     
     // buttons
-    let textField1 = setupTextField(textField: textField1, title: textField1Title, keyboardType: keyboardType)
-    let textField2 = setupTextField(textField: textField2, title: textField2Title, keyboardType: keyboardType)
+    let textField1 = setupTextField(textField: textField1, placeholder: textField1Title, keyboardType: keyboardType)
+    let textField2 = setupTextField(textField: textField2, placeholder: textField2Title, keyboardType: keyboardType)
     
     // constraints
     let constraints: [NSLayoutConstraint] = setupConstraintsHalf(container: container, item1: textField1, item2: textField2, view: view, topItem: topItem, topAttribute: topAttribute, topPadding: setupTopPadding(first: first))
@@ -233,10 +233,12 @@ class AccessSetup {
     return container
   }
   
-  private static func setupTextField(textField textField: UITextField, title: String, keyboardType: KeyboardType) -> UITextField {
-    textField.placeholder = title
+  private static func setupTextField(textField textField: UITextField, placeholder: String, keyboardType: KeyboardType) -> UITextField {
     textField.borderStyle = .RoundedRect
     textField.tintColor = Constant.Color.button
+    textField.textColor = Constant.Color.title
+    textField.backgroundColor = Constant.Color.background
+    textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes:[NSForegroundColorAttributeName: Constant.Color.border])
     textField.keyboardType = keyboardType == .Email ? .EmailAddress : .Default
     textField.returnKeyType = .Next
     textField.secureTextEntry = keyboardType == .Password ? true : false

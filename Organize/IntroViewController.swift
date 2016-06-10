@@ -30,14 +30,14 @@ class IntroViewController: UIViewController {
     let title = UILabel()
     
     
-    view.backgroundColor = Constant.Color.button
+    view.backgroundColor = Constant.Color.blue
     view.addSubview(image)
     view.addSubview(indicator)
     view.addSubview(title)
     
     title.text = "Organize"
     title.font = .boldSystemFontOfSize(22)
-    title.textColor = Constant.Color.background
+    title.textColor = .whiteColor()
     title.translatesAutoresizingMaskIntoConstraints = false
     
     indicator.activityIndicatorViewStyle = .WhiteLarge

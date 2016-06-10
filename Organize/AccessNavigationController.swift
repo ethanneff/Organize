@@ -3,15 +3,12 @@ import UIKit
 class AccessNavigationController: UINavigationController {
   override func loadView() {
     super.loadView()
-    navigationbarHidden()
+    navigationBarColor()
     setupGestures()
     pushViewController(LoginViewController(), animated: false)
   }
   
-  private func navigationbarHidden() {
-    // attach the status bar to the navigation bar (remove transparency)
-    navigationBar.translucent = false
-    // remove navigation bar bottom line
+  private func navigationBarColor() {
     navigationBar.hideBottomHairline()
   }
   
@@ -20,6 +17,7 @@ class AccessNavigationController: UINavigationController {
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
     tap.cancelsTouchesInView = false
     navigationBar.addGestureRecognizer(tap)
+    navigationBar.barStyle = Constant.Color.statusBar
   }
   
   func dismissKeyboard(sender: UITapGestureRecognizer) {

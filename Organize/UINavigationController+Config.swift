@@ -6,15 +6,16 @@ extension UINavigationController {
     super.viewDidLoad()
     // color
     
+    navigationBar.translucent = false
     navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
     navigationBar.backgroundColor = Constant.Color.background
     navigationBar.tintColor = Constant.Color.button
+    navigationBar.barStyle = Constant.Color.statusBar
+    navigationBar.barTintColor = Constant.Color.background
     navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: Constant.Color.title]
     toolbar.barTintColor = Constant.Color.background
     toolbar.backgroundColor = Constant.Color.background
     toolbar.tintColor = Constant.Color.button
-    //    Util.setStatusBarBackgroundColor(Config.colorBackground)
-    //    navigationBar.barStyle = Config.colorStatusBar
   }
 }
 
@@ -40,6 +41,7 @@ extension UINavigationBar {
     
     return nil
   }
+  
 }
 
 extension UIToolbar {

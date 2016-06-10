@@ -25,7 +25,7 @@ class Modal: UIViewController {
   }
   
   deinit {
-
+    
   }
   
   // MARK: - public
@@ -104,9 +104,11 @@ extension Modal {
     let title: UILabel = UILabel()
     title.text = text
     title.textAlignment = .Center
+    title.textColor = Constant.Color.title
+    title.backgroundColor = Constant.Color.background
     title.font = .boldSystemFontOfSize(Constant.Button.fontSize)
     title.translatesAutoresizingMaskIntoConstraints = false
-  
+    
     return title
   }
   
@@ -157,6 +159,8 @@ extension Modal {
     textField.textAlignment = .Center
     textField.font = UIFont.boldSystemFontOfSize(Constant.Button.fontSize)
     textField.translatesAutoresizingMaskIntoConstraints = false
+    textField.textColor = Constant.Color.title
+    textField.backgroundColor = Constant.Color.background
     textField.tintColor = Constant.Color.button
     textField.autocapitalizationType = .None
     
@@ -183,7 +187,7 @@ extension Modal {
   internal func createScrollView() -> UIScrollView {
     let scrollView: UIScrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
-
+    
     return scrollView
   }
   
