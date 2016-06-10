@@ -38,10 +38,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   
   // MARK: - deinit
   deinit {
-    dealloc()
-  }
-  
-  private func dealloc() {
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
   }
   
@@ -119,7 +115,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     Report.sharedInstance.track(event: "login")
     dismissViewControllerAnimated(false, completion: nil)
   }
-  
   
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()

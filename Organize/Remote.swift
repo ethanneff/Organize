@@ -12,8 +12,6 @@ import Firebase
 struct Remote {
   
   struct Auth {
-    static let loadingModal: ModalLoading = ModalLoading()
-    
     private static func authError(code code: Int) -> String {
       switch code {
       // TODO: word better
@@ -50,8 +48,8 @@ struct Remote {
     }
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
-      
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
           loadingModal.hide {
@@ -75,6 +73,7 @@ struct Remote {
     }
     
     static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
         loadingModal.hide {
@@ -88,6 +87,7 @@ struct Remote {
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
         loadingModal.hide {
@@ -105,6 +105,7 @@ struct Remote {
         return  completion(error: authError(code: 0))
       }
       
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       user.updateEmail(email) { error in
         loadingModal.hide {
@@ -122,6 +123,7 @@ struct Remote {
         return  completion(error: authError(code: 0))
       }
       
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       user.updatePassword(password) { error in
         loadingModal.hide {
@@ -139,6 +141,7 @@ struct Remote {
     }
     
     static func delete(controller controller: UIViewController, completion: (error: String?) -> ()) {
+      let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
         loadingModal.hide {

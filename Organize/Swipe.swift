@@ -25,7 +25,7 @@ enum SwipeType: Int {
     case .Indent: return Constant.Color.brown
     case .Reminder: return Constant.Color.button
       
-    case .Uncomplete: return Constant.Color.subtitle
+    case .Uncomplete: return Constant.Color.gray
     case .Unindent: return Constant.Color.brown
     case .Delete: return Constant.Color.red
     }

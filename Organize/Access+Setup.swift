@@ -238,6 +238,9 @@ class AccessSetup {
     textField.tintColor = Constant.Color.button
     textField.textColor = Constant.Color.title
     textField.backgroundColor = Constant.Color.background
+    textField.layer.borderColor = Constant.Color.border.colorWithAlphaComponent(0.4).CGColor
+    textField.layer.borderWidth = 1
+    textField.layer.cornerRadius = 5
     textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes:[NSForegroundColorAttributeName: Constant.Color.border])
     textField.keyboardType = keyboardType == .Email ? .EmailAddress : .Default
     textField.returnKeyType = .Next

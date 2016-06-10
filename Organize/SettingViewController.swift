@@ -52,7 +52,7 @@ class SettingViewController: UIViewController {
     
     var active: Bool {
       switch self {
-      case .NotebookChange, .AppSound, .AppColor, .AccountAchievements, .Upgrade, .UpgradeBuy: return false
+      case .NotebookChange, .AppSound, .AccountAchievements, .Upgrade, .UpgradeBuy: return false
       default: return true
       }
     }
@@ -75,7 +75,7 @@ class SettingViewController: UIViewController {
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
-      case .AppColor: return "Toggle color" // TODO: based on app state
+      case .AppColor: return "Change color" 
       case .AppSound: return "Toggle sound" // TODO: based on appstate
       case .AppFeedback: return "Send feedback"
       case .AppShare: return "Share with a friend"

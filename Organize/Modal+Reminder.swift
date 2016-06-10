@@ -239,7 +239,7 @@ class ModalReminder: Modal {
     for view in modal.subviews {
       if let button = view as? UIButton, type = ReminderType(rawValue: button.tag) {
         if reminder?.type == type && reminder?.date.timeIntervalSinceNow > 0  {
-          button.backgroundColor = Constant.Color.shadow
+          button.backgroundColor = Constant.Color.selected
         } else {
           button.backgroundColor = Constant.Color.background
         }

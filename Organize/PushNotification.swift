@@ -6,9 +6,13 @@
 //  Copyright © 2016 Ethan Neff. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class PushNotification {
   static let sharedInstance = PushNotification()
   
+  func registerPermission() {
+    UIApplication.sharedApplication().registerForRemoteNotifications()
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.AskedPushNotification, val: true)
+  }
 }

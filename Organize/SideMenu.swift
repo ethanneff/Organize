@@ -80,6 +80,7 @@ class SideMenu: UIViewController {
   
   // MARK: - deinit
   deinit {
+    print("side menu deinit")
     dealloc()
   }
   

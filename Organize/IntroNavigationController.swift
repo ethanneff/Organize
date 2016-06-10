@@ -9,11 +9,11 @@ class IntroNavigationController: UINavigationController {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
+    setNeedsStatusBarAppearanceUpdate()
     determineController()
   }
   
   private func determineController() {
-    print("determineController")
     Util.delay(Constant.App.loadingDelay) {
       if let _ = Remote.Auth.user {
         self.displayController(navController: MenuNavigationController())

@@ -56,6 +56,8 @@ class ModalTextField: Modal, UITextFieldDelegate {
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     textField.becomeFirstResponder()
+    UINavigationBar.appearance().barStyle = .Black
+    self.setNeedsStatusBarAppearanceUpdate()
   }
   
   // MARK: - create

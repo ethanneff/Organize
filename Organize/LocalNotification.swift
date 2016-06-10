@@ -19,7 +19,7 @@ class LocalNotification {
     
     if settings.types == .None {
       // if already asked
-      if let _ = NSUserDefaults.standardUserDefaults().stringForKey(Constant.UserDefaultKey.askedLocalNotification) {
+      if let _ = Constant.UserDefault.get(key: .AskedPushNotification) {
         displayPostPremission(controller: controller)
       } else {
         displayPrePremission(controller: controller)
@@ -31,6 +31,7 @@ class LocalNotification {
   }
   
   private func displayPrePremission(controller controller: UIViewController) {
+    // get premission
     Util.threadMain {
       // alert before requesting premission
       let ac = UIAlertController(title: self.displayTitle, message: self.displayMessage, preferredStyle: .Alert)
@@ -43,6 +44,7 @@ class LocalNotification {
   }
   
   private func displayPostPremission(controller controller: UIViewController) {
+    // apple settings
     Util.threadMain {
       // alert after premission has been asked but rejected
       let ac = UIAlertController(title: self.displayTitle, message: self.displayMessage, preferredStyle: .Alert)
@@ -57,7 +59,7 @@ class LocalNotification {
   private func registerPermission() {
     let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
     UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
-    NSUserDefaults.standardUserDefaults().setBool(true, forKey: Constant.UserDefaultKey.askedLocalNotification)
+    Constant.UserDefault.set(key: .AskedLocalNotification, val: true)
   }
   
   

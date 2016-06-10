@@ -19,7 +19,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   lazy var refreshControl: UIRefreshControl = {
     let refreshControl = UIRefreshControl()
     refreshControl.addTarget(self, action: #selector(tableViewRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
-    refreshControl.tintColor = Constant.Color.button
+    refreshControl.tintColor = Constant.Color.title.colorWithAlphaComponent(0.5)
     return refreshControl
   }()
   
@@ -343,6 +343,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .NotebookDeleteCompleted: displayDeleteCompleted()
       
     case .AppTutorial: displayAppTutorial()
+    case .AppColor: displayAppColor()
     case .AppFeedback: displayAppFeedback()
     case .AppShare: displayAppShare()
       
@@ -379,6 +380,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modals
   private func displayNotebookTitle() {
+//    dismissViewControllerAnimated(true, completion: nil)
+//    PushNotification.sharedInstance.registerPermission()
+    
     let modal = ModalTextField()
     modal.limit = 25
     // TODO: get notebook title (add field)
@@ -394,6 +398,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func displayAppTutorial() {
     let modal = ModalTutorial()
     modal.show(controller: self, dismissible: true)
+  }
+  
+  private func displayAppColor() {
+    Constant.Color.toggleColor()
+    dismissViewControllerAnimated(true, completion: nil)
   }
   
   private func displayDeleteCompleted() {

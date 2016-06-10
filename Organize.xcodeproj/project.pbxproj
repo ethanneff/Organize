@@ -279,10 +279,10 @@
 				675037CE1CD176570061EC6E /* UINavigationController+Config.swift */,
 				675037CF1CD176570061EC6E /* UITabBarController+Config.swift */,
 				675037D01CD176570061EC6E /* UITableViewCell+Config.swift */,
+				67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */,
 				675037D11CD176570061EC6E /* UITableViewController+Config.swift */,
 				675037D21CD176570061EC6E /* UITextField+Config.swift */,
 				675037C91CD176570061EC6E /* String+Config.swift */,
-				67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */,
 			);
 			name = globals;
 			sourceTree = "<group>";
