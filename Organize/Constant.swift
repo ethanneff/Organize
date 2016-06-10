@@ -111,7 +111,6 @@ struct Constant {
   struct UserDefault {
     enum Key: String {
       case AskedLocalNotification
-      case AskedPushNotification
       case DarkMode
     }
     

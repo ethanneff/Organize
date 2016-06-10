@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // load
     configureFirebase()
     navigateToFirstController()
+    registerForPushNotifications(application)
     return true
   }
   func applicationWillTerminate(application: UIApplication) {
@@ -94,6 +95,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   // MARK: - badges
   private func clearBadgeIcon() {
     UIApplication.sharedApplication().applicationIconBadgeNumber = 0
+  }
+  
+  // MARK: - push notifications
+  func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+    // tap on notification to open app
+    if application.applicationState == UIApplicationState.Inactive || application.applicationState == UIApplicationState.Background  {
+      // go to screen relevant to Notification content
+    } else {
+      // app in foreground (show alert view)
+    }
+    print("%@", userInfo)
+  }
+  
+  func registerForPushNotifications(application: UIApplication) {
+    let notificationSettings = UIUserNotificationSettings(
+      forTypes: [.Badge, .Sound, .Alert], categories: nil)
+    application.registerUserNotificationSettings(notificationSettings)
+  }
+  
+  func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+    if notificationSettings.types != .None {
+      application.registerForRemoteNotifications()
+    }
+  }
+  
+  func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+    let tokenChars = UnsafePointer<CChar>(deviceToken.bytes)
+    var tokenString = ""
+    
+    for i in 0..<deviceToken.length {
+      tokenString += String(format: "%02.2hhx", arguments: [tokenChars[i]])
+    }
+    
+    print("Device Token:", tokenString)
+  }
+  
+  func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+    print("Failed to register:", error)
   }
   
   // MARK: - reporting
