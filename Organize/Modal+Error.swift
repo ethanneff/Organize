@@ -44,7 +44,7 @@ class ModalError: Modal {
   
   // MARK: - deinit
   deinit {
-
+    
   }
   
   // MARK: - create
@@ -76,7 +76,7 @@ class ModalError: Modal {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    Util.playSound(systemSound: .Tap)
+    Util.animateButtonPress(button: button)
     hide() {
       if let completion = self.completion {
         completion(output: [:])

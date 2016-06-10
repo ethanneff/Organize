@@ -221,7 +221,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    Util.playSound(systemSound: .Tap)
+    Util.animateButtonPress(button: button)
     hide() {
       if let completion = self.completion where button.tag == 1 && self.header.text.length > 0 {
         let note = self.note ?? Note(title: "")

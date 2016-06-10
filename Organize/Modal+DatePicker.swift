@@ -84,7 +84,7 @@ class ModalDatePicker: Modal {
   
   // MARK: - buttons
   func buttonPressed(button: UIButton) {
-    Util.playSound(systemSound: .Tap)
+    Util.animateButtonPress(button: button)
     hide() {
       if let completion = self.completion where button.tag == 1 {
         completion(output: [ModalDatePicker.OutputKeys.Date.rawValue: self.picker.date])

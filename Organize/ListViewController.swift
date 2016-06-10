@@ -278,6 +278,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView) {
       completion()
     }
+    Util.playSound(systemSound: .Tap)
   }
   
   func reorderAfterLift(fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath, completion: () -> ()) {
@@ -296,6 +297,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     notebook.reorderAfterDrop(fromIndexPath: fromIndexPath, toIndexPath: toIndexPath, tableView: tableView) {
       completion()
     }
+    Util.playSound(systemSound: .Tap)
   }
   
   // MARK: - gestures
@@ -479,9 +481,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     let shareContent: String = "Check out this app!\n\nI've been using it quite a bit and I think you'll like it too. Tell me what you think.\n\n" + Constant.App.deepLinkUrl
     let activityViewController: ActivityViewController = ActivityViewController(activityItems: [shareContent], applicationActivities: nil)
     activityViewController.excludedActivityTypes = [UIActivityTypeAirDrop]
-    presentViewController(activityViewController, animated: true, completion: {})
+    presentViewController(activityViewController, animated: true, completion: nil)
   }
-  
   
   private func displayAccountEmail() {
     let modal = ModalTextField()

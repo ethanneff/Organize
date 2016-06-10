@@ -124,7 +124,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
   private func buttonPressed(button button: UIButton) {
     dismissKeyboard()
     Util.animateButtonPress(button: button)
-    Util.playSound(systemSound: .Tap)
   }
   
   private func clearTextFields() {
