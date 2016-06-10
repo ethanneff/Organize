@@ -13,7 +13,7 @@ target 'Organize' do
   pod 'Firebase/Crash'        # Crash Reporting
   pod 'Firebase/RemoteConfig' # Remote Config
   pod 'Firebase/Auth'         # Authentication
-  # pod 'Firebase/Messaging'    # Cloud Messaging / Notifications
+  pod 'Firebase/Messaging'    # Cloud Messaging / Notifications
   # pod 'Firebase/Invites'      # Invites
   # pod 'Firebase/AppIndexing'  # App Indexing
   # pod 'Firebase/Storage'      # Storage
