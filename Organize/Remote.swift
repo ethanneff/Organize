@@ -163,29 +163,58 @@ struct Remote {
   }
   
   struct Database {
+    static let ref = FIRDatabase.database().reference()
+    
+    struct Device {
+      static func create() {
+        let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
+        let model = UIDevice.currentDevice().modelName
+        let version = UIDevice.currentDevice().systemVersion
+        let app: String = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        
+        ref.child("devices/\(uuid)/").updateChildValues([
+          "os": "iOS",
+          "model": model,
+          "version": version,
+          "app": app
+          ])
+      }
+      static func updateUser() {
+        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/user/": user.uid])
+          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": true])
+        } else {
+          Report.sharedInstance.log("missing user or uuid")
+        }
+      }
+      static func updatePushAPN(token token: String) {
+        // apn push
+        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/apn/": token])
+        } else {
+          Report.sharedInstance.log("missing uuid")
+        }
+      }
+      
+      static func updatePushFCM(token token: String) {
+        // firebase push
+        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/fcm/": token])
+        } else {
+          Report.sharedInstance.log("missing uuid")
+        }
+      }
+      
+    }
     
     struct User {
-      static let ref = FIRDatabase.database().reference()
-      
       static func create() {
         if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
-          let uuid = UIDevice.currentDevice().identifierForVendor!.UUIDString
-          let model = UIDevice.currentDevice().modelName
-          let version = UIDevice.currentDevice().systemVersion
-          let key = ref.child("devices").childByAutoId().key
           ref.child("users/\(user.uid)/").setValue([
             "email": email,
             "name": name,
             ])
-          ref.updateChildValues(["users/\(user.uid)/devices/\(key)/": true])
-          ref.child("devices/\(key)/").setValue([
-            "uid": user.uid,
-            "os": "iOS",
-            "uuid": uuid,
-            "model": model,
-            "version": version,
-            // "push":
-            ])
+          Remote.Database.Device.updateUser()
         }
       }
       

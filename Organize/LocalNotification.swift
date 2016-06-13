@@ -57,6 +57,7 @@ class LocalNotification {
   }
   
   private func registerPermission() {
+    // also registers for push notifications
     let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
     UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
     Constant.UserDefault.set(key: .AskedLocalNotification, val: true)

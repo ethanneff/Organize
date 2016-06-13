@@ -144,7 +144,7 @@ class Util {
       let animationCurveRaw = animationCurveRawNSN?.unsignedLongValue ?? UIViewAnimationOptions.CurveEaseInOut.rawValue
       let animationCurve: UIViewAnimationOptions = UIViewAnimationOptions(rawValue: animationCurveRaw)
       if endFrame?.origin.y >= UIScreen.mainScreen().bounds.size.height {
-        scrollViewBottomConstraint.constant = 0.0 
+        scrollViewBottomConstraint.constant = 0.0
       } else {
         scrollViewBottomConstraint.constant = -endFrameHeight + (constant ?? 0)
       }
@@ -160,5 +160,4 @@ class Util {
     }
     return 0
   }
-  
 }

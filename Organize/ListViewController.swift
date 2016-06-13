@@ -51,7 +51,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   deinit {
     print("list deinit)")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
-    // FIXME: dismiss viewcontollor does not call deinit (reference cycle)
+    // FIXME: dismiss viewcontollor does not call deinit (reference cycle) (has to do with menu)
   }
   
   // MARK: - error

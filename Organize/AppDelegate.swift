@@ -16,10 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   // MARK: - app states
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    // load
+    // load (install or updated)
     configureFirebase()
     navigateToFirstController()
-    registerForPushNotifications(application)
     return true
   }
   func applicationWillTerminate(application: UIApplication) {
@@ -39,6 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func applicationDidEnterBackground(application: UIApplication) {
     // background
+    disconnectFCM()
   }
   
   func applicationWillEnterForeground(application: UIApplication) {
@@ -62,6 +62,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FIRApp.configure()
     // Firebase database offline
     FIRDatabase.database().persistenceEnabled = true
+    // Firebase add device to database
+    Remote.Database.Device.create()
+    // Firebase listen to push notification
+    listenFCM()
   }
   
   // MARK: - deep links
@@ -106,37 +110,69 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // go to screen relevant to Notification content
     } else {
       // app in foreground (show alert view)
+      if let aps = userInfo["aps"] as? NSDictionary, let message = aps["alert"] as? String, let topController = UIApplication.topViewController() {
+        let alert = UIAlertController(title: "Notification", message: message, preferredStyle: .Alert)
+        let action = UIAlertAction(title: "Okay", style: .Default, handler: nil)
+        alert.addAction(action)
+        topController.presentViewController(alert, animated: true, completion: nil)
+      }
     }
     print("%@", userInfo)
   }
   
-  func registerForPushNotifications(application: UIApplication) {
-    let notificationSettings = UIUserNotificationSettings(
-      forTypes: [.Badge, .Sound, .Alert], categories: nil)
-    application.registerUserNotificationSettings(notificationSettings)
-  }
-  
   func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+    // if register for local, register for push as well
     if notificationSettings.types != .None {
       application.registerForRemoteNotifications()
     }
   }
   
   func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+    print("didRegisterForRemoteNotificationsWithDeviceToken")
     let tokenChars = UnsafePointer<CChar>(deviceToken.bytes)
     var tokenString = ""
-    
     for i in 0..<deviceToken.length {
       tokenString += String(format: "%02.2hhx", arguments: [tokenChars[i]])
     }
-    
-    print("Device Token:", tokenString)
+    // save token
+    Remote.Database.Device.updatePushAPN(token: tokenString)
   }
   
   func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-    print("Failed to register:", error)
+    Report.sharedInstance.log("Failed to register notification: \(error)")
   }
   
+  // MARK: - fcm notifications
+  private func listenFCM() {
+    if FIRInstanceID.instanceID().token() == nil {
+      NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(receivedFCM(_:)), name: kFIRInstanceIDTokenRefreshNotification, object: nil)
+    }
+  }
+  
+  private func removeFCM() {
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: kFIRInstanceIDTokenRefreshNotification, object: nil)
+  }
+  
+  func receivedFCM(notification: NSNotification) {
+    if let token = FIRInstanceID.instanceID().token() {
+      Remote.Database.Device.updatePushFCM(token: token)
+      connectFCM()
+      removeFCM()
+    }
+  }
+  
+  private func connectFCM() {
+    FIRMessaging.messaging().connectWithCompletion { (error) in
+      if (error != nil) {
+        Report.sharedInstance.log("Unable to connect with FCM. \(error)")
+      }
+    }
+  }
+  
+  private func disconnectFCM() {
+    FIRMessaging.messaging().disconnect()
+  }
+
   // MARK: - reporting
   private func reportState(active active: Bool) {
     AppState.sharedInstance.foreground = active ? true : false
