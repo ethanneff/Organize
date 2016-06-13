@@ -57,6 +57,7 @@
 		67A6E5611D0640B000ABB2BC /* Modal+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */; };
 		67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF521D0225C1000B6D43 /* Modal+Error.swift */; };
 		67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF541D022964000B6D43 /* Modal+TextField.swift */; };
+		67D267F81D0E380E004DEB9A /* UIDevice+Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D267F71D0E380E004DEB9A /* UIDevice+Config.swift */; };
 		67D8441E1CD2847B004C144F /* Swipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D8441D1CD2847B004C144F /* Swipe.swift */; };
 		67EF12681D0A348100D7D1C6 /* UIActivityViewController+Contant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */; };
 		DF12C4E0915BFFB22E1BE63F /* Pods_Organize.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22F7A6BE983A67D347E343ED /* Pods_Organize.framework */; };
@@ -119,6 +120,7 @@
 		67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Confirmation.swift"; sourceTree = "<group>"; };
 		67CEDF521D0225C1000B6D43 /* Modal+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Error.swift"; sourceTree = "<group>"; };
 		67CEDF541D022964000B6D43 /* Modal+TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+TextField.swift"; sourceTree = "<group>"; };
+		67D267F71D0E380E004DEB9A /* UIDevice+Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIDevice+Config.swift"; sourceTree = "<group>"; };
 		67D8441D1CD2847B004C144F /* Swipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Swipe.swift; sourceTree = "<group>"; };
 		67EF12671D0A348100D7D1C6 /* UIActivityViewController+Contant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIActivityViewController+Contant.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -281,6 +283,7 @@
 				675037D11CD176570061EC6E /* UITableViewController+Config.swift */,
 				675037D21CD176570061EC6E /* UITextField+Config.swift */,
 				675037C91CD176570061EC6E /* String+Config.swift */,
+				67D267F71D0E380E004DEB9A /* UIDevice+Config.swift */,
 			);
 			name = globals;
 			sourceTree = "<group>";
@@ -531,6 +534,7 @@
 				67A6E5611D0640B000ABB2BC /* Modal+Confirmation.swift in Sources */,
 				675037E51CD176570061EC6E /* ListViewController.swift in Sources */,
 				675037DB1CD176570061EC6E /* Modal.swift in Sources */,
+				67D267F81D0E380E004DEB9A /* UIDevice+Config.swift in Sources */,
 				670963071CEE3DD60043D2A5 /* AppState.swift in Sources */,
 				675038091CD178F30061EC6E /* SignupViewController.swift in Sources */,
 				675038061CD178F30061EC6E /* Access+Setup.swift in Sources */,

@@ -19,7 +19,7 @@ class LocalNotification {
     
     if settings.types == .None {
       // if already asked
-      if let _ = Constant.UserDefault.get(key: .AskedPushNotification) {
+      if let _ = Constant.UserDefault.get(key: .AskedLocalNotification) {
         displayPostPremission(controller: controller)
       } else {
         displayPrePremission(controller: controller)

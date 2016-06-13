@@ -93,6 +93,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
       if let error = error {
         return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: self.emailTextField)
       }
+      // save
       self.navigateToMenu()
     }
   }

@@ -37,7 +37,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     let lastName: String  = lastNameTextField.text!.trim
     let email: String  = emailTextField.text!.trim
     let password: String  = passwordTextField.text!.trim
-    let fullName = (firstName + lastName).trim
+    let fullName = firstName.trim + " " + lastName.trim
     
     if firstName.isEmpty {
       return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.FirstNameInvalid.message, textField: firstNameTextField)

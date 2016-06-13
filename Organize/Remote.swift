@@ -11,6 +11,8 @@ import Firebase
 
 struct Remote {
   
+  typealias completionBlock = (error: String?) -> ()
+  
   struct Auth {
     private static func authError(code code: Int) -> String {
       switch code {
@@ -47,8 +49,10 @@ struct Remote {
       return FIRAuth.auth()?.currentUser ?? nil
     }
     
-    static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: (error: String?) -> ()) {
+    static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
+      
+      // sign up
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
@@ -57,6 +61,7 @@ struct Remote {
           }
         }
         if let user = user {
+          // update profile
           let changeRequest = user.profileChangeRequest()
           changeRequest.displayName = name
           changeRequest.commitChangesWithCompletion() { (error) in
@@ -64,6 +69,8 @@ struct Remote {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
+                // update database
+                Remote.Database.User.create()
                 completion(error: nil)
               }
             }
@@ -72,7 +79,7 @@ struct Remote {
       }
     }
     
-    static func login(controller controller: UIViewController, email: String, password: String, completion: (error: String?) -> ()) {
+    static func login(controller controller: UIViewController, email: String, password: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
@@ -86,7 +93,7 @@ struct Remote {
       }
     }
     
-    static func resetPassword(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+    static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
@@ -100,7 +107,7 @@ struct Remote {
       }
     }
     
-    static func changeEmail(controller controller: UIViewController, email: String, completion: (error: String?) -> ()) {
+    static func changeEmail(controller controller: UIViewController, email: String, completion: completionBlock) {
       guard let user = FIRAuth.auth()?.currentUser else {
         return  completion(error: authError(code: 0))
       }
@@ -118,7 +125,7 @@ struct Remote {
       }
     }
     
-    static func changePassword(controller controller: UIViewController, password: String, completion: (error: String?) -> ()) {
+    static func changePassword(controller controller: UIViewController, password: String, completion: completionBlock) {
       guard let user = FIRAuth.auth()?.currentUser else {
         return  completion(error: authError(code: 0))
       }
@@ -140,7 +147,7 @@ struct Remote {
       try! FIRAuth.auth()!.signOut()
     }
     
-    static func delete(controller controller: UIViewController, completion: (error: String?) -> ()) {
+    static func delete(controller controller: UIViewController, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
@@ -158,12 +165,31 @@ struct Remote {
   struct Database {
     
     struct User {
-      let ref = FIRDatabase.database().reference()
+      static let ref = FIRDatabase.database().reference()
       
-      func create() {
-        
+      static func create() {
+        if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
+          let uuid = UIDevice.currentDevice().identifierForVendor!.UUIDString
+          let model = UIDevice.currentDevice().modelName
+          let version = UIDevice.currentDevice().systemVersion
+          let key = ref.child("devices").childByAutoId().key
+          ref.child("users/\(user.uid)/").setValue([
+            "email": email,
+            "name": name,
+            ])
+          ref.updateChildValues(["users/\(user.uid)/devices/\(key)/": true])
+          ref.child("devices/\(key)/").setValue([
+            "uid": user.uid,
+            "os": "iOS",
+            "uuid": uuid,
+            "model": model,
+            "version": version,
+            // "push":
+            ])
+        }
       }
-      func update() {
+      
+      static func update() {
         
       }
       func delete() {

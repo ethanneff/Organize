@@ -9,7 +9,6 @@ class IntroNavigationController: UINavigationController {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    setNeedsStatusBarAppearanceUpdate()
     determineController()
   }
   

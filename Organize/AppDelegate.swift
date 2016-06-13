@@ -60,6 +60,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FIROptions.defaultOptions().deepLinkURLScheme = Constant.App.deepLink
     // Firebase config
     FIRApp.configure()
+    // Firebase database offline
+    FIRDatabase.database().persistenceEnabled = true
   }
   
   // MARK: - deep links

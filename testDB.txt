@@ -10,6 +10,10 @@ users
     active b = true
     created d =
     updated d =
+    online d =
+    devices
+      device1 b = true
+      device2 b = true
     notebooks 
       notebook1 b = true
     notes
