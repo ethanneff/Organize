@@ -55,6 +55,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
       return AccessBusinessLogic.displayErrorAlert(controller: self, message: AccessBusinessLogic.ErrorMessage.PasswordInvalid.message, textField: passwordTextField)
     }
     
+    // create account
     Remote.Auth.signup(controller: self, email: email, password: password, name: fullName) { (error) in
       if let error = error {
         return AccessBusinessLogic.displayErrorAlert(controller: self, message: error, textField: nil)

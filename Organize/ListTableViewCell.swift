@@ -91,7 +91,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     accessoryButton!.translatesAutoresizingMaskIntoConstraints = false
     reminderView!.translatesAutoresizingMaskIntoConstraints = false
     
-    
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: titleLabel!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: titleLabel!, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),

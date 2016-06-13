@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   // MARK: - app states
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    print("Load")
     // load (install or updated)
     configureFirebase()
     navigateToFirstController()
@@ -28,6 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func applicationDidBecomeActive(application: UIApplication) {
     // launch and foreground
     reportState(active: true)
+    updateFirebase()
   }
   
   func applicationWillResignActive(application: UIApplication) {
@@ -62,10 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FIRApp.configure()
     // Firebase database offline
     FIRDatabase.database().persistenceEnabled = true
-    // Firebase add device to database
-    Remote.Database.Device.create()
-    // Firebase listen to push notification
+  }
+  
+  private func updateFirebase() {
     listenFCM()
+    Remote.Database.Device.create()
   }
   
   // MARK: - deep links
@@ -117,7 +120,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         topController.presentViewController(alert, animated: true, completion: nil)
       }
     }
-    print("%@", userInfo)
   }
   
   func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {

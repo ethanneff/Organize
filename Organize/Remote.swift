@@ -69,7 +69,6 @@ struct Remote {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
-                // update database
                 Remote.Database.User.create()
                 completion(error: nil)
               }
@@ -87,6 +86,7 @@ struct Remote {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
+            Remote.Database.User.login()
             completion(error: nil)
           }
         }
@@ -144,12 +144,14 @@ struct Remote {
     }
     
     static func logout() {
+      Remote.Database.User.logout()
       try! FIRAuth.auth()!.signOut()
     }
     
     static func delete(controller controller: UIViewController, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
+      Remote.Database.User.delete()
       FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
         loadingModal.hide {
           if let error = error {
@@ -178,15 +180,23 @@ struct Remote {
           "version": version,
           "app": app
           ])
+        Remote.Database.User.updateAccessed()
       }
-      static func updateUser() {
+      
+      static func createUser() {
         if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/user/": user.uid])
+          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": true])
           ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": true])
-        } else {
-          Report.sharedInstance.log("missing user or uuid")
         }
       }
+      
+      static func removeUser() {
+        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": false])
+          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": false])
+        }
+      }
+      
       static func updatePushAPN(token token: String) {
         // apn push
         if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
@@ -205,16 +215,72 @@ struct Remote {
         }
       }
       
+      static func updateAccessed() {
+        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          let accessedRef = FIRDatabase.database().referenceWithPath("devices/\(uuid)/accessed")
+          let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
+          connectedRef.observeEventType(.Value, withBlock: { snapshot in
+            accessedRef.onDisconnectSetValue(FIRServerValue.timestamp())
+          })
+        }
+      }
     }
     
     struct User {
+      static func logout() {
+        Remote.Database.Device.removeUser()
+      }
+      
       static func create() {
         if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
-          ref.child("users/\(user.uid)/").setValue([
+          ref.child("users/\(user.uid)/").updateChildValues([
             "email": email,
             "name": name,
+            "active": true,
+            "created": FIRServerValue.timestamp(),
+            "updated": FIRServerValue.timestamp(),
             ])
-          Remote.Database.Device.updateUser()
+          Remote.Database.Device.createUser()
+          Remote.Database.User.updateAccessed()
+        }
+      }
+      
+      static func login() {
+        if let user = Remote.Auth.user {
+          ref.child("users/\(user.uid)/").updateChildValues([
+            "active": true,
+            "updated": FIRServerValue.timestamp(),
+            ])
+          Remote.Database.Device.createUser()
+          Remote.Database.User.updateAccessed()
+        }
+      }
+      
+      static func delete() {
+        if let user = Remote.Auth.user {
+          ref.child("users/\(user.uid)/").updateChildValues([
+            "active": false,
+            "updated": FIRServerValue.timestamp(),
+            ])
+          Remote.Database.Device.removeUser()
+        }
+      }
+      
+      static func updateAccessed() {
+        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          let myConnectionsRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/connections")
+          let accessedRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/accessed")
+          let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
+          
+          connectedRef.observeEventType(.Value, withBlock: { snapshot in
+            let connected = snapshot.value as? Bool
+            if connected != nil && connected! {
+              let con = myConnectionsRef.child(uuid)
+              con.setValue(true)
+              con.onDisconnectRemoveValue()
+              accessedRef.onDisconnectSetValue(FIRServerValue.timestamp())
+            }
+          })
         }
       }
       
