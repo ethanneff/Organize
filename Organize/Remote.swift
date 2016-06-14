@@ -69,7 +69,10 @@ struct Remote {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
-                Remote.Database.Default.create()
+                 Remote.Database.User.signup()
+                if let notebookId = Remote.Database.Notebook.create(title: "Organize") {
+                  Remote.Database.User.createNotebook(id: notebookId)
+                }
                 completion(error: nil)
               }
             }
@@ -86,6 +89,7 @@ struct Remote {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
+            Remote.Database.User.login()
             completion(error: nil)
           }
         }
@@ -166,17 +170,8 @@ struct Remote {
   struct Database {
     static let ref = FIRDatabase.database().reference()
     
-    struct Default {
-      static func create() {
-        Remote.Database.User.create()
-        if let notebookId = Remote.Database.Notebook.create(title: "Organize") {
-          Remote.Database.User.createNotebook(id: notebookId)
-        }
-      }
-    }
-    
     struct Device {
-      static func create() {
+      static func update() {
         print("device create")
         // called on device open
         let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
@@ -211,8 +206,8 @@ struct Remote {
       }
       
       static func open() {
-        Remote.Database.User.linkDevice()
-        Remote.Database.User.access()
+        update()
+        access()
       }
       
       static func access() {
@@ -231,14 +226,23 @@ struct Remote {
         unlinkDevice()
       }
       
-      static func create() {
+      static func login() {
         if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
           ref.child("users/\(user.uid)").updateChildValues([
             "email": email,
             "name": name,
             "active": true,
+            ])
+          linkDevice()
+        }
+      }
+      
+      static func signup() {
+        if let user = Remote.Auth.user {
+          ref.child("users/\(user.uid)").updateChildValues([
             "created": FIRServerValue.timestamp(),
             ])
+          login()
         }
       }
       
@@ -273,7 +277,6 @@ struct Remote {
       }
       
       static func open() {
-        linkDevice()
         access()
       }
       

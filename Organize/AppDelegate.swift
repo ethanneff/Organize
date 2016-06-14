@@ -68,8 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   private func updateFirebase() {
     listenFCM()
-    Remote.Database.Device.create()
-    Remote.Database.Device.access()
+    Remote.Database.Device.open()
   }
   
   // MARK: - deep links
