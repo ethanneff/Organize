@@ -177,6 +177,7 @@ struct Remote {
     
     struct Device {
       static func create() {
+        print("device create")
         // called on device open
         let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
         let model = UIDevice.currentDevice().modelName
