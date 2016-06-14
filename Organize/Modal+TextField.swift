@@ -15,6 +15,18 @@ class ModalTextField: Modal, UITextFieldDelegate {
       textField.text = text
     }
   }
+  var keyboardType: UIKeyboardType? {
+    didSet {
+      if let keyboardType = keyboardType {
+        textField.keyboardType = keyboardType
+      }
+    }
+  }
+  var secureEntry: Bool = false {
+    didSet {
+      textField.secureTextEntry = secureEntry
+    }
+  }
   var placeholder: String? {
     didSet {
       if let placeholder = placeholder {

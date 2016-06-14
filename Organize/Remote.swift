@@ -69,7 +69,7 @@ struct Remote {
               if let error = error {
                 completion(error: authError(code: error.code))
               } else {
-                Remote.Database.User.create()
+                Remote.Database.Default.create()
                 completion(error: nil)
               }
             }
@@ -86,7 +86,6 @@ struct Remote {
           if let error = error {
             completion(error: authError(code: error.code))
           } else {
-            Remote.Database.User.login()
             completion(error: nil)
           }
         }
@@ -167,8 +166,18 @@ struct Remote {
   struct Database {
     static let ref = FIRDatabase.database().reference()
     
+    struct Default {
+      static func create() {
+        Remote.Database.User.create()
+        if let notebookId = Remote.Database.Notebook.create(title: "Organize") {
+          Remote.Database.User.createNotebook(id: notebookId)
+        }
+      }
+    }
+    
     struct Device {
       static func create() {
+        // called on device open
         let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
         let model = UIDevice.currentDevice().modelName
         let version = UIDevice.currentDevice().systemVersion
@@ -180,21 +189,6 @@ struct Remote {
           "version": version,
           "app": app
           ])
-        Remote.Database.User.updateAccessed()
-      }
-      
-      static func createUser() {
-        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": true])
-          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": true])
-        }
-      }
-      
-      static func removeUser() {
-        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": false])
-          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": false])
-        }
       }
       
       static func updatePushAPN(token token: String) {
@@ -215,7 +209,12 @@ struct Remote {
         }
       }
       
-      static func updateAccessed() {
+      static func open() {
+        Remote.Database.User.linkDevice()
+        Remote.Database.User.access()
+      }
+      
+      static func access() {
         if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
           let accessedRef = FIRDatabase.database().referenceWithPath("devices/\(uuid)/accessed")
           let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
@@ -228,45 +227,56 @@ struct Remote {
     
     struct User {
       static func logout() {
-        Remote.Database.Device.removeUser()
+        unlinkDevice()
       }
       
       static func create() {
         if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
-          ref.child("users/\(user.uid)/").updateChildValues([
+          ref.child("users/\(user.uid)").updateChildValues([
             "email": email,
             "name": name,
             "active": true,
             "created": FIRServerValue.timestamp(),
-            "updated": FIRServerValue.timestamp(),
             ])
-          Remote.Database.Device.createUser()
-          Remote.Database.User.updateAccessed()
         }
       }
       
-      static func login() {
+      static func createNotebook(id id: String) {
         if let user = Remote.Auth.user {
-          ref.child("users/\(user.uid)/").updateChildValues([
-            "active": true,
-            "updated": FIRServerValue.timestamp(),
-            ])
-          Remote.Database.Device.createUser()
-          Remote.Database.User.updateAccessed()
+          ref.updateChildValues(["users/\(user.uid)/notebooks/\(id)": true])
+          ref.updateChildValues(["users/\(user.uid)/notebook/": id])
         }
       }
       
       static func delete() {
         if let user = Remote.Auth.user {
-          ref.child("users/\(user.uid)/").updateChildValues([
+          ref.child("users/\(user.uid)").updateChildValues([
             "active": false,
-            "updated": FIRServerValue.timestamp(),
             ])
-          Remote.Database.Device.removeUser()
+          unlinkDevice()
         }
       }
       
-      static func updateAccessed() {
+      static func linkDevice() {
+        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": true])
+          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": true])
+        }
+      }
+      
+      static func unlinkDevice() {
+        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": false])
+          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": false])
+        }
+      }
+      
+      static func open() {
+        linkDevice()
+        access()
+      }
+      
+      static func access() {
         if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
           let myConnectionsRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/connections")
           let accessedRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/accessed")
@@ -283,21 +293,49 @@ struct Remote {
           })
         }
       }
-      
-      static func update() {
-        
-      }
-      func delete() {
-        
+    }
+    
+    struct Notebook {
+      static func create(title title: String) -> String? {
+        if let user = Remote.Auth.user {
+          let key = ref.child("notebooks").childByAutoId().key
+          ref.child("notebooks/\(key)").updateChildValues([
+            "title": title,
+            "user": user.uid,
+            "tags": [],
+            "notes": [],
+            "display": [],
+            "active": true,
+            "created": FIRServerValue.timestamp(),
+            "updated": FIRServerValue.timestamp(),
+            ])
+          return key
+        }
+        return nil
       }
     }
     
     struct Note {
-      
-    }
-    
-    struct Notebook {
-      
+      static func create(notebook notebook: String, title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int) -> String? {
+        if let user = Remote.Auth.user {
+          let key = ref.child("notes").childByAutoId().key
+          ref.child("notes/\(key)").updateChildValues([
+            "title": title,
+            "body": body ?? "",
+            "completed": completed,
+            "collapsed": collapsed,
+            "children": children,
+            "indent": indent,
+            "notebook": notebook,
+            "user": user.uid,
+            "active": true,
+            "created": FIRServerValue.timestamp(),
+            "updated": FIRServerValue.timestamp(),
+            ])
+          return key
+        }
+        return nil
+      }
     }
     
     struct Tag {
@@ -328,5 +366,4 @@ struct Remote {
       }
     }
   }
-  
 }

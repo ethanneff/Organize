@@ -66,6 +66,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     loadRemoteConfig()
     // title
     updateTitle()
+    // accessed
+    Remote.Database.User.open()
   }
   
   override func viewDidAppear(animated: Bool) {
@@ -391,8 +393,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modals
   private func displayNotebookTitle() {
-//    dismissViewControllerAnimated(true, completion: nil)
-//    PushNotification.sharedInstance.registerPermission()
+    //    dismissViewControllerAnimated(true, completion: nil)
+    //    PushNotification.sharedInstance.registerPermission()
     
     let modal = ModalTextField()
     modal.limit = 25
@@ -507,11 +509,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func displayAccountEmail() {
     let modal = ModalTextField()
     modal.placeholder = Remote.Auth.user?.email ?? "new email"
+    modal.keyboardType = .EmailAddress
     modal.show(controller: self, dismissible: true) { (output) in
       if let email = output[ModalTextField.OutputKeys.Text.rawValue] as? String where email.isEmail {
         Remote.Auth.changeEmail(controller: self, email: email, completion: { error in
-          // FIXME: catch error 17014 and force logout?
-          // FIXME: if no wifi on simulator, causes a flash in modals because loading.hide happens before loading.show finshes
+          // FIXME: catch error 17014 and force logout? (minor)
+          // FIXME: if no wifi on simulator, causes a flash in modals because loading.hide happens before loading.show finshes (minor)
           let message = error ?? "Log back in with your new email"
           let modal = ModalError()
           modal.message = message
@@ -534,6 +537,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func displayAccountPassword() {
     let modal = ModalTextField()
     modal.placeholder = "new password"
+    modal.secureEntry = true
     modal.show(controller: self, dismissible: true) { (output) in
       if let password = output[ModalTextField.OutputKeys.Text.rawValue] as? String where password.isPassword {
         Remote.Auth.changePassword(controller: self, password: password, completion: { error in

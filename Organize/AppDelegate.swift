@@ -69,6 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private func updateFirebase() {
     listenFCM()
     Remote.Database.Device.create()
+    Remote.Database.Device.access()
   }
   
   // MARK: - deep links
@@ -174,7 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private func disconnectFCM() {
     FIRMessaging.messaging().disconnect()
   }
-
+  
   // MARK: - reporting
   private func reportState(active active: Bool) {
     AppState.sharedInstance.foreground = active ? true : false
