@@ -360,9 +360,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .AppFeedback: displayAppFeedback()
     case .AppShare: displayAppShare()
       
-    case .CloudUpload: displayCloudUpload()
-    case .CloudDownload: displayCloudDownload()
-      
     case .AccountEmail: displayAccountEmail()
     case .AccountPassword: displayAccountPassword()
     case .AccountDelete: displayAccountDelete()
@@ -402,8 +399,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         let modal = ModalError()
         modal.message = error
         modal.show(controller: self)
+        return
       }
-          try! FIRAuth.auth()!.signOut()
       Report.sharedInstance.track(event: "logout")
       self.dismissViewControllerAnimated(true, completion: nil)
     }
@@ -416,7 +413,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     let modal = ModalTextField()
     modal.limit = 25
-    // TODO: get notebook title (add field)
     modal.placeholder = notebook.title
     modal.show(controller: self, dismissible: true) { output in
       if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String {
@@ -492,29 +488,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       if success {
         Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
       }
-    }
-  }
-  
-  private func displayCloudUpload() {
-    //    let modal = ModalConfirmation()
-    //    modal.message = "Upload this device's data to the cloud? (share with your other devices)"
-    //    modal.show(controller: self, dismissible: true) { (output) in
-    // TODO:
-    let database = FIRDatabase.database().reference()
-    database.updateChildValues([
-      "notes/654BA4C8-224B-4BCB-B74C-D42A2416F672/": ""
-      ])
-//    Convert.upload(notebook: notebook) { success in
-//      print("success \(success)")
-//    }
-    //    }
-  }
-  
-  private func displayCloudDownload() {
-    let modal = ModalConfirmation()
-    modal.message = "Download data from the cloud? (will overwrite this device's data)"
-    modal.show(controller: self, dismissible: true) { (output) in
-      // TODO:
     }
   }
   

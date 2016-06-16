@@ -56,7 +56,7 @@ class SettingViewController: UIViewController {
     
     var active: Bool {
       switch self {
-      case .NotebookChange, .AppSound, .AccountAchievements, .Upgrade, .UpgradeBuy: return false
+      case .NotebookChange, .AppSound, .AccountAchievements, .Upgrade, .UpgradeBuy, .Cloud, .CloudUpload, .CloudDownload: return false
       default: return true
       }
     }

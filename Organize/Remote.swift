@@ -52,22 +52,20 @@ struct Remote {
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
+      loadingModal.show(controller: controller)
       
-      func complete(error error: Int) {
-        try! FIRAuth.auth()!.signOut()
+      func complete(error error: Int?) {
         loadingModal.hide {
-          completion(error: authError(code: error))
-        }
-      }
-      
-      func finished() {
-        loadingModal.hide {
-          completion(error: nil)
+          if let error = error {
+            try! FIRAuth.auth()!.signOut()
+            completion(error: authError(code: error))
+          } else {
+            completion(error: nil)
+          }
         }
       }
       
       // attempt sign up
-      loadingModal.show(controller: controller)
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
           Report.sharedInstance.log("signup attempt: \(error)")
@@ -122,14 +120,13 @@ struct Remote {
                 return complete(error: 17999)
               }
               
-              // default notebook
-              print(notebook.id)
+              // set default notebook
               Notebook.set(data: notebook) { success in
                 if !success {
                   Report.sharedInstance.log("signup save default notebook")
                   return complete(error: 17999)
                 }
-                return finished()
+                return complete(error: nil)
               }
           })
         }
@@ -138,22 +135,20 @@ struct Remote {
     
     static func login(controller controller: UIViewController, email: String, password: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
+      loadingModal.show(controller: controller)
       
-      func complete(error error: Int) {
-        try! FIRAuth.auth()!.signOut()
+      func complete(error error: Int?) {
         loadingModal.hide {
-          completion(error: authError(code: error))
-        }
-      }
-      
-      func finished() {
-        loadingModal.hide {
-          completion(error: nil)
+          if let error = error {
+            try! FIRAuth.auth()!.signOut()
+            completion(error: authError(code: error))
+          } else {
+            completion(error: nil)
+          }
         }
       }
       
       // attempt login
-      loadingModal.show(controller: controller)
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
         if let error = error {
           Report.sharedInstance.log("login attempt: \(error)")
@@ -197,24 +192,137 @@ struct Remote {
                   return complete(error: 17999)
                 }
                 
-                // get notes
+                guard let remoteNotebookTitle = remoteNotebook["title"] as? String else {
+                  Report.sharedInstance.log("login missing notebook title")
+                  return complete(error: 17999)
+                }
                 
-                // convert notebook
-                //                let notebook = Notebook(notes: [])
-                //
-                //                // save locally
-                //                Notebook.set(data: notebook) { success in
-                //                  if !success {
-                //                    Report.sharedInstance.log("login save notebook")
-                //                    return complete(error: 17999)
-                //                  }
-                //                  return finished()
-                //                }
-                return finished()
+                // download and create notes
+                downloadNotes(remoteNotebook: remoteNotebook, completion: { (notes, display) in
+                  guard let notes = notes, let display = display else {
+                    Report.sharedInstance.log("login downloading and creating notes")
+                    return complete(error: 17999)
+                  }
+                  
+                  // create notebook
+                  let notebook = Notebook(id: remoteNotebookId, title: remoteNotebookTitle, notes: notes, display: display, history: [])
+                  
+                  // convert notebook to local
+                  Notebook.set(data: notebook) { success in
+                    if !success {
+                      Report.sharedInstance.log("login save notebook")
+                      return complete(error: 17999)
+                    }
+                    return complete(error: nil)
+                  }
+                })
               })
             })
         })
       }
+    }
+    
+    static private func downloadNotes(remoteNotebook remoteNotebook: [String: AnyObject], completion: (notes: [Note]?, display: [Note]?) -> ()) {
+      guard let noteIds = remoteNotebook["notes"] as? [String], let displayIds = remoteNotebook["display"] as? [String]  else {
+        return completion(notes: [], display: [])
+      }
+      
+      var completed = false
+      let database = FIRDatabase.database().reference()
+      var count = noteIds.count
+      var random: [Note] = []
+      var notes: [Note] = []
+      var display: [Note] = []
+      
+      func createNote(id id: String, note: [String: AnyObject]) {
+        let body = note["body"] as? String
+        guard let title = note["title"] as? String,
+          let completed = note["completed"] as? Bool,
+          let collapsed = note["collapsed"] as? Bool,
+          let children = note["children"] as? Int,
+          let indent = note["indent"] as? Int else {
+            Report.sharedInstance.log("creating note \(id)")
+            return completion(notes: nil, display: nil)
+        }
+        
+        var reminder: Reminder?
+        if let noteReminder = note["reminder"] as? [String: AnyObject] {
+          guard let id = noteReminder["id"] as? String,
+            let uid = noteReminder["uid"] as? Double,
+            let date = noteReminder["date"] as? Double,
+            let type = noteReminder["type"] as? Int else {
+              Report.sharedInstance.log("creating reminder")
+              return completion(notes: nil, display: nil)
+          }
+          
+          let reminderType = ReminderType(rawValue: type) ?? ReminderType(rawValue: 0)!
+          let reminderDate = NSDate(timeIntervalSince1970: date)
+          reminder = Reminder(id: id, uid: uid, type: reminderType, date: reminderDate)
+        }
+        
+        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
+        random.append(note)
+      }
+      
+      func orderNotesAndDisplay() {
+        for id in noteIds {
+          for i in 0..<random.count {
+            let note = random[i]
+            if note.id == id {
+              notes.append(note)
+              random.removeAtIndex(i)
+              break
+            }
+          }
+        }
+        var found = 0
+        for id in displayIds {
+          for i in found..<notes.count {
+            let note = notes[i]
+            if note.id == id {
+              found += 1
+              display.append(note)
+              break
+            }
+          }
+        }
+      }
+      
+      func updateReminders() {
+        LocalNotification.sharedInstance.destroy()
+        for note in notes {
+          if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
+            // TODO: notebook reminder func needs to be the same
+            // TODO: push notifications accept before download on login
+            LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
+          }
+        }
+      }
+      
+      // download notes
+      for id in noteIds {
+        database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+          guard let remoteNote = snapshot.value as? [String: AnyObject] else {
+            if !completed {
+              completed = true
+              return completion(notes: nil, display: nil)
+            }
+            return
+          }
+          
+          // create note
+          createNote(id: id, note: remoteNote)
+          
+          // complete
+          count -= 1
+          if count == 0 {
+            orderNotesAndDisplay()
+            updateReminders()
+            return completion(notes: notes, display: display)
+          }
+        })
+      }
+      
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
@@ -271,15 +379,13 @@ struct Remote {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      func complete(error error: Int) {
+      func complete(error error: Int?) {
         loadingModal.hide {
-          completion(error: authError(code: error))
-        }
-      }
-      
-      func finished() {
-        loadingModal.hide {
-          completion(error: nil)
+          if let error = error {
+            completion(error: authError(code: error))
+          } else {
+            completion(error: nil)
+          }
         }
       }
       
@@ -298,19 +404,19 @@ struct Remote {
           return complete(error: 17999)
         }
         
-        // blank out local notebook
-        //            Notebook.set(data: Notebook(notes: [])) { success in
-        //              if !success {
-        //                Report.sharedInstance.log("logout save notebook")
-        //                return complete(error: 17999)
-        //              }
-        //              // logout
-        //              try! FIRAuth.auth()!.signOut()
-        //              return finished()
-        //            }
-        
-        try! FIRAuth.auth()!.signOut()
-        return finished()
+        // clear local notebook
+        Notebook.set(data: Notebook(notes: [])) { success in
+          if !success {
+            Report.sharedInstance.log("logout save notebook")
+            return complete(error: 17999)
+          }
+          // clear reminders
+          LocalNotification.sharedInstance.destroy()
+          
+          // logout
+          try! FIRAuth.auth()!.signOut()
+          return complete(error: nil)
+        }
       })
     }
     
@@ -319,7 +425,6 @@ struct Remote {
       var update: [String: AnyObject] = [:]
       var notes: [String] = []
       var display: [String] = []
-      var reminders: [String] = []
       update["notebooks/\(notebook.id)/title"] = notebook.title
       update["notebooks/\(notebook.id)/updated"] = FIRServerValue.timestamp()
       // create new notes
@@ -332,19 +437,18 @@ struct Remote {
         update["notes/\(note.id)/collapsed"] = note.collapsed
         update["notes/\(note.id)/children"] = note.children
         update["notes/\(note.id)/indent"] = note.indent
-        update["notes/\(note.id)/updated"] = FIRServerValue.timestamp()
+        update["notes/\(note.id)/created"] = FIRServerValue.timestamp() // TODO: grab from note create
+        update["notes/\(note.id)/updated"] = FIRServerValue.timestamp() // TODO: grab from note update
         // create new reminders
         if let reminder = note.reminder {
-          update["notebooks/\(notebook.id)/reminders"] = reminder.id
-          update["notes/\(note.id)/reminder"] = reminder.id
-          update["reminders/\(reminder.id)/user"] = user.uid
-          update["reminders/\(reminder.id)/note"] = note.id
-          update["reminders/\(reminder.id)/uid"] = reminder.uid
-          update["reminders/\(reminder.id)/date"] = reminder.date.timeIntervalSince1970
-          update["reminders/\(reminder.id)/type"] = reminder.type.rawValue
-          update["reminders/\(reminder.id)/updated"] = FIRServerValue.timestamp()
-          // create reminder array
-          reminders.append(reminder.id)
+          update["notes/\(note.id)/reminder/id"] = reminder.id
+          update["notes/\(note.id)/reminder/uid"] = reminder.uid
+          update["notes/\(note.id)/reminder/date"] = reminder.date.timeIntervalSince1970
+          update["notes/\(note.id)/reminder/type"] = reminder.type.rawValue
+          update["notes/\(note.id)/reminder/created"] = FIRServerValue.timestamp() // TODO: grab from reminder created
+          update["notes/\(note.id)/reminder/updated"] = FIRServerValue.timestamp() // TODO: grab from reminder updated
+        } else {
+          update["notes/\(note.id)/reminder"] = false
         }
         // create note array
         notes.append(note.id)
@@ -355,7 +459,6 @@ struct Remote {
       }
       update["notebooks/\(notebook.id)/notes"] = notes
       update["notebooks/\(notebook.id)/display"] = display
-      update["notebooks/\(notebook.id)/reminders"] = reminders
       
       return update
     }
@@ -589,8 +692,7 @@ struct Remote {
           remoteConfig.activateFetched()
           completion(config: remoteConfig)
         } else {
-          print("Config not fetched")
-          print("Error \(error)")
+          Report.sharedInstance.log("Config not fetched \(error)")
           completion(config: nil)
         }
       }

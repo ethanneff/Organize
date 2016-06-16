@@ -10,6 +10,7 @@ class AccessNavigationController: UINavigationController {
   
   private func navigationBarColor() {
     navigationBar.hideBottomHairline()
+//    navigationBar.barStyle = Constant.Color.statusBar    
   }
   
   private func setupGestures() {
@@ -17,7 +18,6 @@ class AccessNavigationController: UINavigationController {
     let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
     tap.cancelsTouchesInView = false
     navigationBar.addGestureRecognizer(tap)
-    navigationBar.barStyle = Constant.Color.statusBar
   }
   
   func dismissKeyboard(sender: UITapGestureRecognizer) {

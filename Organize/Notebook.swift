@@ -12,7 +12,7 @@ class Notebook: NSObject, NSCoding, Copying {
   var display: [Note] = []
   private var history: [NotebookHistory] = []
   override var description: String {
-    var output: String = notes.description + "\n" + display.description
+    var output: String = id + "\n" + title + "\n" + notes.description + "\n" + display.description
     output += "\n"
     //    output += " history \n"
     //    for element in history {

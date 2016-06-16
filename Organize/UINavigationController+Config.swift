@@ -4,18 +4,18 @@ extension UINavigationController {
   // load
   override public func viewDidLoad() {
     super.viewDidLoad()
-    // color
-    
-    navigationBar.translucent = false
-    navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
-    navigationBar.backgroundColor = Constant.Color.background
-    navigationBar.tintColor = Constant.Color.button
-//    navigationBar.barStyle = Constant.Color.statusBar
+    // color    
+    navigationBar.translucent = false // hides the nav background when transistioning between pops
+//    navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default) // white background
+//    navigationBar.backgroundColor = Constant.Color.background // white background
+    navigationBar.tintColor = Constant.Color.button // back button color
+    navigationBar.barStyle = Constant.Color.statusBar
     navigationBar.barTintColor = Constant.Color.background
-    navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: Constant.Color.title]
-    toolbar.barTintColor = Constant.Color.background
-    toolbar.backgroundColor = Constant.Color.background
-    toolbar.tintColor = Constant.Color.button
+    navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : Constant.Color.title]
+//    navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: Constant.Color.title]
+//    toolbar.barTintColor = Constant.Color.background
+//    toolbar.backgroundColor = Constant.Color.background
+//    toolbar.tintColor = Constant.Color.button
   }
 }
 

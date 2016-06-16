@@ -11,14 +11,17 @@ import UIKit
 class ActivityViewController: UIActivityViewController {
   
   func _shouldExcludeActivityType(activity: UIActivity) -> Bool {
-    let activityTypesToExclude = [
+    var activityTypesToExclude = [
       "com.apple.reminders.RemindersEditorExtension",
       "com.apple.mobilenotes.SharingExtension",
-//      UIActivityTypeOpenInIBooks,
       UIActivityTypePrint,
       UIActivityTypeAssignToContact,
       "com.google.Drive.ShareExtension"
     ]
+    
+    if #available(iOS 9.0, *) {
+      activityTypesToExclude.append(UIActivityTypeOpenInIBooks)
+    }
     
     if let actType = activity.activityType() {
       if activityTypesToExclude.contains(actType) {
