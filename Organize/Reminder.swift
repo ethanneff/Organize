@@ -2,52 +2,62 @@ import UIKit
 
 class Reminder: NSObject, NSCoding {
   // MARK: - PROPERTIES
-  let id: Double
+  var id: String
+  var uid: Double
   var type: ReminderType
   var date: NSDate
   
   override var description: String {
-    return "\(id) \(type) \(date)"
+    return "\(uid) \(type) \(date)"
   }
   
   // MARK: - INIT
-  init(id: Double, type: ReminderType, date: NSDate) {
-    self.id = id
+  init(uid: Double, type: ReminderType, date: NSDate) {
+    self.id = NSUUID().UUIDString
+    self.uid = uid
     self.type = type
     self.date = date
   }
   
+  convenience init(id: String, uid: Double, type: ReminderType, date: NSDate) {
+    self.init(uid: uid, type: type, date: date)
+    self.id = id
+  }
+  
   convenience init(type: ReminderType, date: NSDate?) {
-    let id = Double(NSDate().timeIntervalSince1970 * 100000)
+    let uid = Double(NSDate().timeIntervalSince1970 * 100000)
     let date = type.date(date: date)
     
-    self.init(id: id, type: type, date: date)
+    self.init(uid: uid, type: type, date: date)
   }
   
   // MARK: - DEINIT
   deinit {
-    LocalNotification.sharedInstance.delete(uid: id)
+    LocalNotification.sharedInstance.delete(uid: uid)
   }
 
   // MARK: - SAVE
   struct PropertyKey {
     static let id: String = "id"
+    static let uid: String = "uid"
     static let type: String = "type"
     static let date: String = "date"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
     aCoder.encodeObject(id, forKey: PropertyKey.id)
+    aCoder.encodeObject(uid, forKey: PropertyKey.uid)
     aCoder.encodeObject(type.rawValue, forKey: PropertyKey.type)
     aCoder.encodeObject(date, forKey: PropertyKey.date)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
-    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! Double
+    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! String
+    let uid = aDecoder.decodeObjectForKey(PropertyKey.uid) as! Double
     let type = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.type) as! Int)!
     let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
     
-    self.init(id: id, type: type, date: date)
+    self.init(id: id, uid: uid, type: type, date: date)
   }
 }
 

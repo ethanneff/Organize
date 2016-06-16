@@ -16,7 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   // MARK: - app states
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    print("Load")
     // load (install or updated)
     configureFirebase()
     navigateToFirstController()
@@ -130,7 +129,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
   
   func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-    print("didRegisterForRemoteNotificationsWithDeviceToken")
     let tokenChars = UnsafePointer<CChar>(deviceToken.bytes)
     var tokenString = ""
     for i in 0..<deviceToken.length {

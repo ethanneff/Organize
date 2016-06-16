@@ -24,6 +24,7 @@ protocol Remindable {
 
 class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Collapsable, Remindable {
   // MARK: - PROPERTIES
+  var id: String
   var title: String
   var body: String?
   var completed: Bool = false
@@ -38,6 +39,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   // MARK: - INIT
   init(title: String) {
     self.title = title
+    self.id = NSUUID().UUIDString
   }
   
   convenience init(title: String, body: String?) {
@@ -70,8 +72,20 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.reminder = reminder
   }
   
+  convenience init(id: String, title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int, reminder: Reminder?) {
+    self.init(title: title)
+    self.id = id
+    self.body = body
+    self.completed = completed
+    self.collapsed = collapsed
+    self.children = children
+    self.indent = indent
+    self.reminder = reminder
+  }
+  
   // MARK: - COPY
   required init(original: Note) {
+    id = original.id
     title = original.title
     body = original.body
     completed = original.completed
@@ -83,6 +97,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   
   // MARK: - SAVE
   struct PropertyKey {
+    static let id: String = "id"
     static let title: String = "title"
     static let body: String = "body"
     static let completed: String = "completed"
@@ -93,6 +108,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
+    aCoder.encodeObject(id, forKey: PropertyKey.id)
     aCoder.encodeObject(title, forKey: PropertyKey.title)
     aCoder.encodeObject(body, forKey: PropertyKey.body)
     aCoder.encodeObject(completed, forKey: PropertyKey.completed)
@@ -103,6 +119,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
+    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! String
     let title = aDecoder.decodeObjectForKey(PropertyKey.title) as! String
     let body = aDecoder.decodeObjectForKey(PropertyKey.body) as? String
     let completed = aDecoder.decodeObjectForKey(PropertyKey.completed) as! Bool
@@ -110,6 +127,6 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     let children = aDecoder.decodeObjectForKey(PropertyKey.children) as! Int
     let indent = aDecoder.decodeObjectForKey(PropertyKey.indent) as! Int
     let reminder = aDecoder.decodeObjectForKey(PropertyKey.reminder) as? Reminder
-    self.init(title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
+    self.init(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
   }
 }

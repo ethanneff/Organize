@@ -7,6 +7,7 @@ class Notebook: NSObject, NSCoding, Copying {
       Notebook.set(data: self)
     }
   }
+  var id: String
   var notes: [Note] = []
   var display: [Note] = []
   private var history: [NotebookHistory] = []
@@ -23,6 +24,14 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - INIT
   init(notes: [Note]) {
     self.notes = notes
+    self.id = NSUUID().UUIDString
+  }
+  
+  convenience init(title: String) {
+    self.init(notes: [])
+    self.title = title
+    self.display = []
+    self.history = []
   }
   
   convenience init(title: String, notes: [Note], display: [Note], history: [NotebookHistory]) {
@@ -32,8 +41,17 @@ class Notebook: NSObject, NSCoding, Copying {
     self.history = history
   }
   
+  convenience init(id: String, title: String, notes: [Note], display: [Note], history: [NotebookHistory]) {
+    self.init(notes: notes)
+    self.id = id
+    self.title = title
+    self.display = display
+    self.history = history
+  }
+  
   // MARK: - COPY
   required init(original: Notebook) {
+    id = original.id
     notes = original.notes
     display = original.display
     history = original.history
@@ -809,7 +827,7 @@ class Notebook: NSObject, NSCoding, Copying {
         // create
         note.reminder = Reminder(type: reminderType, date: date)
         // notification
-        LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: note.reminder!.date, soundName: nil, uid: note.reminder!.id) { success in
+        LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: note.reminder!.date, soundName: nil, uid: note.reminder!.uid) { success in
           if !success {
             self.reminderDelete(note: note)
           }
@@ -857,7 +875,7 @@ class Notebook: NSObject, NSCoding, Copying {
   private func reminderDelete(note note: Note) {
     // uses the same background thread of parent
     if let reminder = note.reminder {
-      LocalNotification.sharedInstance.delete(uid: reminder.id)
+      LocalNotification.sharedInstance.delete(uid: reminder.uid)
     }
     note.reminder = nil
   }
@@ -934,6 +952,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - SAVE
   private struct PropertyKey {
+    static let id = "id"
     static let title = "title"
     static let notes = "notes"
     static let display = "display"
@@ -941,6 +960,7 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
+    aCoder.encodeObject(id, forKey: PropertyKey.id)
     aCoder.encodeObject(title, forKey: PropertyKey.title)
     aCoder.encodeObject(notes, forKey: PropertyKey.notes)
     aCoder.encodeObject(display, forKey: PropertyKey.display)
@@ -948,17 +968,15 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
+    let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! String
     let title = aDecoder.decodeObjectForKey(PropertyKey.title) as! String
     let notes = aDecoder.decodeObjectForKey(PropertyKey.notes) as! [Note]
     let display = aDecoder.decodeObjectForKey(PropertyKey.display) as! [Note]
     let history = aDecoder.decodeObjectForKey(PropertyKey.history) as! [NotebookHistory]
-    self.init(title: title, notes: notes, display: display, history: history)
+    self.init(id: id, title: title, notes: notes, display: display, history: history)
   }
   
   // MARK: - ACCESS
-  // TODO: move into own class... get (filename), set (filename, data), list of file (users -> notebooks -> notes)
-  // TODO: saved based on notebook-timestamp
-  // TODO: figure out how to save between threads (after the last one)
   static let DocumentsDirectory = NSFileManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
   static let ArchiveURL = DocumentsDirectory.URLByAppendingPathComponent("notebook")
   

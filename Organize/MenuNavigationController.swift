@@ -5,5 +5,6 @@ class MenuNavigationController: UINavigationController {
     super.loadView()
     
     pushViewController(MenuViewController(), animated: false)
+    navigationBar.showBottomHairline()
   }
 }

@@ -29,6 +29,10 @@ class SettingViewController: UIViewController {
     case AppFeedback
     case AppShare
     
+    case Cloud
+    case CloudUpload
+    case CloudDownload
+    
     case Account
     case AccountAchievements
     case AccountEmail
@@ -45,7 +49,7 @@ class SettingViewController: UIViewController {
     
     var header: Bool {
       switch self {
-      case .Notebook, .App, .Account, .Upgrade: return true
+      case .Notebook, .App, .Cloud, .Account, .Upgrade: return true
       default: return false
       }
     }
@@ -75,10 +79,14 @@ class SettingViewController: UIViewController {
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
-      case .AppColor: return "Change color" 
+      case .AppColor: return "Change color"
       case .AppSound: return "Toggle sound" // TODO: based on appstate
       case .AppFeedback: return "Send feedback"
       case .AppShare: return "Share with a friend"
+        
+      case .Cloud: return "Cloud"
+      case .CloudUpload: return "Upload"
+      case .CloudDownload: return "Download"
         
       case .Account: return "Account"
       case .AccountAchievements: return "View achievements"

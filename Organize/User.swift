@@ -39,8 +39,6 @@ class User: NSObject, NSCoding {
   
   // ACCESS
   static let DocumentsDirectory = NSFileManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-  // TODO: save as user.email
-  // TODO: get user.email from nsUserDefaults
   static let ArchiveURL = DocumentsDirectory.URLByAppendingPathComponent("user")
   
   static func get(completion completion: (user: User?) -> ()) {

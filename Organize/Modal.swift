@@ -28,7 +28,6 @@ class Modal: UIViewController {
     
   }
   
-  
   override func preferredStatusBarStyle() -> UIStatusBarStyle {
     return Constant.Color.statusBarStyle
   }

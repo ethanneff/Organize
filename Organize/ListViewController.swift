@@ -5,7 +5,7 @@ import GoogleMobileAds
 
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate,GADBannerViewDelegate {
   // MARK: - properties
-  var notebook: Notebook
+  private var notebook: Notebook
   
   lazy var tableView: UITableView = ReorderTableView()
   weak var menuDelegate: MenuViewController?
@@ -25,11 +25,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - init
   init() {
-    if Constant.App.release {
-      notebook = Notebook(title: "Organize", notes: [], display: [], history: [])
-    } else {
-      notebook = Notebook.getDefault()
-    }
+    notebook = Notebook(title: "init")
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -76,6 +72,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     becomeFirstResponder()
   }
   
+  
   // MARK: - load
   internal func applicationDidBecomeActiveNotification() {
     // update reminder icons
@@ -88,7 +85,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         Util.threadMain {
           self.notebook = data
           self.tableView.reloadData()
+          self.updateTitle()
         }
+      } else {
+        self.displayLogout()
       }
     }
   }
@@ -360,6 +360,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .AppFeedback: displayAppFeedback()
     case .AppShare: displayAppShare()
       
+    case .CloudUpload: displayCloudUpload()
+    case .CloudDownload: displayCloudDownload()
+      
     case .AccountEmail: displayAccountEmail()
     case .AccountPassword: displayAccountPassword()
     case .AccountDelete: displayAccountDelete()
@@ -385,10 +388,25 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     displayNoteDetail(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
   }
   
+  private func displayLogout() {
+    let modal = ModalError()
+    modal.message = "An error has occured and you will need to log back in"
+    modal.show(controller: self) { output in
+      self.logout()
+    }
+  }
+  
   private func logout() {
-    Remote.Auth.logout()
-    Report.sharedInstance.track(event: "logout")
-    dismissViewControllerAnimated(true, completion: nil)
+    Remote.Auth.logout(controller: self, notebook: notebook) { error in
+      if let error = error {
+        let modal = ModalError()
+        modal.message = error
+        modal.show(controller: self)
+      }
+          try! FIRAuth.auth()!.signOut()
+      Report.sharedInstance.track(event: "logout")
+      self.dismissViewControllerAnimated(true, completion: nil)
+    }
   }
   
   // MARK: - modals
@@ -474,6 +492,29 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       if success {
         Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
       }
+    }
+  }
+  
+  private func displayCloudUpload() {
+    //    let modal = ModalConfirmation()
+    //    modal.message = "Upload this device's data to the cloud? (share with your other devices)"
+    //    modal.show(controller: self, dismissible: true) { (output) in
+    // TODO:
+    let database = FIRDatabase.database().reference()
+    database.updateChildValues([
+      "notes/654BA4C8-224B-4BCB-B74C-D42A2416F672/": ""
+      ])
+//    Convert.upload(notebook: notebook) { success in
+//      print("success \(success)")
+//    }
+    //    }
+  }
+  
+  private func displayCloudDownload() {
+    let modal = ModalConfirmation()
+    modal.message = "Download data from the cloud? (will overwrite this device's data)"
+    modal.show(controller: self, dismissible: true) { (output) in
+      // TODO:
     }
   }
   
