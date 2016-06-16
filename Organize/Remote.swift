@@ -46,6 +46,7 @@ struct Remote {
       }
     }
     
+    // MARK: - public
     static var user: FIRUser? {
       return FIRAuth.auth()?.currentUser ?? nil
     }
@@ -54,26 +55,15 @@ struct Remote {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      func complete(error error: Int?) {
-        loadingModal.hide {
-          if let error = error {
-            try! FIRAuth.auth()!.signOut()
-            completion(error: authError(code: error))
-          } else {
-            completion(error: nil)
-          }
-        }
-      }
-      
       // attempt sign up
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
           Report.sharedInstance.log("signup attempt: \(error)")
-          return complete(error: error.code)
+          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
         }
         guard let user = user else {
           Report.sharedInstance.log("signup missing user")
-          return complete(error: 17999)
+          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
         }
         
         // update profile
@@ -82,12 +72,12 @@ struct Remote {
         changeRequest.commitChangesWithCompletion() { error in
           if let error = error {
             Report.sharedInstance.log("sign up update profile: \(error)")
-            return complete(error: error.code)
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
           }
           
           guard let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString else {
             Report.sharedInstance.log("signup get device uuid")
-            return complete(error: 17999)
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
           }
           
           // update database
@@ -117,16 +107,16 @@ struct Remote {
             ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
               if let error = error {
                 Report.sharedInstance.log("signup update user database: \(error)")
-                return complete(error: 17999)
+                return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
               }
               
               // set default notebook
               Notebook.set(data: notebook) { success in
                 if !success {
                   Report.sharedInstance.log("signup save default notebook")
-                  return complete(error: 17999)
+                  return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
                 }
-                return complete(error: nil)
+                return finish(loadingModal: loadingModal, completion: completion, error: nil)
               }
           })
         }
@@ -137,192 +127,44 @@ struct Remote {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      func complete(error error: Int?) {
-        loadingModal.hide {
-          if let error = error {
-            try! FIRAuth.auth()!.signOut()
-            completion(error: authError(code: error))
-          } else {
-            completion(error: nil)
-          }
-        }
-      }
-      
-      // attempt login
-      FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
-        if let error = error {
-          Report.sharedInstance.log("login attempt: \(error)")
-          return complete(error: error.code)
-        }
-        guard let user = user else {
-          Report.sharedInstance.log("login missing user")
-          return complete(error: 17999)
-        }
-        guard let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString else {
-          Report.sharedInstance.log("login get device uuid")
-          return complete(error: 17999)
-        }
+      createLogin(email: email, password: password) { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
         
-        // update database (for email/pass changes)
-        let database = FIRDatabase.database().reference()
-        database.updateChildValues([
-          // user
-          "users/\(user.uid)/email": email,
-          "users/\(user.uid)/active": true,
-          "users/\(user.uid)/updated": FIRServerValue.timestamp(),
-          // devices
-          "users/\(user.uid)/devices/\(uuid)": true,
-          "devices/\(uuid)/users/\(user.uid)": true,
-          ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
-            if let error = error {
-              Report.sharedInstance.log("login update user database: \(error)")
-              return complete(error: 17999)
-            }
+        readDeviceUUID() { (error, uuid) in
+          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          
+          updateDatabaseLogin(email: email, user: user, uuid: uuid) { (error) in
+            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
             
-            // get active notebook id
-            database.child("users/\(user.uid)/notebook").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-              guard let remoteNotebookId = snapshot.value as? String else {
-                Report.sharedInstance.log("login missing notebook id")
-                return complete(error: 17999)
-              }
-              // get notebook
-              database.child("notebooks/\(remoteNotebookId)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                guard let remoteNotebook = snapshot.value as? [String: AnyObject] else {
-                  Report.sharedInstance.log("login missing notebook")
-                  return complete(error: 17999)
-                }
+            readDatabaseNotebookId(user: user) { (error, notebookId) in
+              if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+              
+              readDatabaseNotebook(notebookId: notebookId) { (error, notebook) in
+                if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
                 
-                guard let remoteNotebookTitle = remoteNotebook["title"] as? String else {
-                  Report.sharedInstance.log("login missing notebook title")
-                  return complete(error: 17999)
-                }
-                
-                // download and create notes
-                downloadNotes(remoteNotebook: remoteNotebook, completion: { (notes, display) in
-                  guard let notes = notes, let display = display else {
-                    Report.sharedInstance.log("login downloading and creating notes")
-                    return complete(error: 17999)
-                  }
+                readDatabaseNotebookNotes(notebook: notebook) { (error, notes) in
+                  if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
                   
-                  // create notebook
-                  let notebook = Notebook(id: remoteNotebookId, title: remoteNotebookTitle, notes: notes, display: display, history: [])
-                  
-                  // convert notebook to local
-                  Notebook.set(data: notebook) { success in
-                    if !success {
-                      Report.sharedInstance.log("login save notebook")
-                      return complete(error: 17999)
+                  convertNotesRemoteToLocal(notebook: notebook, notes: notes) { (error, notes, display) in
+                    if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                    
+                    convertNotebookRemoteToLocal(notebook: notebook, notes: notes, display: display) { (error, notebook) in
+                      if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                      
+                      updateLocalNotebook(notebook: notebook) { (error) in
+                        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                        
+                        finish(loadingModal: loadingModal, completion: completion, error: nil)
+                      }
                     }
-                    return complete(error: nil)
                   }
-                })
-              })
-            })
-        })
-      }
-    }
-    
-    static private func downloadNotes(remoteNotebook remoteNotebook: [String: AnyObject], completion: (notes: [Note]?, display: [Note]?) -> ()) {
-      guard let noteIds = remoteNotebook["notes"] as? [String], let displayIds = remoteNotebook["display"] as? [String]  else {
-        return completion(notes: [], display: [])
-      }
-      
-      var completed = false
-      let database = FIRDatabase.database().reference()
-      var count = noteIds.count
-      var random: [Note] = []
-      var notes: [Note] = []
-      var display: [Note] = []
-      
-      func createNote(id id: String, note: [String: AnyObject]) {
-        let body = note["body"] as? String
-        guard let title = note["title"] as? String,
-          let completed = note["completed"] as? Bool,
-          let collapsed = note["collapsed"] as? Bool,
-          let children = note["children"] as? Int,
-          let indent = note["indent"] as? Int else {
-            Report.sharedInstance.log("creating note \(id)")
-            return completion(notes: nil, display: nil)
-        }
-        
-        var reminder: Reminder?
-        if let noteReminder = note["reminder"] as? [String: AnyObject] {
-          guard let id = noteReminder["id"] as? String,
-            let uid = noteReminder["uid"] as? Double,
-            let date = noteReminder["date"] as? Double,
-            let type = noteReminder["type"] as? Int else {
-              Report.sharedInstance.log("creating reminder")
-              return completion(notes: nil, display: nil)
-          }
-          
-          let reminderType = ReminderType(rawValue: type) ?? ReminderType(rawValue: 0)!
-          let reminderDate = NSDate(timeIntervalSince1970: date)
-          reminder = Reminder(id: id, uid: uid, type: reminderType, date: reminderDate)
-        }
-        
-        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
-        random.append(note)
-      }
-      
-      func orderNotesAndDisplay() {
-        for id in noteIds {
-          for i in 0..<random.count {
-            let note = random[i]
-            if note.id == id {
-              notes.append(note)
-              random.removeAtIndex(i)
-              break
-            }
-          }
-        }
-        var found = 0
-        for id in displayIds {
-          for i in found..<notes.count {
-            let note = notes[i]
-            if note.id == id {
-              found += 1
-              display.append(note)
-              break
+                }
+              }
             }
           }
         }
       }
-      
-      func updateReminders() {
-        LocalNotification.sharedInstance.destroy()
-        for note in notes {
-          if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
-            // TODO: notebook reminder func needs to be the same
-            // TODO: push notifications accept before download on login
-            LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
-          }
-        }
-      }
-      
-      // download notes
-      for id in noteIds {
-        database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-          guard let remoteNote = snapshot.value as? [String: AnyObject] else {
-            if !completed {
-              completed = true
-              return completion(notes: nil, display: nil)
-            }
-            return
-          }
-          
-          // create note
-          createNote(id: id, note: remoteNote)
-          
-          // complete
-          count -= 1
-          if count == 0 {
-            orderNotesAndDisplay()
-            updateReminders()
-            return completion(notes: notes, display: display)
-          }
-        })
-      }
-      
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
@@ -379,20 +221,10 @@ struct Remote {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      func complete(error error: Int?) {
-        loadingModal.hide {
-          if let error = error {
-            completion(error: authError(code: error))
-          } else {
-            completion(error: nil)
-          }
-        }
-      }
-      
       // get user
       guard let user = Remote.Auth.user else {
         Report.sharedInstance.log("logout missing user")
-        return complete(error: 17999)
+        return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
       }
       
       // update database
@@ -401,23 +233,243 @@ struct Remote {
       database.updateChildValues(update, withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
         if let error = error {
           Report.sharedInstance.log("logout update notebook database: \(error)")
-          return complete(error: 17999)
+          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
         }
         
         // clear local notebook
         Notebook.set(data: Notebook(notes: [])) { success in
           if !success {
             Report.sharedInstance.log("logout save notebook")
-            return complete(error: 17999)
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
           }
           // clear reminders
           LocalNotification.sharedInstance.destroy()
           
           // logout
           try! FIRAuth.auth()!.signOut()
-          return complete(error: nil)
+          return finish(loadingModal: loadingModal, completion: completion, error: nil)
         }
       })
+    }
+    
+    // MARK: - create
+    static private func createLogin(email email: String, password: String, completion: (error: String?, user: FIRUser?) -> ()) {
+      FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
+        if let error = error {
+          Report.sharedInstance.log("get login attempt: \(error)")
+          completion(error: authError(code: error.code), user: user)
+        } else if user == nil {
+          Report.sharedInstance.log("get login user")
+          completion(error: authError(code: 17999), user: user)
+        } else {
+          completion(error: nil, user: user)
+        }
+      }
+    }
+    
+    // MARK: - read
+    static private func readDeviceUUID(completion: (error: String?, uuid: String) -> ()) {
+      if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+        completion(error: nil, uuid: uuid)
+      } else {
+        Report.sharedInstance.log("get device uuid")
+        completion(error: authError(code: 17999), uuid: "")
+      }
+    }
+    
+    // MARK: - database
+    static private func updateDatabaseLogin(email email: String, user: FIRUser, uuid: String, completion: (error: String?) -> ()) {
+      let database = FIRDatabase.database().reference()
+      database.updateChildValues([
+        // user
+        "users/\(user.uid)/email": email,
+        "users/\(user.uid)/active": true,
+        "users/\(user.uid)/updated": FIRServerValue.timestamp(),
+        // devices
+        "users/\(user.uid)/devices/\(uuid)": true,
+        "devices/\(uuid)/users/\(user.uid)": true,
+        ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
+          if let error = error {
+            Report.sharedInstance.log("login update user database: \(error)")
+            completion(error: authError(code: 17999))
+          } else {
+            completion(error: nil)
+          }
+      })
+    }
+    
+    static private func readDatabaseNotebookId(user user: FIRUser, completion: (error: String?, notebookId: String) -> ()) {
+      // get active notebook id
+      let database = FIRDatabase.database().reference()
+      database.child("users/\(user.uid)/notebook").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        if let remoteNotebookId = snapshot.value as? String {
+          completion(error: nil, notebookId: remoteNotebookId)
+        } else {
+          Report.sharedInstance.log("missing notebook id")
+          completion(error: authError(code: 17999), notebookId: "")
+        }
+      })
+    }
+    
+    static private func readDatabaseNotebook(notebookId notebookId: String, completion: (error: String?, notebook: [String: AnyObject]) -> ()) {
+      let database = FIRDatabase.database().reference()
+      database.child("notebooks/\(notebookId)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        if var notebook = snapshot.value as? [String: AnyObject] {
+          notebook["id"] = notebookId
+          completion(error: nil, notebook: notebook)
+        } else {
+          Report.sharedInstance.log("missing notebook")
+          completion(error: authError(code: 17999), notebook: [:])
+        }
+      })
+    }
+    
+    static private func readDatabaseNotebookNotes(notebook notebook: [String: AnyObject], completion: (error: String?, notes: [[String: AnyObject]]) -> ()) {
+      guard let noteIds = notebook["notes"] as? [String] else {
+        return completion(error: nil, notes: [])
+      }
+      
+      // download notes
+      var count: Int = noteIds.count
+      var error: Bool = false
+      var notes: [[String: AnyObject]] = []
+      let database = FIRDatabase.database().reference()
+      for id in noteIds {
+        database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+          // catch error (only report once)
+          guard var note = snapshot.value as? [String: AnyObject] else {
+            if !error {
+              error = true
+              Report.sharedInstance.log("missing note")
+              return completion(error: authError(code: 17999), notes: [])
+            }
+            return
+          }
+          
+          // save note
+          note["id"] = id
+          notes.append(note)
+          
+          // complete
+          count -= 1
+          if count == 0 {
+            return completion(error: nil, notes: notes)
+          }
+        })
+      }
+    }
+    
+    static private func updateLocalNotebook(notebook notebook: Notebook, completion: completionBlock) {
+      Notebook.set(data: notebook) { success in
+        if !success {
+          Report.sharedInstance.log("save notebook")
+          completion(error: authError(code: 17999))
+        } else {
+          completion(error: nil)
+        }
+      }
+    }
+    
+    // MARK: - finish
+    static private func finish(loadingModal loadingModal: ModalLoading, completion: completionBlock, error: String?) {
+      loadingModal.hide {
+        if let error = error {
+          try! FIRAuth.auth()!.signOut()
+          completion(error: error)
+        } else {
+          completion(error: nil)
+        }
+      }
+    }
+    
+    // MARK: - convert
+    static private func convertNotesRemoteToLocal(notebook notebook: [String: AnyObject], notes: [[String: AnyObject]], completion: (error: String?, notes: [Note], display: [Note]) -> ()) {
+      // quick exit
+      guard let noteIds = notebook["notes"] as? [String], let displayIds = notebook["display"] as? [String] else {
+        return completion(error: nil, notes: [], display: [])
+      }
+      
+      // dictionary to Note
+      var unorganized: [Note] = []
+      for note in notes {
+        let body = note["body"] as? String
+        guard let id = note["id"] as? String,
+          let title = note["title"] as? String,
+          let completed = note["completed"] as? Bool,
+          let collapsed = note["collapsed"] as? Bool,
+          let children = note["children"] as? Int,
+          let indent = note["indent"] as? Int else {
+            Report.sharedInstance.log("creating note")
+            return completion(error: authError(code: 17999), notes: [], display: [])
+        }
+        
+        var reminder: Reminder?
+        if let noteReminder = note["reminder"] as? [String: AnyObject] {
+          guard let id = noteReminder["id"] as? String,
+            let uid = noteReminder["uid"] as? Double,
+            let date = noteReminder["date"] as? Double,
+            let type = noteReminder["type"] as? Int else {
+              Report.sharedInstance.log("creating reminder")
+              return completion(error: authError(code: 17999), notes: [], display: [])
+          }
+          
+          let reminderType = ReminderType(rawValue: type) ?? ReminderType(rawValue: 0)!
+          let reminderDate = NSDate(timeIntervalSince1970: date)
+          reminder = Reminder(id: id, uid: uid, type: reminderType, date: reminderDate)
+        }
+        
+        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
+        unorganized.append(note)
+      }
+      
+      // unorganize to note and display
+      var notes: [Note] = []
+      var display: [Note] = []
+      
+      for id in noteIds {
+        for i in 0..<unorganized.count {
+          let note = unorganized[i]
+          if note.id == id {
+            notes.append(note)
+            unorganized.removeAtIndex(i)
+            break
+          }
+        }
+      }
+      
+      var found = 0
+      for id in displayIds {
+        for i in found..<notes.count {
+          let note = notes[i]
+          if note.id == id {
+            found += 1
+            display.append(note)
+            break
+          }
+        }
+      }
+      
+      // update local reminders
+      LocalNotification.sharedInstance.destroy()
+      for note in notes {
+        if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
+          // TODO: notebook reminder func needs to be the same
+          // TODO: push notifications accept before download on login
+          LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
+        }
+      }
+      
+      return completion(error: nil, notes: notes, display: display)
+    }
+    
+    static private func convertNotebookRemoteToLocal(notebook notebook: [String: AnyObject], notes: [Note], display: [Note], completion: (error: String?, notebook: Notebook) -> ()) {
+      guard let title = notebook["title"] as? String, let id = notebook["id"] as? String else {
+        Report.sharedInstance.log("missing notebook info")
+        return completion(error: authError(code: 17999), notebook: Notebook(title: ""))
+      }
+      
+      let notebook = Notebook(id: id, title: title, notes: notes, display: display, history: [])
+      return completion(error: nil, notebook: notebook)
     }
     
     static func upload(notebook notebook: Notebook, user: FIRUser) -> [String: AnyObject] {
