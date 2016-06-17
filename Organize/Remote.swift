@@ -53,27 +53,28 @@ struct Remote {
     }
     
     static func signup(controller controller: UIViewController, email: String, password: String, name: String, completion: completionBlock) {
+      let logout = true
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
       createSignup(email: email, password: password) { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         
         createProfile(user: user, displayName: name) { (error) in
-          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
           
           readDeviceUUID { (error, uuid) in
-            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+            if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
             
             let notebook = Notebook(title: Constant.App.name)
             updateDatabaseSignup(user: user, email: email, name: name, uuid: uuid, notebook: notebook) { (error) in
-              if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+              if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
               
               updateLocalNotebook(notebook: notebook) { (error) in
-                if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                 
-                return finish(loadingModal: loadingModal, completion: completion, error: nil)
+                return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
               }
             }
           }
@@ -82,38 +83,39 @@ struct Remote {
     }
     
     static func login(controller controller: UIViewController, email: String, password: String, completion: completionBlock) {
+      let logout = true
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
       createLogin(email: email, password: password) { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         
         readDeviceUUID { (error, uuid) in
-          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
           
           updateDatabaseLogin(email: email, user: user, uuid: uuid) { (error) in
-            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+            if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
             
             readDatabaseNotebookId(user: user) { (error, notebookId) in
-              if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+              if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
               
               readDatabaseNotebook(notebookId: notebookId) { (error, notebook) in
-                if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                 
                 readDatabaseNotebookNotes(notebook: notebook) { (error, notes) in
-                  if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                  if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                   
                   convertNotesRemoteToLocal(notebook: notebook, notes: notes) { (error, notes, display) in
-                    if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                    if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                     
                     convertNotebookRemoteToLocal(notebook: notebook, notes: notes, display: display) { (error, notebook) in
-                      if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                      if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                       
                       updateLocalNotebook(notebook: notebook) { (error) in
-                        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                         
-                        return finish(loadingModal: loadingModal, completion: completion, error: nil)
+                        return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
                       }
                     }
                   }
@@ -126,96 +128,182 @@ struct Remote {
     }
     
     static func logout(controller controller: UIViewController, notebook: Notebook, completion: completionBlock) {
+      let logout = true
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
+      if !Util.hasNetworkConnection {
+        return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: 17020))
+      }
+      
       readUser { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         let update = convertNotebookLocalToRemote(notebook: notebook, user: user)
         
         updateDatabase(data: update) { (error) in
-          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
           let notebook =  Notebook(notes: [])
           
           updateLocalNotebook(notebook: notebook) { (error) in
-            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+            if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
             
             LocalNotification.sharedInstance.destroy()
             try! FIRAuth.auth()!.signOut()
-            return finish(loadingModal: loadingModal, completion: completion, error: nil)
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
           }
         }
       }
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
+      let logout = true
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
       FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
         if let error = error {
-          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+          return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: error.code))
         } else {
-          return finish(loadingModal: loadingModal, completion: completion, error: nil)
+          return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
         }
       }
     }
     
     static func changeEmail(controller controller: UIViewController, email: String, completion: completionBlock) {
+      let logout = false
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
       readUser { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         
         user.updateEmail(email) { error in
           if let error = error {
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: error.code))
           } else {
-            return finish(loadingModal: loadingModal, completion: completion, error: nil)
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
           }
         }
       }
     }
     
     static func changePassword(controller controller: UIViewController, password: String, completion: completionBlock) {
+      let logout = false
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
       readUser { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         
         user.updatePassword(password) { error in
           if let error = error {
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: error.code))
           } else {
-            return finish(loadingModal: loadingModal, completion: completion, error: nil)
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
           }
         }
       }
     }
     
     static func delete(controller controller: UIViewController, completion: completionBlock) {
+      let logout = false
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
+      if !Util.hasNetworkConnection {
+        return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: 17020))
+      }
+      
       readUser { (error, user) in
-        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         let user = user!
         let delete: [String: AnyObject] = ["users/\(user.uid)/active": false]
         
         updateDatabase(data: delete) { (error) in
-          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
         }
         
         FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
           if let error = error {
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: error.code))
           } else {
-            return finish(loadingModal: loadingModal, completion: completion, error: nil)
+            return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
+          }
+        }
+      }
+    }
+    
+    static func upload(notebook notebook: Notebook, completion: completionBlock? = nil) {
+      readUser { (error, user) in
+        if let error = error {
+          Report.sharedInstance.log("upload get user error: \(error)")
+          if let completion = completion {
+            return completion(error: error)
+          }
+        }
+        
+        let user = user!
+        let update = convertNotebookLocalToRemote(notebook: notebook, user: user)
+        
+        updateDatabase(data: update) { (error) in
+          if let error = error {
+            Report.sharedInstance.log("upload update database error: \(error)")
+            if let completion = completion {
+              return completion(error: error)
+            }
+            
+          }
+          if let completion = completion {
+            return completion(error: nil)
+          }
+        }
+      }
+    }
+    
+    
+    static func download(controller controller: UIViewController, completion: completionBlock) {
+      let logout = false
+      let loadingModal = ModalLoading()
+      loadingModal.show(controller: controller)
+      
+      if !Util.hasNetworkConnection {
+        return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: authError(code: 17020))
+      }
+      
+      readUser { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+        let user = user!
+        
+        readDeviceUUID { (error, uuid) in
+          if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+          
+          readDatabaseNotebookId(user: user) { (error, notebookId) in
+            if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+            
+            readDatabaseNotebook(notebookId: notebookId) { (error, notebook) in
+              if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+              
+              readDatabaseNotebookNotes(notebook: notebook) { (error, notes) in
+                if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+                
+                convertNotesRemoteToLocal(notebook: notebook, notes: notes) { (error, notes, display) in
+                  if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+                  
+                  convertNotebookRemoteToLocal(notebook: notebook, notes: notes, display: display) { (error, notebook) in
+                    if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+                    
+                    updateLocalNotebook(notebook: notebook) { (error) in
+                      if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
+                      
+                      return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -414,10 +502,12 @@ struct Remote {
     }
     
     // MARK: - finish
-    static private func finish(loadingModal loadingModal: ModalLoading, completion: completionBlock, error: String?) {
+    static private func finish(loadingModal loadingModal: ModalLoading, logout: Bool, completion: completionBlock, error: String?) {
       loadingModal.hide {
         if let error = error {
-          try! FIRAuth.auth()!.signOut()
+          if logout {
+            try! FIRAuth.auth()!.signOut()
+          }
           completion(error: error)
         } else {
           completion(error: nil)

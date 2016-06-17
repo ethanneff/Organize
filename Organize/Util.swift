@@ -1,6 +1,7 @@
 import UIKit
-import AVFoundation
+import AVFoundation // sounds
 import Firebase
+import SystemConfiguration // network connection
 
 class Util {
   // multiple story board navigation
@@ -131,6 +132,28 @@ class Util {
   // network indicator
   class func toggleNetworkIndicator(on on: Bool) {
     UIApplication.sharedApplication().networkActivityIndicatorVisible = on
+  }
+  
+  static var hasNetworkConnection: Bool {
+    var zeroAddress = sockaddr_in()
+    zeroAddress.sin_len = UInt8(sizeofValue(zeroAddress))
+    zeroAddress.sin_family = sa_family_t(AF_INET)
+    
+    guard let defaultRouteReachability = withUnsafePointer(&zeroAddress, {
+      SCNetworkReachabilityCreateWithAddress(nil, UnsafePointer($0))
+    }) else {
+      return false
+    }
+    
+    var flags : SCNetworkReachabilityFlags = []
+    if !SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
+      return false
+    }
+    
+    let isReachable = flags.contains(.Reachable)
+    let needsConnection = flags.contains(.ConnectionRequired)
+    
+    return (isReachable && !needsConnection)
   }
   
   

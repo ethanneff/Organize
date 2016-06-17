@@ -47,6 +47,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   deinit {
     print("list deinit)")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillTerminateNotification, object: nil)
     // FIXME: dismiss viewcontollor does not call deinit (reference cycle) (has to do with menu)
   }
   
@@ -79,6 +81,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.reloadData()
   }
   
+  internal func applicationDidBecomeInactiveNotification() {
+    Remote.Auth.upload(notebook: notebook)
+  }
+  
   private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
@@ -95,6 +101,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func loadListeners() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillTerminateNotification, object: nil)
   }
   
   private func loadRemoteConfig() {
@@ -261,14 +269,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    if Constant.App.release {
-      notebook.display = notebook.notes
-    } else {
-      notebook = Notebook.getDefault()
+    Remote.Auth.download(controller: self) { (error) in
+      refreshControl.endRefreshing()
+      if let error = error {
+        let modal = ModalError()
+        modal.message = error
+        modal.show(controller: self)
+        return
+        
+      }
+      self.loadNotebook()
     }
-    tableView.reloadData()
-    notebook.uncollapseAll(tableView: tableView)
-    refreshControl.endRefreshing()
   }
   
   // MARK - swipe
@@ -343,7 +354,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
       // FIXME: undo in v2
-      displayUndo()
+      // displayUndo()
     }
   }
   
@@ -363,7 +374,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .AccountEmail: displayAccountEmail()
     case .AccountPassword: displayAccountPassword()
     case .AccountDelete: displayAccountDelete()
-    case .AccountLogout: logout()
+    case .AccountLogout: attemptLogout()
       
     default: break
     }
@@ -393,7 +404,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  private func logout() {
+  private func attemptLogout() {
     Remote.Auth.logout(controller: self, notebook: notebook) { error in
       if let error = error {
         let modal = ModalError()
@@ -401,9 +412,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         modal.show(controller: self)
         return
       }
-      Report.sharedInstance.track(event: "logout")
-      self.dismissViewControllerAnimated(true, completion: nil)
+      self.logout()
     }
+  }
+  
+  private func logout() {
+    Report.sharedInstance.track(event: "logout")
+    self.dismissViewControllerAnimated(true, completion: nil)
   }
   
   // MARK: - modals
@@ -533,8 +548,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
           let modal = ModalError()
           modal.message = message
           modal.show(controller: self) { (output) in
-            if let _ = error { } else {
-              self.logout()
+            if let _ = error {
+              // close
+            } else {
+              self.attemptLogout()
             }
           }
         })
@@ -542,6 +559,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         let modal = ModalError()
         modal.message = AccessBusinessLogic.ErrorMessage.EmailInvalid.message
         modal.show(controller: self) { (output) in
+          // TODO: pass previous text through
           self.displayAccountEmail()
         }
       }
@@ -555,12 +573,14 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.show(controller: self, dismissible: true) { (output) in
       if let password = output[ModalTextField.OutputKeys.Text.rawValue] as? String where password.isPassword {
         Remote.Auth.changePassword(controller: self, password: password, completion: { error in
-          let message = error ?? "Log back in with your new password"
+          let message = error ?? "Log back in with your new email"
           let modal = ModalError()
           modal.message = message
           modal.show(controller: self) { (output) in
-            if let _ = error { } else {
-              self.logout()
+            if let _ = error {
+              // close
+            } else {
+              self.attemptLogout()
             }
           }
         })
