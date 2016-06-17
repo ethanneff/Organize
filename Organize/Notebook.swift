@@ -4,12 +4,15 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - PROPERTIES
   var title: String = "Organize" {
     didSet {
+      updated = NSDate()
       Notebook.set(data: self)
     }
   }
   var id: String
   var notes: [Note] = []
   var display: [Note] = []
+  var created: NSDate
+  var updated: NSDate
   private var history: [NotebookHistory] = []
   override var description: String {
     var output: String = id + "\n" + title + "\n" + notes.description + "\n" + display.description
@@ -25,6 +28,8 @@ class Notebook: NSObject, NSCoding, Copying {
   init(notes: [Note]) {
     self.notes = notes
     self.id = NSUUID().UUIDString
+    self.created = NSDate()
+    self.updated = NSDate()
   }
   
   convenience init(title: String) {
@@ -41,12 +46,14 @@ class Notebook: NSObject, NSCoding, Copying {
     self.history = history
   }
   
-  convenience init(id: String, title: String, notes: [Note], display: [Note], history: [NotebookHistory]) {
+  convenience init(id: String, title: String, notes: [Note], display: [Note], history: [NotebookHistory], created: NSDate, updated: NSDate) {
     self.init(notes: notes)
     self.id = id
     self.title = title
     self.display = display
     self.history = history
+    self.created = created
+    self.updated = updated
   }
   
   // MARK: - COPY
@@ -55,6 +62,8 @@ class Notebook: NSObject, NSCoding, Copying {
     notes = original.notes
     display = original.display
     history = original.history
+    created = original.created
+    updated = original.updated
   }
   
   // MARK: - UNDO
@@ -154,6 +163,7 @@ class Notebook: NSObject, NSCoding, Copying {
           }
           
           // remove
+          noteChild.updated = NSDate()
           self.reminderDelete(note: self.notes[next])
           self.notes.removeAtIndex(next)
         }
@@ -185,6 +195,7 @@ class Notebook: NSObject, NSCoding, Copying {
         }
         let note = self.notes[index]
         if note.completed {
+          note.updated = NSDate()
           self.reminderDelete(note: self.notes[index])
           self.notes.removeAtIndex(index)
           continue
@@ -278,6 +289,7 @@ class Notebook: NSObject, NSCoding, Copying {
           break
         }
         noteChild.completed = true
+        noteChild.updated = NSDate()
         self.reminderDelete(note: noteChild)
       }
       
@@ -352,6 +364,7 @@ class Notebook: NSObject, NSCoding, Copying {
         noteChild.completed = false
         noteChild.collapsed = false
         noteChild.children = 0
+        noteChild.updated = NSDate()
       }
       
       // note insert
@@ -847,6 +860,7 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // logic
       let note = self.display[indexPath.row]
+      note.updated = NSDate()
       if reminderType == .Date {
         if date != nil {
           self.reminderDelete(note: note)
@@ -908,6 +922,7 @@ class Notebook: NSObject, NSCoding, Copying {
         noteChild.note.completed = completed
       }
       
+      noteChild.note.updated = NSDate()
       noteChildren.append(noteChild)
     }
     return noteChildren
@@ -957,6 +972,8 @@ class Notebook: NSObject, NSCoding, Copying {
     static let notes = "notes"
     static let display = "display"
     static let history = "history"
+    static let created = "created"
+    static let updated = "updated"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
@@ -965,6 +982,8 @@ class Notebook: NSObject, NSCoding, Copying {
     aCoder.encodeObject(notes, forKey: PropertyKey.notes)
     aCoder.encodeObject(display, forKey: PropertyKey.display)
     aCoder.encodeObject(history, forKey: PropertyKey.history)
+    aCoder.encodeObject(created, forKey: PropertyKey.created)
+    aCoder.encodeObject(updated, forKey: PropertyKey.updated)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
@@ -973,7 +992,9 @@ class Notebook: NSObject, NSCoding, Copying {
     let notes = aDecoder.decodeObjectForKey(PropertyKey.notes) as! [Note]
     let display = aDecoder.decodeObjectForKey(PropertyKey.display) as! [Note]
     let history = aDecoder.decodeObjectForKey(PropertyKey.history) as! [NotebookHistory]
-    self.init(id: id, title: title, notes: notes, display: display, history: history)
+    let created = aDecoder.decodeObjectForKey(PropertyKey.created) as! NSDate
+    let updated = aDecoder.decodeObjectForKey(PropertyKey.updated) as! NSDate
+    self.init(id: id, title: title, notes: notes, display: display, history: history, created: created, updated: updated)
   }
   
   // MARK: - ACCESS

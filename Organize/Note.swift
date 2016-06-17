@@ -27,11 +27,13 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   var id: String
   var title: String
   var body: String?
-  var completed: Bool = false
-  var collapsed: Bool = false
-  var children: Int = 0
-  var indent: Int = 0
+  var completed: Bool
+  var collapsed: Bool
+  var children: Int
+  var indent: Int
   var reminder: Reminder?
+  var created: NSDate
+  var updated: NSDate
   override var description: String {
     return "\(title)"
   }
@@ -40,6 +42,12 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   init(title: String) {
     self.title = title
     self.id = NSUUID().UUIDString
+    self.completed = false
+    self.collapsed = false
+    self.children = 0
+    self.indent = 0
+    self.created = NSDate()
+    self.updated = NSDate()
   }
   
   convenience init(title: String, body: String?) {
@@ -72,7 +80,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.reminder = reminder
   }
   
-  convenience init(id: String, title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int, reminder: Reminder?) {
+  convenience init(id: String, title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int, reminder: Reminder?, created: NSDate, updated: NSDate) {
     self.init(title: title)
     self.id = id
     self.body = body
@@ -81,6 +89,8 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.children = children
     self.indent = indent
     self.reminder = reminder
+    self.created = created
+    self.updated = updated
   }
   
   // MARK: - COPY
@@ -93,6 +103,8 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     children = original.children
     indent = original.indent
     reminder = original.reminder
+    created = original.created
+    updated = original.updated
   }
   
   // MARK: - SAVE
@@ -105,6 +117,8 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     static let children: String = "children"
     static let indent: String = "indent"
     static let reminder: String = "reminder"
+    static let created: String = "created"
+    static let updated: String = "updated"
   }
   
   func encodeWithCoder(aCoder: NSCoder) {
@@ -116,6 +130,8 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     aCoder.encodeObject(children, forKey: PropertyKey.children)
     aCoder.encodeObject(indent, forKey: PropertyKey.indent)
     aCoder.encodeObject(reminder, forKey: PropertyKey.reminder)
+    aCoder.encodeObject(created, forKey: PropertyKey.created)
+    aCoder.encodeObject(updated, forKey: PropertyKey.updated)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
@@ -127,6 +143,8 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     let children = aDecoder.decodeObjectForKey(PropertyKey.children) as! Int
     let indent = aDecoder.decodeObjectForKey(PropertyKey.indent) as! Int
     let reminder = aDecoder.decodeObjectForKey(PropertyKey.reminder) as? Reminder
-    self.init(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
+    let created = aDecoder.decodeObjectForKey(PropertyKey.created) as! NSDate
+    let updated = aDecoder.decodeObjectForKey(PropertyKey.updated) as! NSDate
+    self.init(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder, created: created, updated: updated)
   }
 }

@@ -402,8 +402,8 @@ struct Remote {
         "notebooks/\(notebook.id)/display": [],
         "notebooks/\(notebook.id)/user": user.uid,
         "notebooks/\(notebook.id)/active": true,
-        "notebooks/\(notebook.id)/created": FIRServerValue.timestamp(),
-        "notebooks/\(notebook.id)/updated": FIRServerValue.timestamp(),
+        "notebooks/\(notebook.id)/created": notebook.created.timeIntervalSince1970,
+        "notebooks/\(notebook.id)/updated": notebook.updated.timeIntervalSince1970,
         ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
           if let error = error {
             Report.sharedInstance.log("signup update user database: \(error)")
@@ -531,7 +531,9 @@ struct Remote {
           let completed = note["completed"] as? Bool,
           let collapsed = note["collapsed"] as? Bool,
           let children = note["children"] as? Int,
-          let indent = note["indent"] as? Int else {
+          let indent = note["indent"] as? Int,
+          let created = note["created"] as? Double,
+          let updated = note["updated"] as? Double else {
             Report.sharedInstance.log("creating note")
             return completion(error: authError(code: 17999), notes: [], display: [])
         }
@@ -541,17 +543,18 @@ struct Remote {
           guard let id = noteReminder["id"] as? String,
             let uid = noteReminder["uid"] as? Double,
             let date = noteReminder["date"] as? Double,
-            let type = noteReminder["type"] as? Int else {
+            let type = noteReminder["type"] as? Int,
+            let created = note["created"] as? Double,
+            let updated = note["updated"] as? Double else {
               Report.sharedInstance.log("creating reminder")
               return completion(error: authError(code: 17999), notes: [], display: [])
           }
           
           let reminderType = ReminderType(rawValue: type) ?? ReminderType(rawValue: 0)!
-          let reminderDate = NSDate(timeIntervalSince1970: date)
-          reminder = Reminder(id: id, uid: uid, type: reminderType, date: reminderDate)
+          reminder = Reminder(id: id, uid: uid, type: reminderType, date: NSDate(timeIntervalSince1970: date), created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
         }
         
-        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder)
+        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder, created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
         unorganized.append(note)
       }
       
@@ -586,7 +589,6 @@ struct Remote {
       LocalNotification.sharedInstance.destroy()
       for note in notes {
         if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
-          // TODO: notebook reminder func needs to be the same
           // TODO: push notifications accept before download on login
           LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
         }
@@ -596,12 +598,15 @@ struct Remote {
     }
     
     static private func convertNotebookRemoteToLocal(notebook notebook: [String: AnyObject], notes: [Note], display: [Note], completion: (error: String?, notebook: Notebook) -> ()) {
-      guard let title = notebook["title"] as? String, let id = notebook["id"] as? String else {
+      guard let title = notebook["title"] as? String,
+        let id = notebook["id"] as? String,
+        let created = notebook["created"] as? Double,
+        let updated = notebook["updated"] as? Double else {
         Report.sharedInstance.log("missing notebook info")
         return completion(error: authError(code: 17999), notebook: Notebook(title: ""))
       }
       
-      let notebook = Notebook(id: id, title: title, notes: notes, display: display, history: [])
+      let notebook = Notebook(id: id, title: title, notes: notes, display: display, history: [], created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
       return completion(error: nil, notebook: notebook)
     }
     
@@ -611,7 +616,7 @@ struct Remote {
       var notes: [String] = []
       var display: [String] = []
       update["notebooks/\(notebook.id)/title"] = notebook.title
-      update["notebooks/\(notebook.id)/updated"] = FIRServerValue.timestamp()
+      update["notebooks/\(notebook.id)/updated"] = notebook.updated.timeIntervalSince1970
       // create new notes
       for note in notebook.notes {
         update["notes/\(note.id)/user"] = user.uid
@@ -622,16 +627,16 @@ struct Remote {
         update["notes/\(note.id)/collapsed"] = note.collapsed
         update["notes/\(note.id)/children"] = note.children
         update["notes/\(note.id)/indent"] = note.indent
-        update["notes/\(note.id)/created"] = FIRServerValue.timestamp() // TODO: grab from note create
-        update["notes/\(note.id)/updated"] = FIRServerValue.timestamp() // TODO: grab from note update
+        update["notes/\(note.id)/created"] = note.created.timeIntervalSince1970
+        update["notes/\(note.id)/updated"] = note.updated.timeIntervalSince1970
         // create new reminders
         if let reminder = note.reminder {
           update["notes/\(note.id)/reminder/id"] = reminder.id
           update["notes/\(note.id)/reminder/uid"] = reminder.uid
           update["notes/\(note.id)/reminder/date"] = reminder.date.timeIntervalSince1970
           update["notes/\(note.id)/reminder/type"] = reminder.type.rawValue
-          update["notes/\(note.id)/reminder/created"] = FIRServerValue.timestamp() // TODO: grab from reminder created
-          update["notes/\(note.id)/reminder/updated"] = FIRServerValue.timestamp() // TODO: grab from reminder updated
+          update["notes/\(note.id)/reminder/created"] = reminder.created.timeIntervalSince1970
+          update["notes/\(note.id)/reminder/updated"] = reminder.updated.timeIntervalSince1970
         } else {
           update["notes/\(note.id)/reminder"] = false
         }
