@@ -67,7 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   private func updateFirebase() {
     listenFCM()
-    Remote.Database.Device.open()
+    Remote.Device.open()
   }
   
   // MARK: - deep links
@@ -135,7 +135,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       tokenString += String(format: "%02.2hhx", arguments: [tokenChars[i]])
     }
     // save token
-    Remote.Database.Device.updatePushAPN(token: tokenString)
+    Remote.Device.updatePushAPN(token: tokenString)
   }
   
   func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
@@ -155,7 +155,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func receivedFCM(notification: NSNotification) {
     if let token = FIRInstanceID.instanceID().token() {
-      Remote.Database.Device.updatePushFCM(token: token)
+      Remote.Device.updatePushFCM(token: token)
       connectFCM()
       removeFCM()
     }

@@ -12,6 +12,7 @@ import Firebase
 struct Remote {
   
   typealias completionBlock = (error: String?) -> ()
+  static private let database = FIRDatabase.database().reference()
   
   struct Auth {
     // TODO: make background threads
@@ -55,70 +56,27 @@ struct Remote {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      // attempt sign up
-      FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
-        if let error = error {
-          Report.sharedInstance.log("signup attempt: \(error)")
-          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
-        }
-        guard let user = user else {
-          Report.sharedInstance.log("signup missing user")
-          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
-        }
+      createSignup(email: email, password: password) { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
         
-        // update profile
-        let changeRequest = user.profileChangeRequest()
-        changeRequest.displayName = name
-        changeRequest.commitChangesWithCompletion() { error in
-          if let error = error {
-            Report.sharedInstance.log("sign up update profile: \(error)")
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
-          }
+        createProfile(user: user, displayName: name) { (error) in
+          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
           
-          guard let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString else {
-            Report.sharedInstance.log("signup get device uuid")
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
-          }
-          
-          // update database
-          let database = FIRDatabase.database().reference()
-          let notebook = Notebook(title: Constant.App.name)
-          database.updateChildValues([
-            // user
-            "users/\(user.uid)/email": email,
-            "users/\(user.uid)/name": name,
-            "users/\(user.uid)/active": true,
-            "users/\(user.uid)/notebook": notebook.id,
-            "users/\(user.uid)/notebooks/\(notebook.id)": true,
-            "users/\(user.uid)/updated": FIRServerValue.timestamp(),
-            "users/\(user.uid)/created": FIRServerValue.timestamp(),
-            // devices
-            "users/\(user.uid)/devices/\(uuid)": true,
-            "devices/\(uuid)/users/\(user.uid)": true,
-            // notebook
-            "notebooks/\(notebook.id)/title": notebook.title,
-            "notebooks/\(notebook.id)/tags": [],
-            "notebooks/\(notebook.id)/notes": [],
-            "notebooks/\(notebook.id)/display": [],
-            "notebooks/\(notebook.id)/user": user.uid,
-            "notebooks/\(notebook.id)/active": true,
-            "notebooks/\(notebook.id)/created": FIRServerValue.timestamp(),
-            "notebooks/\(notebook.id)/updated": FIRServerValue.timestamp(),
-            ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
-              if let error = error {
-                Report.sharedInstance.log("signup update user database: \(error)")
-                return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
-              }
+          readDeviceUUID { (error, uuid) in
+            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+            
+            let notebook = Notebook(title: Constant.App.name)
+            updateDatabaseSignup(user: user, email: email, name: name, uuid: uuid, notebook: notebook) { (error) in
+              if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
               
-              // set default notebook
-              Notebook.set(data: notebook) { success in
-                if !success {
-                  Report.sharedInstance.log("signup save default notebook")
-                  return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
-                }
+              updateLocalNotebook(notebook: notebook) { (error) in
+                if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+                
                 return finish(loadingModal: loadingModal, completion: completion, error: nil)
               }
-          })
+            }
+          }
         }
       }
     }
@@ -131,7 +89,7 @@ struct Remote {
         if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
         let user = user!
         
-        readDeviceUUID() { (error, uuid) in
+        readDeviceUUID { (error, uuid) in
           if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
           
           updateDatabaseLogin(email: email, user: user, uuid: uuid) { (error) in
@@ -155,7 +113,7 @@ struct Remote {
                       updateLocalNotebook(notebook: notebook) { (error) in
                         if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
                         
-                        finish(loadingModal: loadingModal, completion: completion, error: nil)
+                        return finish(loadingModal: loadingModal, completion: completion, error: nil)
                       }
                     }
                   }
@@ -167,92 +125,130 @@ struct Remote {
       }
     }
     
-    static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
+    static func logout(controller controller: UIViewController, notebook: Notebook, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
-      FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
-        loadingModal.hide {
-          if let error = error {
-            completion(error: authError(code: error.code))
-          } else {
-            completion(error: nil)
+      
+      readUser { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
+        let update = convertNotebookLocalToRemote(notebook: notebook, user: user)
+        
+        updateDatabase(data: update) { (error) in
+          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+          let notebook =  Notebook(notes: [])
+          
+          updateLocalNotebook(notebook: notebook) { (error) in
+            if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+            
+            LocalNotification.sharedInstance.destroy()
+            try! FIRAuth.auth()!.signOut()
+            return finish(loadingModal: loadingModal, completion: completion, error: nil)
           }
         }
       }
     }
     
-    static func changeEmail(controller controller: UIViewController, email: String, completion: completionBlock) {
-      guard let user = FIRAuth.auth()?.currentUser else {
-        return  completion(error: authError(code: 0))
-      }
-      
+    static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
-      user.updateEmail(email) { error in
-        loadingModal.hide {
+      
+      FIRAuth.auth()?.sendPasswordResetWithEmail(email) { (error) in
+        if let error = error {
+          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+        } else {
+          return finish(loadingModal: loadingModal, completion: completion, error: nil)
+        }
+      }
+    }
+    
+    static func changeEmail(controller controller: UIViewController, email: String, completion: completionBlock) {
+      let loadingModal = ModalLoading()
+      loadingModal.show(controller: controller)
+      
+      readUser { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
+        
+        user.updateEmail(email) { error in
           if let error = error {
-            completion(error: authError(code: error.code))
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
           } else {
-            completion(error: nil)
+            return finish(loadingModal: loadingModal, completion: completion, error: nil)
           }
         }
       }
     }
     
     static func changePassword(controller controller: UIViewController, password: String, completion: completionBlock) {
-      guard let user = FIRAuth.auth()?.currentUser else {
-        return completion(error: authError(code: 0))
-      }
-      
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
-      user.updatePassword(password) { error in
-        loadingModal.hide {
+      
+      readUser { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
+        
+        user.updatePassword(password) { error in
           if let error = error {
-            completion(error: authError(code: error.code))
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
           } else {
-            completion(error: nil)
+            return finish(loadingModal: loadingModal, completion: completion, error: nil)
           }
         }
       }
     }
     
-    static func logout(controller controller: UIViewController, notebook: Notebook, completion: completionBlock) {
+    static func delete(controller controller: UIViewController, completion: completionBlock) {
       let loadingModal = ModalLoading()
       loadingModal.show(controller: controller)
       
-      // get user
-      guard let user = Remote.Auth.user else {
-        Report.sharedInstance.log("logout missing user")
-        return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
-      }
-      
-      // update database
-      let update = upload(notebook: notebook, user: user)
-      let database = FIRDatabase.database().reference()
-      database.updateChildValues(update, withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
-        if let error = error {
-          Report.sharedInstance.log("logout update notebook database: \(error)")
-          return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
+      readUser { (error, user) in
+        if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
+        let user = user!
+        let delete: [String: AnyObject] = ["users/\(user.uid)/active": false]
+        
+        updateDatabase(data: delete) { (error) in
+          if let error = error { return finish(loadingModal: loadingModal, completion: completion, error: error) }
         }
         
-        // clear local notebook
-        Notebook.set(data: Notebook(notes: [])) { success in
-          if !success {
-            Report.sharedInstance.log("logout save notebook")
-            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: 17999))
+        FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
+          if let error = error {
+            return finish(loadingModal: loadingModal, completion: completion, error: authError(code: error.code))
+          } else {
+            return finish(loadingModal: loadingModal, completion: completion, error: nil)
           }
-          // clear reminders
-          LocalNotification.sharedInstance.destroy()
-          
-          // logout
-          try! FIRAuth.auth()!.signOut()
-          return finish(loadingModal: loadingModal, completion: completion, error: nil)
         }
-      })
+      }
     }
     
     // MARK: - create
+    static private func createSignup(email email: String, password: String, completion: (error: String?, user: FIRUser?) -> ()) {
+      FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
+        if let error = error {
+          Report.sharedInstance.log("get signup attempt: \(error)")
+          completion(error: authError(code: error.code), user: user)
+        } else if user == nil {
+          Report.sharedInstance.log("get signup user")
+          completion(error: authError(code: 17999), user: user)
+        } else {
+          completion(error: nil, user: user)
+        }
+      }
+    }
+    
+    static private func createProfile(user user: FIRUser, displayName: String, completion: (error: String?) -> ()) {
+      let changeRequest = user.profileChangeRequest()
+      changeRequest.displayName = displayName
+      changeRequest.commitChangesWithCompletion() { error in
+        if let error = error {
+          Report.sharedInstance.log("sign up update profile: \(error)")
+          completion(error: authError(code: error.code))
+        } else {
+          completion(error: nil)
+        }
+      }
+    }
+    
     static private func createLogin(email email: String, password: String, completion: (error: String?, user: FIRUser?) -> ()) {
       FIRAuth.auth()?.signInWithEmail(email, password: password) { (user, error) in
         if let error = error {
@@ -277,9 +273,60 @@ struct Remote {
       }
     }
     
+    static private func readUser(completion: (error: String?, user: FIRUser?) -> ()) {
+      if let user = Remote.Auth.user {
+        completion(error: nil, user: user)
+      } else {
+        Report.sharedInstance.log("missing user")
+        completion(error: authError(code: 17999), user: nil)
+      }
+    }
+    
     // MARK: - database
+    static private func updateDatabase(data data: [String: AnyObject], completion: (error: String?) -> ()) {
+      database.updateChildValues(data, withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
+        if let error = error {
+          Report.sharedInstance.log("update database: \(error)")
+          completion(error: authError(code: 17999))
+        } else {
+          completion(error: nil)
+        }
+      })
+    }
+    
+    static private func updateDatabaseSignup(user user: FIRUser, email: String, name: String, uuid: String, notebook: Notebook, completion: (error: String?) -> ()) {
+      database.updateChildValues([
+        // user
+        "users/\(user.uid)/email": email,
+        "users/\(user.uid)/name": name,
+        "users/\(user.uid)/active": true,
+        "users/\(user.uid)/notebook": notebook.id,
+        "users/\(user.uid)/notebooks/\(notebook.id)": true,
+        "users/\(user.uid)/updated": FIRServerValue.timestamp(),
+        "users/\(user.uid)/created": FIRServerValue.timestamp(),
+        // devices
+        "users/\(user.uid)/devices/\(uuid)": true,
+        "devices/\(uuid)/users/\(user.uid)": true,
+        // notebook
+        "notebooks/\(notebook.id)/title": notebook.title,
+        "notebooks/\(notebook.id)/tags": [],
+        "notebooks/\(notebook.id)/notes": [],
+        "notebooks/\(notebook.id)/display": [],
+        "notebooks/\(notebook.id)/user": user.uid,
+        "notebooks/\(notebook.id)/active": true,
+        "notebooks/\(notebook.id)/created": FIRServerValue.timestamp(),
+        "notebooks/\(notebook.id)/updated": FIRServerValue.timestamp(),
+        ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
+          if let error = error {
+            Report.sharedInstance.log("signup update user database: \(error)")
+            completion(error: authError(code: 17999))
+          } else {
+            completion(error: nil)
+          }
+      })
+    }
+    
     static private func updateDatabaseLogin(email email: String, user: FIRUser, uuid: String, completion: (error: String?) -> ()) {
-      let database = FIRDatabase.database().reference()
       database.updateChildValues([
         // user
         "users/\(user.uid)/email": email,
@@ -299,8 +346,6 @@ struct Remote {
     }
     
     static private func readDatabaseNotebookId(user user: FIRUser, completion: (error: String?, notebookId: String) -> ()) {
-      // get active notebook id
-      let database = FIRDatabase.database().reference()
       database.child("users/\(user.uid)/notebook").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
         if let remoteNotebookId = snapshot.value as? String {
           completion(error: nil, notebookId: remoteNotebookId)
@@ -312,7 +357,6 @@ struct Remote {
     }
     
     static private func readDatabaseNotebook(notebookId notebookId: String, completion: (error: String?, notebook: [String: AnyObject]) -> ()) {
-      let database = FIRDatabase.database().reference()
       database.child("notebooks/\(notebookId)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
         if var notebook = snapshot.value as? [String: AnyObject] {
           notebook["id"] = notebookId
@@ -333,7 +377,6 @@ struct Remote {
       var count: Int = noteIds.count
       var error: Bool = false
       var notes: [[String: AnyObject]] = []
-      let database = FIRDatabase.database().reference()
       for id in noteIds {
         database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
           // catch error (only report once)
@@ -472,7 +515,7 @@ struct Remote {
       return completion(error: nil, notebook: notebook)
     }
     
-    static func upload(notebook notebook: Notebook, user: FIRUser) -> [String: AnyObject] {
+    static private func convertNotebookLocalToRemote(notebook notebook: Notebook, user: FIRUser) -> [String: AnyObject] {
       // update notebook
       var update: [String: AnyObject] = [:]
       var notes: [String] = []
@@ -514,217 +557,77 @@ struct Remote {
       
       return update
     }
+  }
+  
+  struct Device {
     
-    static func delete(controller controller: UIViewController, completion: completionBlock) {
-      let loadingModal = ModalLoading()
-      loadingModal.show(controller: controller)
-      Remote.Database.User.delete()
-      FIRAuth.auth()?.currentUser?.deleteWithCompletion { error in
-        loadingModal.hide {
-          if let error = error {
-            completion(error: error.localizedDescription)
-          } else {
-            completion(error: nil)
-          }
-        }
+    static func open() {
+      update()
+      access()
+    }
+    
+    static func updatePushAPN(token token: String) {
+      // apn push
+      if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+        database.updateChildValues(["devices/\(uuid)/apn/": token])
+      }
+    }
+    
+    static func updatePushFCM(token token: String) {
+      // firebase push
+      if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+        database.updateChildValues(["devices/\(uuid)/fcm/": token])
+      }
+    }
+    
+    static private func update() {
+      // called on device open
+      let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
+      let model = UIDevice.currentDevice().modelName
+      let version = UIDevice.currentDevice().systemVersion
+      let app: String = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+      
+      database.child("devices/\(uuid)/").updateChildValues([
+        "os": "iOS",
+        "model": model,
+        "version": version,
+        "app": app
+        ])
+    }
+    
+    static private func access() {
+      if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+        let accessedRef = FIRDatabase.database().referenceWithPath("devices/\(uuid)/accessed")
+        let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
+        connectedRef.observeEventType(.Value, withBlock: { snapshot in
+          accessedRef.onDisconnectSetValue(FIRServerValue.timestamp())
+        })
       }
     }
   }
   
-  struct Database {
-    static let ref = FIRDatabase.database().reference()
+  struct User {
     
-    struct Device {
-      static func update() {
-        // called on device open
-        let uuid: String = UIDevice.currentDevice().identifierForVendor?.UUIDString ?? "" // changes on app deletion
-        let model = UIDevice.currentDevice().modelName
-        let version = UIDevice.currentDevice().systemVersion
-        let app: String = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    static func open() {
+      access()
+    }
+    
+    static private func access() {
+      if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+        let myConnectionsRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/connections")
+        let accessedRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/accessed")
+        let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
         
-        ref.child("devices/\(uuid)/").updateChildValues([
-          "os": "iOS",
-          "model": model,
-          "version": version,
-          "app": app
-          ])
-      }
-      
-      static func updatePushAPN(token token: String) {
-        // apn push
-        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/apn/": token])
-        } else {
-          Report.sharedInstance.log("missing uuid")
-        }
-      }
-      
-      static func updatePushFCM(token token: String) {
-        // firebase push
-        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/fcm/": token])
-        } else {
-          Report.sharedInstance.log("missing uuid")
-        }
-      }
-      
-      static func open() {
-        update()
-        access()
-      }
-      
-      static func access() {
-        if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          let accessedRef = FIRDatabase.database().referenceWithPath("devices/\(uuid)/accessed")
-          let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
-          connectedRef.observeEventType(.Value, withBlock: { snapshot in
+        connectedRef.observeEventType(.Value, withBlock: { snapshot in
+          let connected = snapshot.value as? Bool
+          if connected != nil && connected! {
+            let con = myConnectionsRef.child(uuid)
+            con.setValue(true)
+            con.onDisconnectRemoveValue()
             accessedRef.onDisconnectSetValue(FIRServerValue.timestamp())
-          })
-        }
+          }
+        })
       }
-    }
-    
-    struct User {
-      static func logout() {
-        unlinkDevice()
-      }
-      
-      static func login() {
-        if let user = Remote.Auth.user, let email = user.email, let name = user.displayName {
-          linkDevice()
-          ref.child("users/\(user.uid)").updateChildValues([
-            "email": email,
-            "name": name,
-            "active": true,
-            ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
-          })
-          
-        }
-      }
-      
-      static func signup() {
-        if let user = Remote.Auth.user {
-          ref.child("users/\(user.uid)").updateChildValues([
-            "created": FIRServerValue.timestamp(),
-            ])
-          login()
-        }
-      }
-      
-      static func createNotebook(id id: String) {
-        if let user = Remote.Auth.user {
-          ref.updateChildValues(["users/\(user.uid)/notebooks/\(id)": true])
-          ref.updateChildValues(["users/\(user.uid)/notebook/": id])
-        }
-      }
-      
-      static func delete() {
-        if let user = Remote.Auth.user {
-          ref.child("users/\(user.uid)").updateChildValues([
-            "active": false,
-            ])
-          unlinkDevice()
-        }
-      }
-      
-      static func linkDevice() {
-        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": true])
-          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": true])
-        }
-      }
-      
-      static func unlinkDevice() {
-        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          ref.updateChildValues(["devices/\(uuid)/users/\(user.uid)": false])
-          ref.updateChildValues(["users/\(user.uid)/devices/\(uuid)": false])
-        }
-      }
-      
-      static func open() {
-        access()
-      }
-      
-      static func access() {
-        if let user = Remote.Auth.user, let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
-          let myConnectionsRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/connections")
-          let accessedRef = FIRDatabase.database().referenceWithPath("users/\(user.uid)/accessed")
-          let connectedRef = FIRDatabase.database().referenceWithPath(".info/connected")
-          
-          connectedRef.observeEventType(.Value, withBlock: { snapshot in
-            let connected = snapshot.value as? Bool
-            if connected != nil && connected! {
-              let con = myConnectionsRef.child(uuid)
-              con.setValue(true)
-              con.onDisconnectRemoveValue()
-              accessedRef.onDisconnectSetValue(FIRServerValue.timestamp())
-            }
-          })
-        }
-      }
-    }
-    
-    struct Notebook {
-      static func create(id id: String, title: String, notes: [String], display: [String]) {
-        if let user = Remote.Auth.user {
-          ref.child("notebooks/\(id)").updateChildValues([
-            "title": title,
-            "tags": [],
-            "notes": notes,
-            "display": display,
-            "user": user.uid,
-            "active": true,
-            "created": FIRServerValue.timestamp(),
-            "updated": FIRServerValue.timestamp(),
-            ])
-        }
-      }
-      static func upload(notebook notebook: AnyObject, completion: (success: Bool) -> ()) {
-        
-      }
-    }
-    
-    struct Note {
-      static func create(id id: String, notebook: String, title: String, body: String?, completed: Bool, collapsed: Bool, children: Int, indent: Int) {
-        if let user = Remote.Auth.user {
-          ref.child("notes/\(id)").updateChildValues([
-            "title": title,
-            "body": body ?? "",
-            "completed": completed,
-            "collapsed": collapsed,
-            "children": children,
-            "indent": indent,
-            "notebook": notebook,
-            "user": user.uid,
-            "active": true,
-            "created": FIRServerValue.timestamp(),
-            "updated": FIRServerValue.timestamp(),
-            ], withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
-              
-          })
-        }
-      }
-    }
-    
-    struct Reminder {
-      static func create(id id: String, note: String, date: NSDate, uid: Double, type: Int) {
-        if let user = Remote.Auth.user {
-          ref.child("reminders/\(id)").setValue([
-            "date": date,
-            "uid": uid,
-            "type": type,
-            "user": user.uid,
-            "note": note,
-            "active": true,
-            "created": FIRServerValue.timestamp(),
-            "updated": FIRServerValue.timestamp(),
-            ])
-        }
-      }
-    }
-    
-    struct Tag {
-      
     }
   }
   

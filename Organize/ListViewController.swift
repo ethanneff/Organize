@@ -63,7 +63,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     // title
     updateTitle()
     // accessed
-    Remote.Database.User.open()
+    Remote.User.open()
   }
   
   override func viewDidAppear(animated: Bool) {

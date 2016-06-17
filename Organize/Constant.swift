@@ -13,7 +13,7 @@ struct Constant {
   
   struct App {
     static let name: String = "Organize"
-    static let loadingDelay: Double = release ? 2 : 0
+    static let loadingDelay: Double = release ? 0.8 : 0
     static let release: Bool = true
     static let logging: Bool = true
     static let deepLink: String = "eneff.organize"

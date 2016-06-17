@@ -3,7 +3,7 @@ import UIKit
 class IntroNavigationController: UINavigationController {
   override func loadView() {
     super.loadView()
-    whiteStatusBarText()
+    navigationBar.hidden = true
     pushViewController(IntroViewController(), animated: true)
   }
   
@@ -27,8 +27,7 @@ class IntroNavigationController: UINavigationController {
     presentViewController(navController, animated: true, completion: nil)
   }
   
-  private func whiteStatusBarText() {
-    navigationBar.hidden = true
-    navigationBar.barStyle = .Black
+  override func preferredStatusBarStyle() -> UIStatusBarStyle {
+    return UIStatusBarStyle.LightContent
   }
 }
