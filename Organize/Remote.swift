@@ -149,11 +149,15 @@ struct Remote {
             if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
             
             LocalNotification.sharedInstance.destroy()
-            try! FIRAuth.auth()!.signOut()
+            signOut()
             return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: nil)
           }
         }
       }
+    }
+    
+    static func signOut() {
+      try! FIRAuth.auth()!.signOut()
     }
     
     static func resetPassword(controller controller: UIViewController, email: String, completion: completionBlock) {
@@ -262,7 +266,6 @@ struct Remote {
         }
       }
     }
-    
     
     static func download(controller controller: UIViewController, completion: completionBlock) {
       let logout = false
@@ -602,8 +605,8 @@ struct Remote {
         let id = notebook["id"] as? String,
         let created = notebook["created"] as? Double,
         let updated = notebook["updated"] as? Double else {
-        Report.sharedInstance.log("missing notebook info")
-        return completion(error: authError(code: 17999), notebook: Notebook(title: ""))
+          Report.sharedInstance.log("missing notebook info")
+          return completion(error: authError(code: 17999), notebook: Notebook(title: ""))
       }
       
       let notebook = Notebook(id: id, title: title, notes: notes, display: display, history: [], created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))

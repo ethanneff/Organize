@@ -1,4 +1,5 @@
 import UIKit
+import Firebase
 
 class IntroNavigationController: UINavigationController {
   override func loadView() {
@@ -13,11 +14,16 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineController() {
-    Util.delay(Constant.App.loadingDelay) {
-      if let _ = Remote.Auth.user {
-        self.displayController(navController: MenuNavigationController())
-      } else {
-        self.displayController(navController: AccessNavigationController())
+    Notebook.get { data in
+      if data == nil {
+        Remote.Auth.signOut()
+      }
+      Util.delay(Constant.App.loadingDelay) {
+        if let _ = Remote.Auth.user {
+          self.displayController(navController: MenuNavigationController())
+        } else {
+          self.displayController(navController: AccessNavigationController())
+        }
       }
     }
   }

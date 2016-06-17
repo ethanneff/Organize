@@ -269,16 +269,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    Remote.Auth.download(controller: self) { (error) in
-      refreshControl.endRefreshing()
-      if let error = error {
-        let modal = ModalError()
-        modal.message = error
-        modal.show(controller: self)
-        return
-        
+    refreshControl.endRefreshing()
+    let modal = ModalConfirmation()
+    modal.message = "Download from cloud and overwrite data on device?"
+    modal.show(controller: self, dismissible: true) { (output) in
+      Remote.Auth.download(controller: self) { (error) in
+        if let error = error {
+          let modal = ModalError()
+          modal.message = error
+          modal.show(controller: self)
+          return
+        }
+        self.loadNotebook()
       }
-      self.loadNotebook()
     }
   }
   
@@ -501,7 +504,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func createReminder(indexPath indexPath: NSIndexPath, type: ReminderType, date: NSDate?) {
     notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: type, date: date) { success, create in
       if success {
-        Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
+        Util.playSound(systemSound: .Tap)
+        //        Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
       }
     }
   }
