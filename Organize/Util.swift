@@ -34,16 +34,6 @@ class Util {
       dispatch_get_main_queue(), closure)
   }
   
-  // logging
-  class func log(message: String?=nil, function: String = #function, file: String = #file) {
-    if Constant.App.logging {
-      let current = Int64(NSDate().timeIntervalSince1970*1000)
-      let output = "\(current) | \(file) | \(function) | \(message ?? "")"
-      print(output)
-      FIRCrashMessage(output)
-    }
-  }
-  
   // random
   class func randomString(length length: Int) -> String {
     let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
