@@ -5,7 +5,6 @@ protocol SettingsDelegate: class {
 }
 
 class SettingViewController: UIViewController {
-  
   weak var menu: SettingsDelegate?
   weak var delegate: SettingsDelegate?
   
@@ -134,12 +133,13 @@ class SettingViewController: UIViewController {
         button.setTitleColor(color, forState: .Normal)
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.enabled = enabled
+        button.contentHorizontalAlignment = info.header ? .Center : .Left
         button.titleLabel?.font = .systemFontOfSize(Constant.Button.fontSize)
         button.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(button)
         
-        constraints.append(NSLayoutConstraint(item: button, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: 0))
-        constraints.append(NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: 0))
+        constraints.append(NSLayoutConstraint(item: button, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding*2))
+        constraints.append(NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -Constant.Button.padding*2))
         constraints.append(NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height))
         constraints.append(NSLayoutConstraint(item: button, attribute: .Top, relatedBy: .Equal, toItem: topItem, attribute: topAttribute, multiplier: 1, constant: topConstant))
         scrollViewContentSizeHeight += topConstant + Constant.Button.height

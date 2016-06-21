@@ -17,7 +17,8 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   private let titleLabelPadding: CGFloat = Constant.Button.padding
   private let accessoryButtonWidth: CGFloat = Constant.Button.height
   private let reminderViewWidth: CGFloat = 3
-  private let titleIndentSpace: String = "       "
+  
+  private let titleIndentSpace: String = "     "
   
   weak var delegate: ListTableViewCellDelegate?
   // TODO: figure out why to make a property... swipe gets deinit otherwise
@@ -84,6 +85,8 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     layoutMargins = UIEdgeInsetsZero
     preservesSuperviewLayoutMargins = false
     selectionStyle = .None
+    // TODO: test if fixes separator disappearance
+    textLabel?.backgroundColor = .clearColor()
   }
   
   private func setupViewConstraints() {
@@ -135,11 +138,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
       title = titleIndentSpace + title
     }
     // TODO: make important flag
-    if note.indent == 0 {
-      titleLabel?.font = UIFont.boldSystemFontOfSize(UIFont.systemFontSize())
-    } else {
-      titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
-    }
+    titleLabel?.font = note.bolded ? .boldSystemFontOfSize(UIFont.systemFontSize()) : .systemFontOfSize(UIFont.systemFontSize())
     titleLabel?.text = title
     
     // complete

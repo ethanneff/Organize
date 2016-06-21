@@ -87,7 +87,7 @@ class ModalDatePicker: Modal {
     Util.animateButtonPress(button: button)
     hide() {
       if let completion = self.completion where button.tag == 1 {
-        completion(output: [ModalDatePicker.OutputKeys.Date.rawValue: self.picker.date])
+        completion(output: [OutputKeys.Date.rawValue: self.picker.date])
       }
     }
   }

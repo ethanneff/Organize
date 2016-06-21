@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     // load (install or updated)
     configureFirebase()
+    configureReviewApp()
     navigateToFirstController()
     return true
   }
@@ -55,6 +56,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       window.makeKeyAndVisible()
     }
   }
+  // MARK: - review app
+  func configureReviewApp() {
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewApp, val: false)
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.FeedbackApp, val: false)
+  }
+  
   // MARK: - firebase
   private func configureFirebase() {
     // Firebase dynamic links

@@ -15,7 +15,7 @@ class Notebook: NSObject, NSCoding, Copying {
   var updated: NSDate
   private var history: [NotebookHistory] = []
   override var description: String {
-    var output: String = id + "\n" + title + "\n" + notes.description + "\n" + display.description
+    var output: String = notes.description + "\n" + display.description
     output += "\n"
     //    output += " history \n"
     //    for element in history {
@@ -113,9 +113,13 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // display
       self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
-        // save
-        Notebook.set(data: self)
-        Report.sharedInstance.track(event: "note_create")
+        
+        let indexPaths = self.updateBolded(indexPath: indexPath)
+        self.reload(indexPaths: indexPaths, tableView: tableView) {
+          // save
+          Notebook.set(data: self)
+          Report.sharedInstance.track(event: "note_create")
+        }
       }
     }
   }
@@ -175,14 +179,17 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // display parent
       self.remove(indexPaths: [indexPath], tableView: tableView) {
-        // save
-        Notebook.set(data: self)
-        Report.sharedInstance.track(event: "note_delete")
+        let indexPaths = self.updateBolded(indexPath: indexPath)
+        self.reload(indexPaths: indexPaths, tableView: tableView) {
+          // save
+          Notebook.set(data: self)
+          Report.sharedInstance.track(event: "note_delete")
+        }
       }
     }
   }
   
-  func deleteAll(tableView tableView: UITableView) {
+  func deleteCompleted(tableView tableView: UITableView) {
     Util.threadBackground {
       // save
       self.historySave()
@@ -208,6 +215,7 @@ class Notebook: NSObject, NSCoding, Copying {
     var indexPaths: [NSIndexPath] = []
     for i in 0..<self.display.count {
       let display = self.display[i]
+      
       if display.completed {
         let indexPath = NSIndexPath(forRow: i, inSection: 0)
         indexPaths.insert(indexPath, atIndex: 0)
@@ -216,8 +224,11 @@ class Notebook: NSObject, NSCoding, Copying {
     
     // remove
     self.remove(indexPaths: indexPaths, tableView: tableView) {
-      // save
-      Notebook.set(data: self)
+      let indexPaths = self.correctBoldedAndCollapsed()
+      self.reload(indexPaths: indexPaths, tableView: tableView) {
+        // save
+        Notebook.set(data: self)
+      }
     }
   }
   
@@ -233,7 +244,8 @@ class Notebook: NSObject, NSCoding, Copying {
   
   private func indent(indexPath indexPath: NSIndexPath, tableView: UITableView, increase: Bool) {
     Util.threadBackground {
-      // display parent
+      // display parent (selected row)
+      var indexPaths: [NSIndexPath] = [indexPath]
       let displayParent = self.display[indexPath.row]
       
       // early exit
@@ -253,8 +265,9 @@ class Notebook: NSObject, NSCoding, Copying {
       }
       
       // display parent
-      displayParent.indent += (increase) ? 1 : (displayParent.indent == 0) ? 0 : -1
-      self.reload(indexPaths: [indexPath], tableView: tableView) {
+      noteParent.note.indent += (increase) ? 1 : (noteParent.note.indent == 0) ? 0 : -1
+      indexPaths += self.updateBolded(indexPath: indexPath)
+      self.reload(indexPaths: indexPaths, tableView: tableView) {
         // save
         Notebook.set(data: self)
       }
@@ -501,27 +514,33 @@ class Notebook: NSObject, NSCoding, Copying {
         func complete(section section: [Note], index: Int) {
           // insert
           self.notes.insertContentsOf(section, at: index)
-          // save
-          Notebook.set(data: self)
-          // has to be main thread
-          Util.threadMain {
-            completion()
+          // bold
+          var indexPaths: [NSIndexPath] = []
+          indexPaths += self.updateBolded(indexPath: fromIndexPath)
+          indexPaths += self.updateBolded(indexPath: toIndexPath)
+          self.reload(indexPaths: indexPaths, tableView: tableView) {
+            // save
+            Notebook.set(data: self)
+            // has to be main thread for reorder finish animation
+            Util.threadMain {
+              completion()
+            }
           }
         }
         
-        // insert section at first
+        // notes insert section at first
         if toIndexPath.row == 0 {
           complete(section: section, index: 0)
           return
         }
         
-        // insert section at last
+        // notes insert section at last location (find location [notePrev])
         let prev = toIndexPath.row-1
         let displayPrev = self.display[prev]
         var notePrev = self.getNoteParent(displayParent: displayPrev)
         
+        // find children for last one
         if displayPrev.collapsed {
-          // find children for last one
           for i in prev+1..<self.notes.count {
             let child = self.notes[i]
             if child.indent <= notePrev.note.indent {
@@ -894,8 +913,69 @@ class Notebook: NSObject, NSCoding, Copying {
     note.reminder = nil
   }
   
-  
   // MARK: - HELPER METHODS
+  private func correctBoldedAndCollapsed() -> [NSIndexPath] {
+    var indexPaths: [NSIndexPath] = []
+    for i in 0..<self.display.count {
+      let display = self.display[i]
+      
+      if display.collapsed || display.bolded {
+        let note = self.getNoteParent(displayParent: display)
+        let next = note.index+1
+        if next < self.notes.count {
+          let child = self.notes[next]
+          if child.indent <= note.note.indent {
+            display.collapsed = false
+            display.bolded = false
+            display.children = 0
+            indexPaths += [NSIndexPath(forRow: i, inSection: 0)]
+          }
+        }
+      }
+    }
+    return indexPaths
+  }
+  
+  private func updateBolded(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
+    let note = self.display[indexPath.row]
+    var indexPaths: [NSIndexPath] = []
+    if indexPath.row != 0 {
+      let prev = indexPath.row-1
+      let parent = self.display[prev]
+      if parent.indent < note.indent {
+        // bold parent
+        if !parent.bolded {
+          parent.bolded = true
+          indexPaths += [NSIndexPath(forRow: prev, inSection: 0)]
+        }
+      } else {
+        // unbold parent
+        if parent.bolded {
+          parent.bolded = false
+          indexPaths += [NSIndexPath(forRow: prev, inSection: 0)]
+        }
+      }
+    }
+    let next = indexPath.row+1
+    if !note.collapsed && next < self.display.count {
+      let child = self.display[next]
+      if child.indent > note.indent {
+        // bold note
+        if !note.bolded {
+          note.bolded = true
+          indexPaths += [NSIndexPath(forRow: indexPath.row, inSection: 0)]
+        }
+      } else {
+        // unbold note
+        if note.bolded {
+          note.bolded = false
+          indexPaths += [NSIndexPath(forRow: indexPath.row, inSection: 0)]
+        }
+      }
+    }
+    return indexPaths
+  }
+  
   private func getNoteParent(displayParent displayParent: Note) -> (index: Int, note: Note) {
     var noteParentIndex = 0
     for i in 0..<self.notes.count {
@@ -927,7 +1007,6 @@ class Notebook: NSObject, NSCoding, Copying {
     }
     return noteChildren
   }
-  
   
   // MARK: - TABLEVIEW AND DISPLAY MODIFICATION
   private func remove(indexPaths indexPaths: [NSIndexPath], tableView: UITableView, completion: (() -> ())? = nil) {

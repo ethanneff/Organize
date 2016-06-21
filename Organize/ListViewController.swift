@@ -25,7 +25,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - init
   init() {
-    notebook = Notebook(title: "init")
+    notebook = Notebook(title: "")
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -60,6 +60,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - appear
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
+    // session
+    loadSession()
     // config
     loadRemoteConfig()
     // title
@@ -105,11 +107,25 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillTerminateNotification, object: nil)
   }
   
+  private func loadSession() {
+    let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: reviewCount+1)
+  }
+  
   private func loadRemoteConfig() {
     Remote.Config.fetch { config in
       if let config = config {
+        // ads
         if config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
           self.loadBannerAd()
+        }
+        // review
+        let feedbackApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.FeedbackApp) as? Bool ?? false
+        let reviewApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewApp) as? Bool ?? false
+        let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
+        let reviewCountConfig = config[Remote.Config.Keys.ShowReview.rawValue].numberValue as? Int ?? 0
+        if !(reviewApp || feedbackApp) && reviewCount > reviewCountConfig {
+          self.displayReview()
         }
       }
     }
@@ -235,7 +251,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   internal func adView(bannerView: GADBannerView!, didFailToReceiveAdWithError error: GADRequestError!) {
-    print("adView:didFailToReceiveAdWithError: \(error.localizedDescription)")
+    Report.sharedInstance.log("adView:didFailToReceiveAdWithError: \(error.localizedDescription)")
   }
   
   private func displayBannerAd(show show: Bool) {
@@ -265,6 +281,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     cell.delegate = self
     cell.updateCell(note: notebook.display[indexPath.row])
     return cell
+  }
+  
+  func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    // TODO: test if fixes separator disappearing
+    tableView.deselectRowAtIndexPath(indexPath, animated: false)
+    tableView.separatorStyle = .None;
+    tableView.separatorStyle = .SingleLine
   }
   
   // MARK: - refresh
@@ -356,8 +379,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent?) {
     if let event = event where event.subtype == .MotionShake {
-      // FIXME: undo in v2
-      // displayUndo()
+      displayDeleteCompleted()
     }
   }
   
@@ -426,9 +448,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - modals
   private func displayNotebookTitle() {
-    //    dismissViewControllerAnimated(true, completion: nil)
-    //    PushNotification.sharedInstance.registerPermission()
-    
     let modal = ModalTextField()
     modal.limit = 25
     modal.placeholder = notebook.title
@@ -436,6 +455,30 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String {
         self.notebook.title = title
         self.updateTitle()
+      }
+    }
+  }
+  
+  private func displayReview() {
+    Report.sharedInstance.track(event: "show_review")
+    let modal = ModalReview()
+    modal.show(controller: self) { output in
+      if let selection = output[ModalReview.OutputKeys.Selection.rawValue] as? Int {
+        Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)
+        let modal = ModalConfirmation()
+        if selection >= 3 {
+          modal.message = "Can you help us by leaving a review?"
+          modal.show(controller: self) { output in
+            Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewApp, val: true)
+            Report.sharedInstance.track(event: "sent_review")
+            UIApplication.sharedApplication().openURL(NSURL(string: "itms-apps://itunes.apple.com/app/?id=" + Constant.App.id)!)
+          }
+        } else {
+          modal.message = "Can you tell us how we can improve?"
+          modal.show(controller: self) { output in
+            self.displayAppFeedback()
+          }
+        }
       }
     }
   }
@@ -455,7 +498,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       let modal = ModalConfirmation()
       modal.message = "Permanently delete all completed?"
       modal.show(controller: self, dismissible: false) { (output) in
-        self.notebook.deleteAll(tableView: self.tableView)
+        self.notebook.deleteCompleted(tableView: self.tableView)
       }
     }
   }
@@ -527,8 +570,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
     controller.dismissViewControllerAnimated(true, completion: nil)
-    switch result.rawValue {
-    default: Util.playSound(systemSound: .Tap)
+    Util.playSound(systemSound: .Tap)
+    if result.rawValue == 2 {
+      Constant.UserDefault.set(key: Constant.UserDefault.Key.FeedbackApp, val: true)
+      Report.sharedInstance.track(event: "sent_feedback")
     }
   }
   

@@ -531,6 +531,7 @@ struct Remote {
         let body = note["body"] as? String
         guard let id = note["id"] as? String,
           let title = note["title"] as? String,
+          let bolded = note["bolded"] as? Bool,
           let completed = note["completed"] as? Bool,
           let collapsed = note["collapsed"] as? Bool,
           let children = note["children"] as? Int,
@@ -557,7 +558,7 @@ struct Remote {
           reminder = Reminder(id: id, uid: uid, type: reminderType, date: NSDate(timeIntervalSince1970: date), created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
         }
         
-        let note = Note(id: id, title: title, body: body, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder, created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
+        let note = Note(id: id, title: title, body: body, bolded: bolded, completed: completed, collapsed: collapsed, children: children, indent: indent, reminder: reminder, created: NSDate(timeIntervalSince1970: created), updated: NSDate(timeIntervalSince1970: updated))
         unorganized.append(note)
       }
       
@@ -626,6 +627,7 @@ struct Remote {
         update["notes/\(note.id)/notebook"] = notebook.id
         update["notes/\(note.id)/title"] = note.title
         update["notes/\(note.id)/body"] = note.body ?? ""
+        update["notes/\(note.id)/bolded"] = note.bolded
         update["notes/\(note.id)/completed"] = note.completed
         update["notes/\(note.id)/collapsed"] = note.collapsed
         update["notes/\(note.id)/children"] = note.children
@@ -733,6 +735,7 @@ struct Remote {
     
     enum Keys: String {
       case ShowAds
+      case ShowReview
     }
     
     static func fetch(completion: (config: FIRRemoteConfig?) -> ()) {

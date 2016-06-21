@@ -24,10 +24,9 @@ class MenuViewController: UIViewController, SettingsDelegate {
   func initialize() {
     // FIXME: memory leak... need to deinit all
     sideMenu = SideMenu(parent: self, child: mainMenu!, left: leftMenu!, right: rightMenu!)
-    sideMenu!.rightWidth = 170
+    sideMenu!.rightWidth = 185
     sideMenu!.leftWidth = 240
     createNavButtons()
-//    /createNavTitle(title: Constant.App.name)
     createDelegates()
   }
   

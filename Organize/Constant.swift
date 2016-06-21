@@ -13,7 +13,8 @@ struct Constant {
   
   struct App {
     static let name: String = "Organize"
-    static let loadingDelay: Double = release ? 0.8 : 0
+    static let id: String = "1116178818"
+    static let loadingDelay: Double = release ? 0.2 : 0
     static let release: Bool = true
     static let logging: Bool = true
     static let deepLink: String = "eneff.organize"
@@ -37,7 +38,7 @@ struct Constant {
   struct Color {
     // FIXME: this should be a class.sharedInstance
     // toggle should change properties, then save
-    // get at beginning 
+    // get at beginning
     // no enum because need .color at end
     private enum Item {
       case Button
@@ -112,6 +113,9 @@ struct Constant {
     enum Key: String {
       case AskedLocalNotification
       case DarkMode
+      case FeedbackApp
+      case ReviewApp
+      case ReviewCount
     }
     
     static func get(key key: UserDefault.Key) -> AnyObject? {
