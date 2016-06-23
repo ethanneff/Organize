@@ -124,6 +124,13 @@ class Util {
     }
   }
   
+  // vibrate
+  class func vibrate() {
+    Util.threadMain {
+      AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+    }
+  }
+  
   // image
   class func imageViewWithColor(image image: UIImage, color: UIColor) -> UIImageView {
     let imageView = UIImageView(image: image)

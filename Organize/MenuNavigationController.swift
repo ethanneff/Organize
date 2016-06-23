@@ -18,10 +18,12 @@ class MenuNavigationController: UINavigationController, PomodoroTimerDelegate {
   
   func pomodoroTimerBreak() {
     Util.playSound(systemSound: .BeepBoBoopFailure)
+    Util.vibrate()
   }
   
   func pomodoroTimerWork() {
     Util.playSound(systemSound: .BeepBoBoopSuccess)
+    Util.vibrate()
   }
   
   private func createPomodoroTimer() {
