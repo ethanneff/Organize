@@ -108,9 +108,9 @@ class Util {
     Util.threadMain {
       // play in background
       do {
-        try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient, withOptions: [])
         do {
-          try AVAudioSession.sharedInstance().setActive(true)
+          try AVAudioSession.sharedInstance().setActive(true, withOptions: [])
         } catch let error as NSError {
           print(error.localizedDescription)
         }
