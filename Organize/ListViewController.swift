@@ -116,9 +116,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     Remote.Config.fetch { config in
       if let config = config {
         // ads
-        if config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
-          self.loadBannerAd()
+        if let user = Remote.Auth.user {
+          // FIXME: remove hardcode in place for user check if paid
+          if user.email != "ethan.neff@eneff.com" && config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
+            self.loadBannerAd()
+          }
         }
+
         // review
         let feedbackApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.FeedbackApp) as? Bool ?? false
         let reviewApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewApp) as? Bool ?? false

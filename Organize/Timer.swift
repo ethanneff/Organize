@@ -56,8 +56,14 @@ class PomodoroTimer: Timer {
   }
   
   override func update() {
+    super.update()
     updateCountdown()
     delegate?.pomodoroTimerUpdate(output: output(), isBreak: isBreak)
+  }
+  
+  override func pause() {
+    super.pause()
+    delegate?.pomodoroTimerUpdate(output: output(), isBreak: true)
   }
   
   private func clear() {
