@@ -35,12 +35,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func initialize() {
+    loadNotebook()
+    loadListeners()
     createBannerAd()
     createTableView()
     createAddButton()
     createGestures()
-    loadNotebook()
-    loadListeners()
   }
   
   // MARK: - deinit
@@ -134,11 +134,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - create
   private func createBannerAd() {
     bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
+    
     view.addSubview(bannerAd)
     bannerAd.delegate = self
     bannerAd.rootViewController = self
     bannerAd.adUnitID = Constant.App.firebaseBannerAdUnitID
     bannerAd.translatesAutoresizingMaskIntoConstraints = false
+    bannerAd.backgroundColor = Constant.Color.background
     NSLayoutConstraint.activateConstraints([
       NSLayoutConstraint(item: bannerAd, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: bannerAdHeight),
       NSLayoutConstraint(item: bannerAd, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: 0),
@@ -449,7 +451,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - modals
   private func displayNotebookTitle() {
     let modal = ModalTextField()
-    modal.limit = 25
+    modal.limit = 20
     modal.placeholder = notebook.title
     modal.show(controller: self, dismissible: true) { output in
       if let title = output[ModalTextField.OutputKeys.Text.rawValue] as? String {
