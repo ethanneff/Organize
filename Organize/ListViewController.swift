@@ -550,8 +550,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       modal.reminder = note.reminder ?? nil
       modal.show(controller: self, dismissible: true, completion: { (output) in
         if let id = output[ModalReminder.OutputKeys.ReminderType.rawValue] as? Int, let reminderType = ReminderType(rawValue: id) {
+          if reminderType == .None {
+            return
+          }
           if reminderType == .Date {
-            if let reminder = self.notebook.display[indexPath.row].reminder where reminder.type == .Date {
+            if let reminder = self.notebook.display[indexPath.row].reminder where reminder.type == .Date && reminder.date.timeIntervalSinceNow > 0 {
               // delete custom date
               self.createReminder(indexPath: indexPath, type: reminderType, date: nil)
             } else {
@@ -578,10 +581,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   private func createReminder(indexPath indexPath: NSIndexPath, type: ReminderType, date: NSDate?) {
     notebook.reminder(indexPath: indexPath, controller: self, tableView: tableView, reminderType: type, date: date) { success, create in
-      if success {
-        Util.playSound(systemSound: .Tap)
-        //        Util.playSound(systemSound: create ? .BeepBoBoopSuccess : .BeepBoBoopFailure)
-      }
+      if success {}
     }
   }
   
