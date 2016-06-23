@@ -394,6 +394,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     case .NotebookDeleteCompleted: displayDeleteCompleted()
       
     case .AppTutorial: displayAppTutorial()
+    case .AppTimer: displayAppTimer()
     case .AppColor: displayAppColor()
     case .AppFeedback: displayAppFeedback()
     case .AppShare: displayAppShare()
@@ -488,6 +489,35 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func displayAppTutorial() {
     let modal = ModalTutorial()
     modal.show(controller: self, dismissible: true)
+  }
+  
+  private func displayAppTimer() {
+    guard let navigationController = navigationController as? MenuNavigationController else {
+      return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
+    }
+    
+    let timer = navigationController.timer
+    let modal = ModalConfirmation()
+    modal.message = timer.on || timer.paused ? "Pomodoro Timer" : "Create a Pomodoro Timer to track your productivity?"
+    modal.left = timer.on ? "Stop" : timer.paused ? "Stop" : "Cancel"
+    modal.right = timer.on ? "Pause" : timer.paused ? "Resume" : "Start"
+    modal.trackButtons = true
+    modal.show(controller: self, dismissible: true) { output in
+      if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int {
+        if selection == 1 {
+          if !timer.on {
+            timer.start()
+            // TODO: test timer for longer than 10 minutes in background
+          } else {
+            timer.pause()
+          }
+        } else {
+          if timer.on || timer.paused {
+            timer.stop()
+          }
+        }
+      }
+    }
   }
   
   private func displayAppColor() {

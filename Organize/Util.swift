@@ -106,6 +106,19 @@ class Util {
   
   class func playSound(systemSound systemSound: SystemSounds) {
     Util.threadMain {
+      // play in background
+      do {
+        try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        do {
+          try AVAudioSession.sharedInstance().setActive(true)
+        } catch let error as NSError {
+          print(error.localizedDescription)
+        }
+      } catch let error as NSError {
+        print(error.localizedDescription)
+      }
+      
+      // play sound
       let systemSoundID: SystemSoundID = systemSound.rawValue
       AudioServicesPlaySystemSound(systemSoundID)
     }

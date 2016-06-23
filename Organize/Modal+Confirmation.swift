@@ -15,6 +15,18 @@ class ModalConfirmation: Modal {
       updateLabel(text: message, label: label, modalMinWidth: modalMinWidth, modalMaxWidth: modalMaxWidth, modalMinHeight: modalMinHeight, modalMaxHeight: modalMaxHeight, modalWidthConstraint: modalWidthConstraint, modalHeightConstraint: modalHeightConstraint)
     }
   }
+  var left: String? {
+    didSet {
+      no.setTitle(left, forState: .Normal)
+    }
+  }
+  var right: String? {
+    didSet {
+      yes.setTitle(right, forState: .Normal)
+    }
+  }
+  var trackButtons: Bool = false // whether to callback the no button
+  
   
   private var label: UILabel!
   private var yes: UIButton!
@@ -31,7 +43,7 @@ class ModalConfirmation: Modal {
   private let modalMaxHeight: CGFloat = Constant.Button.height*6
   
   enum OutputKeys: String {
-    case None
+    case Selection
   }
   
   // MARK: - init
@@ -86,7 +98,12 @@ class ModalConfirmation: Modal {
     Util.animateButtonPress(button: button)
     
     hide() {
-      if button.tag == 1 {
+      if self.trackButtons {
+        if let completion = self.completion {
+          completion(output: [OutputKeys.Selection.rawValue: button.tag])
+        }
+      } else if button.tag == 1 {
+        // callback only yes
         if let completion = self.completion {
           completion(output: [:])
         }

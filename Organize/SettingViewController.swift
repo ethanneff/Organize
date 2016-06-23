@@ -23,6 +23,7 @@ class SettingViewController: UIViewController {
     
     case App
     case AppTutorial
+    case AppTimer
     case AppColor
     case AppSound
     case AppFeedback
@@ -78,6 +79,7 @@ class SettingViewController: UIViewController {
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
+      case .AppTimer: return "Toggle timer"
       case .AppColor: return "Change color"
       case .AppSound: return "Toggle sound" // TODO: based on appstate
       case .AppFeedback: return "Send feedback"
