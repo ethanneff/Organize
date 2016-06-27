@@ -591,10 +591,12 @@ struct Remote {
       
       // update local reminders
       LocalNotification.sharedInstance.destroy()
-      for note in notes {
-        if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
-          // TODO: push notifications accept before download on login
-          LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
+      // TODO: push notifications accept before download on login
+      if LocalNotification.sharedInstance.hasPremission() {
+        for note in notes {
+          if let reminder = note.reminder, let controller = UIApplication.topViewController()  {
+            LocalNotification.sharedInstance.create(controller: controller, body: note.title, action: nil, fireDate: reminder.date, soundName: nil, uid: reminder.uid, completion: nil)
+          }
         }
       }
       

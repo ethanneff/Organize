@@ -137,7 +137,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     for _ in 0..<note.indent {
       title = titleIndentSpace + title
     }
-    title = note.bolded ? " " + title : title
+    title = note.bolded && note.indent != 0 ? " " + title : title
     
     // bolded
     titleLabel?.font = note.bolded ? .boldSystemFontOfSize(UIFont.systemFontSize()) : .systemFontOfSize(UIFont.systemFontSize())

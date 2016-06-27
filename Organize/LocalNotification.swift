@@ -70,6 +70,17 @@ class LocalNotification {
     }
   }
   
+  func hasPremission() -> Bool {
+    guard let settings = UIApplication.sharedApplication().currentUserNotificationSettings() else {
+      return false
+    }
+    if settings.types == .None {
+      return false
+    }
+    
+    return true
+  }
+  
   func create(controller controller: UIViewController, body: String, action: String?, fireDate: NSDate?, soundName: String?, uid: Double, completion: completionHandler) {
     // check ability to send
     let hasPermission = checkPermission(controller: controller)
@@ -78,7 +89,7 @@ class LocalNotification {
       // create
       let notification = UILocalNotification()
       
-      // badge 
+      // badge
       notification.applicationIconBadgeNumber += 1
       
       // is a string containing the text to show to users. The title of the message will automatically be your app's name.
