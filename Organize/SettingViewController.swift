@@ -23,9 +23,8 @@ class SettingViewController: UIViewController {
     
     case App
     case AppTutorial
-    case AppTimer
     case AppColor
-    case AppSound
+    case AppTimer
     case AppFeedback
     case AppShare
     
@@ -56,7 +55,7 @@ class SettingViewController: UIViewController {
     
     var active: Bool {
       switch self {
-      case .NotebookChange, .AppSound, .AccountAchievements, .Upgrade, .UpgradeBuy, .Cloud, .CloudUpload, .CloudDownload: return false
+      case .NotebookChange, .AccountAchievements, .Upgrade, .UpgradeBuy, .Cloud, .CloudUpload, .CloudDownload: return false
       default: return true
       }
     }
@@ -79,9 +78,8 @@ class SettingViewController: UIViewController {
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
-      case .AppTimer: return "Toggle timer"
+      case .AppTimer: return "Activate timer"
       case .AppColor: return "Change color"
-      case .AppSound: return "Toggle sound" // TODO: based on appstate
       case .AppFeedback: return "Send feedback"
       case .AppShare: return "Share with a friend"
         

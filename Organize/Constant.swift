@@ -15,7 +15,7 @@ struct Constant {
     static let name: String = "Organize"
     static let id: String = "1116178818"
     static let loadingDelay: Double = release ? 0.2 : 0
-    static let release: Bool = false
+    static let release: Bool = true
     static let logging: Bool = true
     static let deepLink: String = "eneff.organize"
     static let deepLinkUrl: String = "https://yp4ut.app.goo.gl/4D6z"
