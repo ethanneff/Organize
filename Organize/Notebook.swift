@@ -916,19 +916,29 @@ class Notebook: NSObject, NSCoding, Copying {
   // MARK: - HELPER METHODS
   private func correctBoldedAndCollapsed() -> [NSIndexPath] {
     var indexPaths: [NSIndexPath] = []
+    
+    func unbold(display display: Note, index: Int) {
+      display.collapsed = false
+      display.bolded = false
+      display.children = 0
+      indexPaths += [NSIndexPath(forRow: index, inSection: 0)]
+    }
+    
     for i in 0..<self.display.count {
       let display = self.display[i]
       
       if display.collapsed || display.bolded {
         let note = self.getNoteParent(displayParent: display)
         let next = note.index+1
+        
+        if next == self.notes.count {
+          unbold(display: display, index: i)
+        }
+        
         if next < self.notes.count {
           let child = self.notes[next]
           if child.indent <= note.note.indent {
-            display.collapsed = false
-            display.bolded = false
-            display.children = 0
-            indexPaths += [NSIndexPath(forRow: i, inSection: 0)]
+            unbold(display: display, index: i)
           }
         }
       }
