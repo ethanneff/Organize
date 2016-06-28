@@ -16,6 +16,7 @@ struct Remote {
   
   struct Auth {
     // TODO: make background threads
+    // TODO: have custom error messages
     private static func authError(code code: Int) -> String {
       switch code {
       // TODO: word better
@@ -99,7 +100,7 @@ struct Remote {
             
             readDatabaseNotebookId(user: user) { (error, notebookId) in
               if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
-
+              
               readDatabaseNotebook(notebookId: notebookId) { (error, notebook) in
                 if let error = error { return finish(loadingModal: loadingModal, logout: logout, completion: completion, error: error) }
                 
@@ -464,17 +465,21 @@ struct Remote {
         return completion(error: nil, notes: [])
       }
       
-      print(noteIds)
-      
       // download notes
+      let start: NSDate = NSDate()
+      let timeout: Double = 180 // 3 minutes
       var count: Int = noteIds.count
       var error: Bool = false
       var notes: [[String: AnyObject]] = []
       for id in noteIds {
         database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-          // catch error (only report once)
+          // catch max timeout
+          if NSDate().timeIntervalSinceDate(start) > timeout {
+            Report.sharedInstance.log("timeout download notes")
+            return completion(error: authError(code: 17010), notes: [])
+          }
           
-          print(snapshot)
+          // catch error (only report once)
           guard var note = snapshot.value as? [String: AnyObject] else {
             if !error {
               error = true
@@ -483,7 +488,6 @@ struct Remote {
             }
             return
           }
-          print(note)
           
           // save note
           note["id"] = id

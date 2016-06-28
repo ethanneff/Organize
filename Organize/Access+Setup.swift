@@ -233,6 +233,7 @@ class AccessSetup {
     return container
   }
   
+  // TODO: combine with modal TextField
   private static func setupTextField(textField textField: UITextField, placeholder: String, keyboardType: KeyboardType) -> UITextField {
     textField.borderStyle = .RoundedRect
     textField.tintColor = Constant.Color.button
@@ -248,6 +249,7 @@ class AccessSetup {
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.autoresizesSubviews = false
     textField.autocapitalizationType = .None
+    textField.autocorrectionType = keyboardType == .Email || keyboardType == .Password ? .No : .Default;
     
     return textField
   }
