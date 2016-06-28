@@ -299,7 +299,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     if !Constant.App.release {
-      notebook = Notebook.getDefault()
+//      notebook = Notebook.getDefault()
+      notebook.display = notebook.notes
       refreshControl.endRefreshing()
       tableView.reloadData()
       return

@@ -11,18 +11,18 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   static let identifier: String = "cell"
   static let height: CGFloat = 34
   
-  private var titleLabel: UILabel?
-  private var accessoryButton: UIButton?
-  private var reminderView: UIView?
+  private var titleLabel: UILabel!
+  private var titleLabelLeadingConstraint: NSLayoutConstraint!
+  private var accessoryButton: UIButton!
+  private var reminderView: UIView!
   private let titleLabelPadding: CGFloat = Constant.Button.padding
   private let accessoryButtonWidth: CGFloat = Constant.Button.height
   private let reminderViewWidth: CGFloat = 3
   
-  private let titleIndentSpace: String = "     "
+  private let titleLabelIndentMultiplier: CGFloat = 20
   
   weak var delegate: ListTableViewCellDelegate?
-  // TODO: figure out why to make a property... swipe gets deinit otherwise
-  var swipe: SwipeCell?
+  private var swipe: SwipeCell!
   
   // MARK: - init
   override func awakeFromNib() {
@@ -67,16 +67,15 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   // MARK: - create
   private func setupView() {
     titleLabel = UILabel()
-    titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
-    addSubview(titleLabel!)
+    addSubview(titleLabel)
     
     accessoryButton = UIButton()
-    addSubview(accessoryButton!)
+    addSubview(accessoryButton)
     accessoryButton?.titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
     accessoryButton?.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
     
     reminderView = UIView()
-    addSubview(reminderView!)
+    addSubview(reminderView)
   }
   
   private func setupCellDefaults() {
@@ -85,30 +84,32 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     layoutMargins = UIEdgeInsetsZero
     preservesSuperviewLayoutMargins = false
     selectionStyle = .None
-    // TODO: test if fixes separator disappearance
+    // fixes separator disappearance
     textLabel?.backgroundColor = .clearColor()
   }
   
   private func setupViewConstraints() {
-    titleLabel!.translatesAutoresizingMaskIntoConstraints = false
-    accessoryButton!.translatesAutoresizingMaskIntoConstraints = false
-    reminderView!.translatesAutoresizingMaskIntoConstraints = false
+    titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    accessoryButton.translatesAutoresizingMaskIntoConstraints = false
+    reminderView.translatesAutoresizingMaskIntoConstraints = false
+    
+    titleLabelLeadingConstraint = NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: titleLabelPadding)
     
     NSLayoutConstraint.activateConstraints([
-      NSLayoutConstraint(item: titleLabel!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: titleLabel!, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
-      NSLayoutConstraint(item: titleLabel!, attribute: .Trailing, relatedBy: .Equal, toItem: accessoryButton!, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
-      NSLayoutConstraint(item: titleLabel!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
+      titleLabelLeadingConstraint,
+      NSLayoutConstraint(item: titleLabel, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: accessoryButton, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
+      NSLayoutConstraint(item: titleLabel, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
       
-      NSLayoutConstraint(item: accessoryButton!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: accessoryButton!, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: accessoryButton!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: accessoryButton!, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: accessoryButtonWidth),
+      NSLayoutConstraint(item: accessoryButton, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: accessoryButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: accessoryButtonWidth),
       
-      NSLayoutConstraint(item: reminderView!, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: reminderView!, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: reminderView!, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: reminderView!, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: reminderViewWidth),
+      NSLayoutConstraint(item: reminderView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
+      NSLayoutConstraint(item: reminderView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: reminderViewWidth),
       ])
   }
   
@@ -132,26 +133,22 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   
   // MARK: load
   func updateCell(note note: Note) {
-    // title
-    var title = note.title
-    for _ in 0..<note.indent {
-      title = titleIndentSpace + title
-    }
-    title = note.bolded && note.indent != 0 ? " " + title : title
-    
+    // indent
+    titleLabelLeadingConstraint.constant = titleLabelPadding + CGFloat(note.indent) * titleLabelIndentMultiplier
+
     // bolded
     titleLabel?.font = note.bolded ? .boldSystemFontOfSize(UIFont.systemFontSize()) : .systemFontOfSize(UIFont.systemFontSize())
     
-    // complete
+    // title & complete
     if note.completed {
-      let attrString = NSAttributedString(string: title, attributes: [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue])
+      let attrString = NSAttributedString(string: note.title, attributes: [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue])
       titleLabel?.attributedText = attrString
       titleLabel?.textColor = Constant.Color.border
       accessoryButton?.tintColor = Constant.Color.border
     } else {
       titleLabel?.textColor = Constant.Color.title
       accessoryButton?.tintColor = Constant.Color.button
-      titleLabel?.text = title
+      titleLabel?.text = note.title
     }
     
     // accessoryButton
