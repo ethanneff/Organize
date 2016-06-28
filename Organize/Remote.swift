@@ -467,7 +467,7 @@ struct Remote {
       
       // download notes
       let start: NSDate = NSDate()
-      let timeout: Double = 180 // 3 minutes
+      let timeout: Double = 120 // 2 minutes
       var count: Int = noteIds.count
       var error: Bool = false
       var notes: [[String: AnyObject]] = []
