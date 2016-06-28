@@ -27,6 +27,9 @@ class PomodoroTimer: Timer {
   private let longBreakTime: Int = 15*60
   private let shortBreakTime: Int = 5*60
   
+  private var schedule: [Int]
+  private var notifications: [Int]
+  
   private var breakCount: Int
   private var workCount: Int
   private var countdown: Int
@@ -34,18 +37,32 @@ class PomodoroTimer: Timer {
   
   weak var delegate: PomodoroTimerDelegate?
   
+  // MARK: init
   override init() {
     breakCount = 0
     workCount = 0
     countdown = workTime
     isBreak = false
+    schedule = [workTime, shortBreakTime, workTime, shortBreakTime, workTime, shortBreakTime, workTime, longBreakTime]
+    notifications = []
   }
   
+  convenience init(startTime: NSDate) {
+    // check on controller for NSUSERDefautls
+    // if exists, then create an instance of timer with the counter
+    self.init()
+    self.counter = Int(NSDate().timeIntervalSinceDate(startTime))
+  }
+  
+  // MARK: - public access
   override func start() {
+    // determing the output based on the the counter
     if countdown == workTime && workCount == 0 {
       delegate?.pomodoroTimerWork()
     }
     delegate?.pomodoroTimerUpdate(output: output(), isBreak: isBreak)
+    createNotifications()
+    store()
     super.start()
   }
   
@@ -55,15 +72,17 @@ class PomodoroTimer: Timer {
     delegate?.pomodoroTimerUpdate(output: "", isBreak: isBreak)
   }
   
-  override func update() {
+  override func pause() {
+    super.pause()
+    deleteNotifications()
+    delegate?.pomodoroTimerUpdate(output: output(), isBreak: true)
+  }
+  
+  // MARK:-  private helper
+  override private func update() {
     super.update()
     updateCountdown()
     delegate?.pomodoroTimerUpdate(output: output(), isBreak: isBreak)
-  }
-  
-  override func pause() {
-    super.pause()
-    delegate?.pomodoroTimerUpdate(output: output(), isBreak: true)
   }
   
   private func clear() {
@@ -71,9 +90,35 @@ class PomodoroTimer: Timer {
     breakCount = 0
     workCount = 0
     isBreak = false
+    deleteNotifications()
+    discard()
+  }
+  
+  private func discard() {
+    // remove from NSUserDefaults
+  }
+  
+  private func store() {
+    // save start time in NSUserDefaults
+  }
+  
+  
+  private func createNotifications() {
+    // test if not able to send notifciatiosn popup
+    // save all uid in notifications[] araray
+    
+    // time should be based on counter
+    // time should be next 50 instances (25 pormortos)
+//    LocalNotification.sharedInstance.create(controller: self, body: <#T##String#>, action: <#T##String?#>, fireDate: <#T##NSDate?#>, soundName: <#T##String?#>, uid: <#T##Double#>, completion: <#T##completionHandler##completionHandler##(success: Bool) -> ()#>)
+    
+  }
+  
+  private func deleteNotifications() {
+    // delete all uid from notifications[] array
   }
   
   private func updateCountdown() {
+    // countdown should be based on counter, not -1
     if countdown == 0 {
       isBreak = !isBreak
       if isBreak {
