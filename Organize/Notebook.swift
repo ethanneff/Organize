@@ -537,20 +537,20 @@ class Notebook: NSObject, NSCoding, Copying {
         // notes insert section at last location (find location [notePrev])
         let prev = toIndexPath.row-1
         let displayPrev = self.display[prev]
-        var notePrev = self.getNoteParent(displayParent: displayPrev)
-        
+        let notePrev = self.getNoteParent(displayParent: displayPrev)
+        var insert = notePrev.index+1
         // find children for last one
         if displayPrev.collapsed {
-          for i in prev+1..<self.notes.count {
+          for i in insert..<self.notes.count {
             let child = self.notes[i]
             if child.indent <= notePrev.note.indent {
               break
             }
-            notePrev.index = i
+            insert = i+1
           }
         }
         
-        complete(section: section, index: notePrev.index+1)
+        complete(section: section, index: insert)
         return
       }
     }
@@ -701,7 +701,6 @@ class Notebook: NSObject, NSCoding, Copying {
         indexPaths.append(next)
         children.append(child.note)
       }
-      
       
       // display children
       self.insert(indexPaths: indexPaths, tableView: tableView, data: children.reverse()) {
@@ -960,7 +959,7 @@ class Notebook: NSObject, NSCoding, Copying {
         }
       } else {
         // unbold parent
-        if parent.bolded {
+        if parent.bolded && !parent.collapsed {
           parent.bolded = false
           indexPaths += [NSIndexPath(forRow: prev, inSection: 0)]
         }
@@ -1119,7 +1118,7 @@ class Notebook: NSObject, NSCoding, Copying {
   
   // MARK: - DEFAULT
   static func getDefault() -> Notebook {
-    return loadDefaultDemo()
+    return loadDefaultTesting()
   }
   
   private static func loadDefaultTesting() -> Notebook {
@@ -1127,26 +1126,26 @@ class Notebook: NSObject, NSCoding, Copying {
     let notebook = Notebook(notes: [])
     
     // notes
-    notebook.notes.append(Note(title: "0", indent: 0))
-    notebook.notes.append(Note(title: "1", indent: 1))
-    notebook.notes.append(Note(title: "2", indent: 2))
-    notebook.notes.append(Note(title: "3", indent: 1))
-    notebook.notes.append(Note(title: "4", indent: 2))
-    notebook.notes.append(Note(title: "5", indent: 3))
-    notebook.notes.append(Note(title: "6", indent: 1))
-    notebook.notes.append(Note(title: "7", indent: 0))
-    notebook.notes.append(Note(title: "8", indent: 1))
-    notebook.notes.append(Note(title: "9", indent: 1))
-    notebook.notes.append(Note(title: "10", indent: 0))
-    notebook.notes.append(Note(title: "11", indent: 1))
-    notebook.notes.append(Note(title: "12", indent: 1))
-    notebook.notes.append(Note(title: "13", indent: 2))
-    notebook.notes.append(Note(title: "14", indent: 3))
-    notebook.notes.append(Note(title: "15", indent: 4))
-    notebook.notes.append(Note(title: "16", indent: 5))
-    notebook.notes.append(Note(title: "17", indent: 6))
-    notebook.notes.append(Note(title: "18", indent: 5))
-    notebook.notes.append(Note(title: "19", indent: 4))
+    notebook.notes.append(Note(title: "0", indent: 0, bolded: true))
+    notebook.notes.append(Note(title: "1", indent: 1, bolded: true))
+    notebook.notes.append(Note(title: "2", indent: 2, bolded: false))
+    notebook.notes.append(Note(title: "3", indent: 1, bolded: true))
+    notebook.notes.append(Note(title: "4", indent: 2, bolded: true))
+    notebook.notes.append(Note(title: "5", indent: 3, bolded: false))
+    notebook.notes.append(Note(title: "6", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "7", indent: 0, bolded: true))
+    notebook.notes.append(Note(title: "8", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "9", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "10", indent: 0, bolded: true))
+    notebook.notes.append(Note(title: "11", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "12", indent: 1, bolded: true))
+    notebook.notes.append(Note(title: "13", indent: 2, bolded: false))
+    notebook.notes.append(Note(title: "14", indent: 0, bolded: true))
+    notebook.notes.append(Note(title: "15", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "16", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "17", indent: 0, bolded: true))
+    notebook.notes.append(Note(title: "18", indent: 1, bolded: false))
+    notebook.notes.append(Note(title: "19", indent: 1, bolded: false))
     
     // copy the references to display view
     notebook.display = notebook.notes

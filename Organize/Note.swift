@@ -66,6 +66,12 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
     self.indent = indent
   }
   
+  convenience init(title: String, indent: Int, bolded: Bool) {
+    self.init(title: title)
+    self.indent = indent
+    self.bolded = bolded
+  }
+  
   convenience init(title: String, body: String?, indent: Int) {
     self.init(title: title, body: body)
     self.indent = indent

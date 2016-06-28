@@ -298,29 +298,30 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - refresh
   func tableViewRefresh(refreshControl: UIRefreshControl) {
-    refreshControl.endRefreshing()
-    notebook.display = notebook.notes
-    tableView.reloadData()
+    if !Constant.App.release {
+      notebook = Notebook.getDefault()
+      refreshControl.endRefreshing()
+      tableView.reloadData()
+      return
+    }
     
-    // TODO: re-instate cloud download
-    
-//    let modal = ModalConfirmation()
-//    modal.trackButtons = true
-//    modal.message = "Download from cloud and overwrite data on device?"
-//    modal.show(controller: self, dismissible: true) { (output) in
-//      refreshControl.endRefreshing()
-//      if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int where selection == 1 {
-//        Remote.Auth.download(controller: self) { (error) in
-//          if let error = error {
-//            let modal = ModalError()
-//            modal.message = error
-//            modal.show(controller: self)
-//            return
-//          }
-//          self.loadNotebook()
-//        }
-//      }
-//    }
+    let modal = ModalConfirmation()
+    modal.trackButtons = true
+    modal.message = "Download from cloud and overwrite data on device?"
+    modal.show(controller: self, dismissible: true) { (output) in
+      refreshControl.endRefreshing()
+      if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int where selection == 1 {
+        Remote.Auth.download(controller: self) { (error) in
+          if let error = error {
+            let modal = ModalError()
+            modal.message = error
+            modal.show(controller: self)
+            return
+          }
+          self.loadNotebook()
+        }
+      }
+    }
   }
   
   // MARK - swipe
