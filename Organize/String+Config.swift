@@ -1,7 +1,6 @@
 import Foundation
 
 extension String {
-  
   var isBlank: Bool {
     get {
       let trimmed = stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
@@ -37,12 +36,28 @@ extension String {
       return false
     }
   }
-  
+}
+
+extension String {
   var trim: String {
     return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
   }
   
   var length: Int {
     return self.characters.count
+  }
+}
+
+extension String {
+  subscript(integerIndex: Int) -> Character {
+    let index = startIndex.advancedBy(integerIndex)
+    return self[index]
+  }
+  
+  subscript(integerRange: Range<Int>) -> String {
+    let start = startIndex.advancedBy(integerRange.startIndex)
+    let end = startIndex.advancedBy(integerRange.endIndex)
+    let range = start..<end
+    return self[range]
   }
 }
