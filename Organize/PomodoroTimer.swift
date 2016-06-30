@@ -31,6 +31,8 @@ class PomodoroTimer: Timer {
   
   private var schedule: [Interval]
   private var notifications: [String]
+  private var notificationCount: Int
+  private let notificationQueue: dispatch_queue_t
   
   private var breakCount: Int
   private var workCount: Int
@@ -87,6 +89,10 @@ class PomodoroTimer: Timer {
                 Interval(duration: workTime, type: .Work),
                 Interval(duration: longBreakTime, type: .LongBreak)]
     notifications = []
+    notificationCount = 30
+    notificationQueue = dispatch_queue_create("com.eneff.app.organize.pomodorotimer", nil)
+    super.init()
+    reload()
   }
   
   // MARK: - deinit
@@ -102,30 +108,28 @@ class PomodoroTimer: Timer {
   
   // MARK: - public
   override func start() {
-    if seconds == 0 {
-      print("p start")
-    } else {
-      print("p resume")
-    }
-    deleteNotifications()
-    if !createNotifications() {
+    // exit if no premission
+    if state == .On || !createNotifications()  {
       return
     }
-    
     super.start()
     render()
     createListeners()
   }
   
   override func pause() {
-    print("p pause")
+    if state == .Paused {
+      return
+    }
     super.pause()
     render()
     deleteNotifications()
   }
   
   override func stop() {
-    print("p stop")
+    if state == .Off {
+      return
+    }
     super.stop()
     render()
     deleteNotifications()
@@ -137,70 +141,85 @@ class PomodoroTimer: Timer {
     render()
   }
   
-  private func render() {
-    Util.threadBackground {
-      var index = 0
-      var delta = self.seconds
-      var interval = self.schedule[index]
-      self.workCount = 0
-      self.breakCount = 0
-      while true {
-        interval = self.schedule[index]
-        if delta - interval.duration > 0 {
-          if interval.type == .Work {
-            self.workCount += 1
-            Util.threadMain {
-              self.delegate?.pomodoroTimerWork()
-            }
-          } else {
-            self.breakCount += 1
-            Util.threadMain {
-              self.delegate?.pomodoroTimerBreak()
-            }
-          }
-        } else {
-          delta = interval.duration - delta
-          break
-        }
-        delta = delta - interval.duration
-        index = index >= self.schedule.count-1 ? 0 : index+1
-      }
-      
-      let min: String = String(format: "%02d", Int(delta/60))
-      let sec: String = String(format: "%02d", Int(delta%60))
-      var output: String = "\(min):\(sec)"
-      if self.state == .Off {
-        output = ""
-      } else if self.state == .Paused {
-        output = "paused | \(self.workCount) | \(output)"
-      } else {
-        output = "\(interval.type.button) | \(self.workCount) | \(output)"
-      }
-      Util.threadMain {
-        self.delegate?.pomodoroTimerUpdate(output: output, isBreak: interval.type != .Work)
-      }
-    }
-  }
-  
-  
   func reload() {
-    render()
     print("p reload")
+    // get defaults
     if let secondsInApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroSeconds) as? Double {
       let state = State(rawValue: Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroState) as? Int ?? 0)!
       let open = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppOpenDate) as? NSDate ?? NSDate()
       let close = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppCloseDate) as? NSDate ?? NSDate()
       let time = open.timeIntervalSinceDate(close) + secondsInApp
       
+      // action on defaults
       switch state {
       case .On:
-        seconds = time
-        start()
+        self.state = .Paused
+        self.seconds = time
+        self.start()
         break
       case .Paused:
-        pause()
+        self.pause()
         break
       default: break
+      }
+    }
+  }
+  
+  // MARK: - output
+  private func render() {
+    Util.threadBackground {
+      let position = self.getIntervalPosition(updateCount: true)
+      
+      let min: String = String(format: "%02d", Int(position.remainder/60))
+      let sec: String = String(format: "%02d", Int(position.remainder%60))
+      var output: String = "\(min):\(sec)"
+      if self.state == .Off {
+        output = ""
+      } else if self.state == .Paused {
+        output = "paused | \(self.workCount) | \(output)"
+      } else {
+        output = "\(position.interval.type.button) | \(self.workCount) | \(output)"
+      }
+      Util.threadMain {
+        self.delegate?.pomodoroTimerUpdate(output: output, isBreak: position.interval.type != .Work)
+      }
+    }
+  }
+  
+  // MARK: - helper
+  private func getIntervalPosition(updateCount updateCount: Bool) -> (interval: Interval, index: Int, remainder: Double) {
+    var index = 0
+    var remainder = seconds
+    var interval = schedule[index]
+    workCount = updateCount ? 0 : workCount
+    workCount = updateCount ? 0 : breakCount
+    while true {
+      interval = schedule[index]
+      if remainder - interval.duration <= 0 {
+        remainder = interval.duration - remainder
+        break
+      }
+      
+      if updateCount {
+        self.updateCounts(type: interval.type)
+      }
+      remainder = remainder - interval.duration
+      index = index >= schedule.count-1 ? 0 : index+1
+    }
+    
+    return (interval: interval, index: index, remainder: remainder)
+  }
+  
+  private func updateCounts(type type: Type) {
+    if type == .Work {
+      workCount += 1
+      Util.threadMain {
+        self.delegate?.pomodoroTimerWork()
+      }
+    } else {
+      breakCount += 1
+      Util.threadMain {
+        self.delegate?.pomodoroTimerBreak()
       }
     }
   }
@@ -220,31 +239,37 @@ class PomodoroTimer: Timer {
     }
     
     // create notifications
-    Util.threadBackground {
+    deleteNotifications() {
+      let position = self.getIntervalPosition(updateCount: false)
+      let remainder: Double = position.remainder == position.interval.duration ? 0 : position.remainder - position.interval.duration
       let now: NSDate = NSDate()
-      var index: Int = 0
-      var sum: Double = -self.seconds
-      for _ in 0..<50 {
+      var index: Int = position.index
+      var sum: Double = remainder
+      for _ in 0..<self.notificationCount {
         let uuid = NSUUID().UUIDString
         let interval = self.schedule[index]
+        let nextInterval = self.schedule[index >= self.schedule.count-1 ? 0 : index + 1]
         sum += interval.duration
         let future = now.dateByAddingTimeInterval(sum)
         self.notifications.append(uuid)
-        LocalNotification.sharedInstance.create(controller: controller, body: interval.type.notification, action: nil, fireDate: future, soundName: nil, uid: uuid, completion: nil)
+        LocalNotification.sharedInstance.create(controller: controller, body: nextInterval.type.notification, action: nil, fireDate: future, soundName: nil, uid: uuid, completion: nil)
         index = index >= self.schedule.count-1 ? 0 : index + 1
       }
+      print(UIApplication.sharedApplication().scheduledLocalNotifications!.count)
     }
     return true
   }
   
-  private func deleteNotifications() {
-    print("delete notifications")
-    Util.threadBackground {
+  private func deleteNotifications(completion: (() -> ())? = nil) {
+    dispatch_async(notificationQueue) {
       for uid in self.notifications {
         LocalNotification.sharedInstance.delete(uid: uid)
       }
       self.notifications.removeAll()
-      print(UIApplication.sharedApplication().scheduledLocalNotifications?.count)
+      print(UIApplication.sharedApplication().scheduledLocalNotifications!.count)
+      if let completion = completion {
+        completion()
+      }
     }
   }
   

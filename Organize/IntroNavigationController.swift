@@ -11,9 +11,9 @@ class IntroNavigationController: UINavigationController {
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     // TODO: fix
-//              self.displayController(navController: TestNavigationController())
+    displayController(navController: TestNavigationController())
     
-    determineController()
+//    determineController()
   }
   
   private func determineController() {

@@ -125,7 +125,7 @@ class LocalNotification {
         if let userInfo = notification.userInfo, let userId = userInfo["uid"] as? String {
           if userId == uid {
             app.cancelLocalNotification(notification)
-            break
+            return
           }
         }
       }

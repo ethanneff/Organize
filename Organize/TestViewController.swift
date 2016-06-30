@@ -43,7 +43,6 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
     setupLabel(label: label1)
     setupButtons(buttons: buttons)
     timer.delegate = self
-    timer.reload()
   }
   
   required init?(coder aDecoder: NSCoder) {
