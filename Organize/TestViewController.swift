@@ -108,7 +108,7 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
     case 4: buttonFive()
     default: break
     }
-        Util.animateButtonPress(button: button)
+    Util.animateButtonPress(button: button)
   }
   
   func buttonOne() {
@@ -128,8 +128,6 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
   }
   
   func pomodoroTimerUpdate(output output: String, isBreak: Bool) {
-    print("delegate \(NSDate())")
     label1.text = output
-    print("done \(NSDate())")
   }
 }
