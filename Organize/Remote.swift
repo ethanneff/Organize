@@ -554,7 +554,7 @@ struct Remote {
         var reminder: Reminder?
         if let noteReminder = note["reminder"] as? [String: AnyObject] {
           guard let id = noteReminder["id"] as? String,
-            let uid = noteReminder["uid"] as? Double,
+            let uid = noteReminder["uid"] as? String,
             let date = noteReminder["date"] as? Double,
             let type = noteReminder["type"] as? Int,
             let created = note["created"] as? Double,

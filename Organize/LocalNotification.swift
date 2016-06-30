@@ -12,7 +12,7 @@ class LocalNotification {
   private let displayButtonNo: String = "No"
   typealias completionHandler = ((success: Bool) -> ())?
   
-  private func checkPermission(controller controller: UIViewController) -> Bool {
+  func checkPermission(controller controller: UIViewController) -> Bool {
     guard let settings = UIApplication.sharedApplication().currentUserNotificationSettings() else {
       return false
     }
@@ -81,7 +81,7 @@ class LocalNotification {
     return true
   }
   
-  func create(controller controller: UIViewController, body: String, action: String?, fireDate: NSDate?, soundName: String?, uid: Double, completion: completionHandler) {
+  func create(controller controller: UIViewController, body: String, action: String?, fireDate: NSDate?, soundName: String?, uid: String, completion: completionHandler) {
     // check ability to send
     let hasPermission = checkPermission(controller: controller)
     
@@ -117,12 +117,12 @@ class LocalNotification {
     }
   }
   
-  func delete(uid uid: Double) {
+  func delete(uid uid: String) {
     // delete notification based on uid from userInfo object
     let app = UIApplication.sharedApplication()
     if let notifications = app.scheduledLocalNotifications {
       for notification in notifications {
-        if let userInfo = notification.userInfo, let userId = userInfo["uid"] as? Double {
+        if let userInfo = notification.userInfo, let userId = userInfo["uid"] as? String {
           if userId == uid {
             app.cancelLocalNotification(notification)
             break

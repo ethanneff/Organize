@@ -30,12 +30,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // launch and foreground
     reportState(active: true)
     updateFirebase()
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.AppOpenDate, val: NSDate())
   }
   
   func applicationWillResignActive(application: UIApplication) {
     // resign background terminate
     reportState(active: false)
     clearBadgeIcon()
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.AppCloseDate, val: NSDate())
   }
   
   func applicationDidEnterBackground(application: UIApplication) {

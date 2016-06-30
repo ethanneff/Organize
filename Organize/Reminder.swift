@@ -3,7 +3,7 @@ import UIKit
 class Reminder: NSObject, NSCoding {
   // MARK: - PROPERTIES
   var id: String
-  var uid: Double
+  var uid: String
   var type: ReminderType
   var date: NSDate
   var created: NSDate
@@ -14,7 +14,7 @@ class Reminder: NSObject, NSCoding {
   }
   
   // MARK: - INIT
-  init(uid: Double, type: ReminderType, date: NSDate) {
+  init(uid: String, type: ReminderType, date: NSDate) {
     self.id = NSUUID().UUIDString
     self.uid = uid
     self.type = type
@@ -23,7 +23,7 @@ class Reminder: NSObject, NSCoding {
     self.updated = NSDate()
   }
   
-  convenience init(id: String, uid: Double, type: ReminderType, date: NSDate, created: NSDate, updated: NSDate) {
+  convenience init(id: String, uid: String, type: ReminderType, date: NSDate, created: NSDate, updated: NSDate) {
     self.init(uid: uid, type: type, date: date)
     self.id = id
     self.created = created
@@ -31,7 +31,7 @@ class Reminder: NSObject, NSCoding {
   }
   
   convenience init(type: ReminderType, date: NSDate?) {
-    let uid = Double(NSDate().timeIntervalSince1970 * 100000)
+    let uid = NSUUID().UUIDString
     let date = type.date(date: date)
     
     self.init(uid: uid, type: type, date: date)
@@ -63,7 +63,7 @@ class Reminder: NSObject, NSCoding {
   
   required convenience init?(coder aDecoder: NSCoder) {
     let id = aDecoder.decodeObjectForKey(PropertyKey.id) as! String
-    let uid = aDecoder.decodeObjectForKey(PropertyKey.uid) as! Double
+    let uid = aDecoder.decodeObjectForKey(PropertyKey.uid) as! String
     let type = ReminderType(rawValue: aDecoder.decodeObjectForKey(PropertyKey.type) as! Int)!
     let date = aDecoder.decodeObjectForKey(PropertyKey.date) as! NSDate
     let created = aDecoder.decodeObjectForKey(PropertyKey.created) as! NSDate

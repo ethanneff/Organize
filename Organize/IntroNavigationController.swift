@@ -10,7 +10,10 @@ class IntroNavigationController: UINavigationController {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    determineController()
+    // TODO: fix
+              self.displayController(navController: TestNavigationController())
+    
+//    determineController()
   }
   
   private func determineController() {

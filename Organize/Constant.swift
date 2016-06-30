@@ -116,6 +116,10 @@ struct Constant {
       case FeedbackApp
       case ReviewApp
       case ReviewCount
+      case PomodoroState
+      case PomodoroSeconds
+      case AppOpenDate
+      case AppCloseDate
     }
     
     static func get(key key: UserDefault.Key) -> AnyObject? {
@@ -124,6 +128,12 @@ struct Constant {
     
     static func set(key key: UserDefault.Key, val: AnyObject) {
       NSUserDefaults.standardUserDefaults().setValue(val, forKey: key.rawValue)
+      NSUserDefaults.standardUserDefaults().synchronize()
+    }
+    
+    static func remove(key key: UserDefault.Key) {
+      NSUserDefaults.standardUserDefaults().removeObjectForKey(key.rawValue)
+      NSUserDefaults.standardUserDefaults().synchronize()
     }
   }
 }

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		67079DC61D243C3100CEF997 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67079DC51D243C3100CEF997 /* Timer.swift */; };
+		67079DC91D243EA200CEF997 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67079DC81D243EA200CEF997 /* TestViewController.swift */; };
+		67079DCB1D24425F00CEF997 /* TestNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67079DCA1D24425F00CEF997 /* TestNavigationController.swift */; };
+		67079DCD1D2443C100CEF997 /* PomodoroTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67079DCC1D2443C100CEF997 /* PomodoroTimer.swift */; };
 		670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */; };
 		670963071CEE3DD60043D2A5 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670963061CEE3DD60043D2A5 /* AppState.swift */; };
 		671053F51CF603B2003B8BDB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 671053F41CF603B2003B8BDB /* GoogleService-Info.plist */; };
@@ -54,7 +58,6 @@
 		675038081CD178F30061EC6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038021CD178F30061EC6E /* LoginViewController.swift */; };
 		675038091CD178F30061EC6E /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038031CD178F30061EC6E /* SignupViewController.swift */; };
 		6750380A1CD178F30061EC6E /* ForgotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675038041CD178F30061EC6E /* ForgotViewController.swift */; };
-		679616C41D1C3EE10015B4AD /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 679616C31D1C3EE10015B4AD /* Timer.swift */; };
 		67A6E5611D0640B000ABB2BC /* Modal+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */; };
 		67CD7B691D198B460019E771 /* Modal+Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CD7B681D198B460019E771 /* Modal+Review.swift */; };
 		67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CEDF521D0225C1000B6D43 /* Modal+Error.swift */; };
@@ -70,6 +73,10 @@
 		1BB4069152DF10FDBB7B53E0 /* Pods-Organize.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Organize.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Organize/Pods-Organize.debug.xcconfig"; sourceTree = "<group>"; };
 		22F7A6BE983A67D347E343ED /* Pods_Organize.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Organize.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		50980299D4CBFD6DB6F7178E /* Pods-Organize.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Organize.release.xcconfig"; path = "Pods/Target Support Files/Pods-Organize/Pods-Organize.release.xcconfig"; sourceTree = "<group>"; };
+		67079DC51D243C3100CEF997 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
+		67079DC81D243EA200CEF997 /* TestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		67079DCA1D24425F00CEF997 /* TestNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestNavigationController.swift; sourceTree = "<group>"; };
+		67079DCC1D2443C100CEF997 /* PomodoroTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PomodoroTimer.swift; sourceTree = "<group>"; };
 		670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Tutorial.swift"; sourceTree = "<group>"; };
 		670963061CEE3DD60043D2A5 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		671053F41CF603B2003B8BDB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -120,7 +127,6 @@
 		675038021CD178F30061EC6E /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		675038031CD178F30061EC6E /* SignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		675038041CD178F30061EC6E /* ForgotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotViewController.swift; sourceTree = "<group>"; };
-		679616C31D1C3EE10015B4AD /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		67A6E5601D0640B000ABB2BC /* Modal+Confirmation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Confirmation.swift"; sourceTree = "<group>"; };
 		67CD7B681D198B460019E771 /* Modal+Review.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Review.swift"; sourceTree = "<group>"; };
 		67CEDF521D0225C1000B6D43 /* Modal+Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Error.swift"; sourceTree = "<group>"; };
@@ -150,6 +156,15 @@
 				50980299D4CBFD6DB6F7178E /* Pods-Organize.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		67079DC71D243E6100CEF997 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				67079DC81D243EA200CEF997 /* TestViewController.swift */,
+				67079DCA1D24425F00CEF997 /* TestNavigationController.swift */,
+			);
+			name = test;
 			sourceTree = "<group>";
 		};
 		6750379D1CD1764B0061EC6E = {
@@ -198,6 +213,7 @@
 				675037FA1CD177920061EC6E /* intro */,
 				675037FB1CD177950061EC6E /* access */,
 				675037F61CD177720061EC6E /* menu */,
+				67079DC71D243E6100CEF997 /* test */,
 			);
 			name = components;
 			sourceTree = "<group>";
@@ -307,7 +323,8 @@
 				675037C71CD176570061EC6E /* Reminder.swift */,
 				67D8441D1CD2847B004C144F /* Swipe.swift */,
 				67227B731CF9F0470042468D /* Remote.swift */,
-				679616C31D1C3EE10015B4AD /* Timer.swift */,
+				67079DC51D243C3100CEF997 /* Timer.swift */,
+				67079DCC1D2443C100CEF997 /* PomodoroTimer.swift */,
 			);
 			name = models;
 			sourceTree = "<group>";
@@ -537,7 +554,9 @@
 				675038081CD178F30061EC6E /* LoginViewController.swift in Sources */,
 				675037EC1CD176570061EC6E /* UITextField+Config.swift in Sources */,
 				67CEDF551D022964000B6D43 /* Modal+TextField.swift in Sources */,
+				67079DC91D243EA200CEF997 /* TestViewController.swift in Sources */,
 				675037F11CD176600061EC6E /* SwipeCell.swift in Sources */,
+				67079DCB1D24425F00CEF997 /* TestNavigationController.swift in Sources */,
 				675037DD1CD176570061EC6E /* Modal+Reminder.swift in Sources */,
 				675038071CD178F30061EC6E /* Access+Business+Logic.swift in Sources */,
 				670963051CEC0DC80043D2A5 /* Modal+Tutorial.swift in Sources */,
@@ -553,7 +572,8 @@
 				675037DA1CD176570061EC6E /* MenuViewController.swift in Sources */,
 				675037DE1CD176570061EC6E /* Note.swift in Sources */,
 				67CEDF531D0225C1000B6D43 /* Modal+Error.swift in Sources */,
-				679616C41D1C3EE10015B4AD /* Timer.swift in Sources */,
+				67079DCD1D2443C100CEF997 /* PomodoroTimer.swift in Sources */,
+				67079DC61D243C3100CEF997 /* Timer.swift in Sources */,
 				675037E61CD176570061EC6E /* UIButton+Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

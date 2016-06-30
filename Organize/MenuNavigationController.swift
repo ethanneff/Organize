@@ -1,29 +1,40 @@
 import UIKit
 
 class MenuNavigationController: UINavigationController, PomodoroTimerDelegate {
-  let timerLabel: UILabel = UILabel()
-  lazy var timer: PomodoroTimer = PomodoroTimer()
+  // MARK: - properties
+  let timerLabel: UILabel!
+  let timer: PomodoroTimer!
   
-  override func loadView() {
-    super.loadView()
-    
+  // MARK: - init
+  init() {
+    timerLabel = UILabel()
+    timer = PomodoroTimer()
+    super.init(nibName: nil, bundle: nil)
     pushViewController(MenuViewController(), animated: false)
-    createPomodoroTimer()
+//    createPomodoroTimer()
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  // MARK: - deinit
+  deinit {
+
   }
   
   func pomodoroTimerUpdate(output output: String, isBreak: Bool) {
+    print("pomodoroTimerUpdate \(output)")
     timerLabel.text = output
     timerLabel.textColor = isBreak ? Constant.Color.border : Constant.Color.button
   }
   
   func pomodoroTimerBreak() {
-    // TODO: remove
     Util.playSound(systemSound: .BeepBoBoopFailure)
     Util.vibrate()
   }
   
   func pomodoroTimerWork() {
-    // TODO: remove
     Util.playSound(systemSound: .BeepBoBoopSuccess)
     Util.vibrate()
   }
@@ -42,5 +53,7 @@ class MenuNavigationController: UINavigationController, PomodoroTimerDelegate {
       NSLayoutConstraint(item: timerLabel, attribute: .Width, relatedBy: .Equal, toItem: navigationBar, attribute: .Width, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: timerLabel, attribute: .Trailing, relatedBy: .Equal, toItem: navigationBar, attribute: .Trailing, multiplier: 1, constant: 0),
       ])
+    
+//    timer.reload()
   }
 }
