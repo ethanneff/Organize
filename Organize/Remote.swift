@@ -246,8 +246,9 @@ struct Remote {
         if let error = error {
           Report.sharedInstance.log("upload get user error: \(error)")
           if let completion = completion {
-            return completion(error: error)
+            completion(error: error)
           }
+          return
         }
         
         let user = user!
@@ -257,13 +258,14 @@ struct Remote {
           if let error = error {
             Report.sharedInstance.log("upload update database error: \(error)")
             if let completion = completion {
-              return completion(error: error)
+              completion(error: error)
             }
-            
+            return
           }
           if let completion = completion {
-            return completion(error: nil)
+            completion(error: nil)
           }
+          return
         }
       }
     }

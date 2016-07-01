@@ -460,8 +460,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func logout() {
+    Util.threadBackground {
+      LocalNotification.sharedInstance.destroy()
+    }
     Report.sharedInstance.track(event: "logout")
-    self.dismissViewControllerAnimated(true, completion: nil)
+    dismissViewControllerAnimated(true, completion: nil)
   }
   
   // MARK: - modals
@@ -507,33 +510,31 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func displayAppTimer() {
-//    guard let navigationController = navigationController as? MenuNavigationController else {
-//      return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
-//    }
-//    
-//    let timer = navigationController.timer
-//    let modal = ModalConfirmation()
-//    modal.message = timer.on || timer.paused ? "Pomodoro Timer" : "Create a Pomodoro Timer to track your productivity?"
-//    modal.left = timer.on ? "Stop" : timer.paused ? "Stop" : "Cancel"
-//    modal.right = timer.on ? "Pause" : timer.paused ? "Resume" : "Start"
-//    modal.trackButtons = true
-//    modal.show(controller: self, dismissible: true) { output in
-//      if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int {
-//        if selection == 1 {
-//          if !timer.on {
-//            timer.start()
-//          } else if timer.paused {
-//            timer.resume()
-//          } else {
-//            timer.pause()
-//          }
-//        } else {
-//          if timer.on || timer.paused {
-//            timer.stop()
-//          }
-//        }
-//      }
-//    }
+    guard let navigationController = navigationController as? MenuNavigationController else {
+      return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
+    }
+    
+    let timer = navigationController.timer
+    let modal = ModalConfirmation()
+    modal.message =  timer.state == .On || timer.state == .Paused ? "Pomodoro Timer" : "Create a Pomodoro Timer to track your productivity?"
+    modal.left = timer.state == .On ? "Stop" : timer.state == .Paused ? "Stop" : "Cancel"
+    modal.right =  timer.state == .On ? "Pause" : timer.state == .Paused ? "Resume" : "Start"
+    modal.trackButtons = true
+    modal.show(controller: self, dismissible: true) { output in
+      if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int {
+        if selection == 1 {
+          switch timer.state {
+          case .On: timer.pause()
+          case .Off, .Paused: timer.start()
+          }
+        } else {
+          switch timer.state {
+          case .On, .Paused: timer.stop()
+          case .Off: break
+          }
+        }
+      }
+    }
   }
   
   private func displayAppColor() {

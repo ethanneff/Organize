@@ -118,6 +118,7 @@ struct Constant {
       case ReviewCount
       case PomodoroState
       case PomodoroSeconds
+      case PomodoroNotifications
       case AppOpenDate
       case AppCloseDate
     }

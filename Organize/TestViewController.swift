@@ -42,7 +42,6 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
     let buttons = [button1, button2, button3, button4, button5]
     setupLabel(label: label1)
     setupButtons(buttons: buttons)
-    timer.delegate = self
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -51,6 +50,12 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+  }
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    timer.delegate = self
+    timer.reload()
   }
   
   override func didReceiveMemoryWarning() {
@@ -126,7 +131,18 @@ class TestViewController: UIViewController, PomodoroTimerDelegate {
     
   }
   
-  func pomodoroTimerUpdate(output output: String, isBreak: Bool) {
+  func pomodoroTimerUpdate(output output: String, isBreak: Bool, isPaused: Bool) {
     label1.text = output
+    label1.textColor = isBreak || isPaused ? Constant.Color.border : Constant.Color.button
+  }
+  
+  func pomodoroTimerBreak() {
+    Util.playSound(systemSound: .BeepBoBoopFailure)
+    Util.vibrate()
+  }
+  
+  func pomodoroTimerWork() {
+    Util.playSound(systemSound: .BeepBoBoopSuccess)
+    Util.vibrate()
   }
 }

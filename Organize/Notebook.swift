@@ -1100,7 +1100,6 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   static func set(data data: Notebook, completion: ((success: Bool) -> ())? = nil) {
-    print(data)
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0), {
       let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(data, toFile: Notebook.ArchiveURL.path!)
       if !isSuccessfulSave {

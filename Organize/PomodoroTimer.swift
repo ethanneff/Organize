@@ -11,7 +11,7 @@ import UIKit
 // let timer = PomodoroTimer()
 // timer.delegate = self
 protocol PomodoroTimerDelegate: class {
-  func pomodoroTimerUpdate(output output: String, isBreak: Bool)
+  func pomodoroTimerUpdate(output output: String, isBreak: Bool, isPaused: Bool)
   func pomodoroTimerBreak()
   func pomodoroTimerWork()
 }
@@ -70,8 +70,7 @@ class PomodoroTimer: Timer {
   
   // MARK: init
   override init() {
-    print("p init")
-    testing = true
+    testing = false
     workTime = testing ? 5 : 25*60
     longBreakTime = testing ? 5 : 25*60
     shortBreakTime = testing ? 2 : 25*60
@@ -92,48 +91,39 @@ class PomodoroTimer: Timer {
     notificationCount = 30
     notificationQueue = dispatch_queue_create("com.eneff.app.organize.pomodorotimer", nil)
     super.init()
-    reload()
   }
   
   // MARK: - deinit
   deinit {
-    print("p deinit")
-    dealloc()
-  }
-  
-  private func dealloc() {
-    print("p dealloc")
     removeListeners()
   }
+  
   
   // MARK: - public
   override func start() {
     // exit if no premission
-    if state == .On || !createNotifications()  {
+    if !createNotifications() {
       return
     }
     super.start()
     render()
     createListeners()
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroState, val: state.rawValue)
   }
   
   override func pause() {
-    if state == .Paused {
-      return
-    }
     super.pause()
     render()
     deleteNotifications()
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroState, val: state.rawValue)
   }
   
   override func stop() {
-    if state == .Off {
-      return
-    }
     super.stop()
     render()
     deleteNotifications()
     Constant.UserDefault.remove(key: Constant.UserDefault.Key.PomodoroSeconds)
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroState, val: state.rawValue)
   }
   
   override func update() {
@@ -142,26 +132,26 @@ class PomodoroTimer: Timer {
   }
   
   func reload() {
-    print("p reload")
     // get defaults
-    if let secondsInApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroSeconds) as? Double {
-      let state = State(rawValue: Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroState) as? Int ?? 0)!
-      let open = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppOpenDate) as? NSDate ?? NSDate()
-      let close = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppCloseDate) as? NSDate ?? NSDate()
-      let time = open.timeIntervalSinceDate(close) + secondsInApp
-      
-      // action on defaults
-      switch state {
-      case .On:
-        self.state = .Paused
-        self.seconds = time
-        self.start()
-        break
-      case .Paused:
-        self.pause()
-        break
-      default: break
-      }
+    let prevSeconds = Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroSeconds) as? Double ?? seconds
+    let prevState = State(rawValue: Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroState) as? Int ?? 0)!
+    let prevNotifications = Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroSeconds) as? [String] ?? notifications
+    let open = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppOpenDate) as? NSDate ?? NSDate()
+    let close = Constant.UserDefault.get(key: Constant.UserDefault.Key.AppCloseDate) as? NSDate ?? NSDate()
+    let time = open.timeIntervalSinceDate(close) + prevSeconds
+    
+    // action on defaults
+    switch prevState {
+    case .On:
+      notifications = prevNotifications
+      seconds = time
+      start()
+    case .Paused:
+      notifications = prevNotifications
+      seconds = prevSeconds
+      pause()
+    case .Off:
+      stop()
     }
   }
   
@@ -169,19 +159,39 @@ class PomodoroTimer: Timer {
   private func render() {
     Util.threadBackground {
       let position = self.getIntervalPosition(updateCount: true)
+      let min: Int = Int(position.remainder/60)
+      let sec: Int = Int(position.remainder%60)
       
-      let min: String = String(format: "%02d", Int(position.remainder/60))
-      let sec: String = String(format: "%02d", Int(position.remainder%60))
-      var output: String = "\(min):\(sec)"
-      if self.state == .Off {
-        output = ""
-      } else if self.state == .Paused {
-        output = "paused | \(self.workCount) | \(output)"
-      } else {
-        output = "\(position.interval.type.button) | \(self.workCount) | \(output)"
-      }
+      self.updateDelegateChange(min: min, sec: sec, type: position.interval.type)
+      self.updateDelegateTimer(min: min, sec: sec, type: position.interval.type)
+    }
+  }
+  
+  // MARK: - delegates
+  private func updateDelegateTimer(min min: Int, sec: Int, type: Type) {
+    let minStr: String = String(format: "%02d", min)
+    let secStr: String = String(format: "%02d", sec)
+    var output: String = "\(minStr):\(secStr)"
+    
+    switch self.state {
+    case .Off: output = ""
+    case .On: output = "\(type.button) | \(workCount) | \(output)"
+    case .Paused: output = "paused | \(workCount) | \(output)"
+    }
+    
+    Util.threadMain {
+      self.delegate?.pomodoroTimerUpdate(output: output, isBreak: type != .Work, isPaused: self.state == .Paused)
+    }
+  }
+  
+  private func updateDelegateChange(min min: Int, sec: Int, type: Type) {
+    if min == 0 && sec == 0 {
       Util.threadMain {
-        self.delegate?.pomodoroTimerUpdate(output: output, isBreak: position.interval.type != .Work)
+        if type != .Work {
+          self.delegate?.pomodoroTimerBreak()
+        } else {
+          self.delegate?.pomodoroTimerWork()
+        }
       }
     }
   }
@@ -192,7 +202,7 @@ class PomodoroTimer: Timer {
     var remainder = seconds
     var interval = schedule[index]
     workCount = updateCount ? 0 : workCount
-    workCount = updateCount ? 0 : breakCount
+    breakCount = updateCount ? 0 : breakCount
     while true {
       interval = schedule[index]
       if remainder - interval.duration <= 0 {
@@ -201,7 +211,11 @@ class PomodoroTimer: Timer {
       }
       
       if updateCount {
-        self.updateCounts(type: interval.type)
+        if interval.type == .Work {
+          workCount += 1
+        } else {
+          breakCount += 1
+        }
       }
       remainder = remainder - interval.duration
       index = index >= schedule.count-1 ? 0 : index+1
@@ -210,23 +224,8 @@ class PomodoroTimer: Timer {
     return (interval: interval, index: index, remainder: remainder)
   }
   
-  private func updateCounts(type type: Type) {
-    if type == .Work {
-      workCount += 1
-      Util.threadMain {
-        self.delegate?.pomodoroTimerWork()
-      }
-    } else {
-      breakCount += 1
-      Util.threadMain {
-        self.delegate?.pomodoroTimerBreak()
-      }
-    }
-  }
-  
   // MARK: - notifications
   private func createNotifications() -> Bool {
-    print("p create notifications")
     // require delegate
     guard let controller = delegate as? UIViewController else {
       Report.sharedInstance.log("missing required PomodoroTimerDelegate")
@@ -241,7 +240,7 @@ class PomodoroTimer: Timer {
     // create notifications
     deleteNotifications() {
       let position = self.getIntervalPosition(updateCount: false)
-      let remainder: Double = position.remainder == position.interval.duration ? 0 : position.remainder - position.interval.duration
+      let remainder: Double = position.remainder == position.interval.duration ? 0 : position.remainder - position.interval.duration - 1 // minus 1 for local notification push delay
       let now: NSDate = NSDate()
       var index: Int = position.index
       var sum: Double = remainder
@@ -255,7 +254,7 @@ class PomodoroTimer: Timer {
         LocalNotification.sharedInstance.create(controller: controller, body: nextInterval.type.notification, action: nil, fireDate: future, soundName: nil, uid: uuid, completion: nil)
         index = index >= self.schedule.count-1 ? 0 : index + 1
       }
-      print(UIApplication.sharedApplication().scheduledLocalNotifications!.count)
+      Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroNotifications, val: self.notifications)
     }
     return true
   }
@@ -266,7 +265,7 @@ class PomodoroTimer: Timer {
         LocalNotification.sharedInstance.delete(uid: uid)
       }
       self.notifications.removeAll()
-      print(UIApplication.sharedApplication().scheduledLocalNotifications!.count)
+      Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroNotifications, val: self.notifications)
       if let completion = completion {
         completion()
       }
@@ -278,7 +277,6 @@ class PomodoroTimer: Timer {
     removeListeners()
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationWillTerminateNotification), name: UIApplicationWillTerminateNotification, object: nil)
   }
   
   private func removeListeners() {
@@ -291,15 +289,8 @@ class PomodoroTimer: Timer {
   }
   
   dynamic func applicationDidBecomeInactiveNotification() {
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroState, val: state.rawValue)
     Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroSeconds, val: seconds)
     timer.invalidate()
   }
   
-  dynamic func applicationWillTerminateNotification() {
-    deleteNotifications()
-    timer.invalidate()
-    Constant.UserDefault.remove(key: Constant.UserDefault.Key.PomodoroSeconds)
-    Constant.UserDefault.remove(key: Constant.UserDefault.Key.PomodoroState)
-  }
 }
