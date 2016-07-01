@@ -9,7 +9,9 @@
 import UIKit
 
 // let timer = PomodoroTimer()
-// timer.delegate = self
+// timer.delegate = self (within willAppear)
+// timer.reload (within willAppear)
+// timer.stop (within deinit)
 protocol PomodoroTimerDelegate: class {
   func pomodoroTimerUpdate(output output: String, isBreak: Bool, isPaused: Bool)
   func pomodoroTimerBreak()
@@ -21,7 +23,6 @@ extension PomodoroTimerDelegate {
   func pomodoroTimerBreak() {}
   func pomodoroTimerWork() {}
 }
-
 
 class PomodoroTimer: Timer {
   private let testing: Bool

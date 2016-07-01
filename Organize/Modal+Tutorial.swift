@@ -34,7 +34,6 @@ class ModalTutorial: Modal {
     case Indent
     case Reminder
     case Delete
-    //    case Undo // TODO: v2
     case Collapse
     case Reorder
     case Edit
@@ -50,7 +49,6 @@ class ModalTutorial: Modal {
       case .Indent: return "Swipe right or left to indent"
       case .Reminder: return "Swipe right to set a reminder"
       case .Delete: return "Swipe right to delete"
-      //      case .Undo: return "Shake to undo last action"
       case .Collapse: return "Double tap to collapse"
       case .Reorder: return "Hold to reorder"
       case .Edit: return "Tap to edit or create"
@@ -64,7 +62,6 @@ class ModalTutorial: Modal {
       case .Indent: return UIImage(named: "shot-indent")!
       case .Reminder: return UIImage(named: "shot-reminder")!
       case .Delete: return UIImage(named: "shot-delete")!
-      //      case .Undo: return UIImage(named: "shot-undo")!
       case .Collapse: return UIImage(named: "shot-collapse")!
       case .Reorder: return UIImage(named: "shot-reorder")!
       case .Edit: return UIImage(named: "shot-edit")!

@@ -290,7 +290,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    // TODO: test if fixes separator disappearing
+    // fixes separator disappearing
     tableView.deselectRowAtIndexPath(indexPath, animated: false)
     tableView.separatorStyle = .None;
     tableView.separatorStyle = .SingleLine
@@ -657,7 +657,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         let modal = ModalError()
         modal.message = AccessBusinessLogic.ErrorMessage.EmailInvalid.message
         modal.show(controller: self) { (output) in
-          // TODO: pass previous text through
+          // FIXME: pass previous text through
           self.displayAccountEmail()
         }
       }
