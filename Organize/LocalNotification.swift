@@ -19,7 +19,7 @@ class LocalNotification {
     
     if settings.types == .None {
       // if already asked
-      if let _ = Constant.UserDefault.get(key: .AskedLocalNotification) {
+      if let _ = Constant.UserDefault.get(key: .IsLocalNotificationPermissionAsked) {
         displayPostPremission(controller: controller)
       } else {
         displayPrePremission(controller: controller)
@@ -60,7 +60,7 @@ class LocalNotification {
     // also registers for push notifications
     let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
     UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
-    Constant.UserDefault.set(key: .AskedLocalNotification, val: true)
+    Constant.UserDefault.set(key: .IsLocalNotificationPermissionAsked, val: true)
   }
   
   

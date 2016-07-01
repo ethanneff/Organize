@@ -57,9 +57,9 @@ class PomodoroTimer: Timer {
     
     var button: String {
       switch self {
-      case .LongBreak: return "break"
-      case .ShortBreak: return "break"
-      case .Work: return "focus"
+      case .LongBreak: return "Break"
+      case .ShortBreak: return "Break"
+      case .Work: return "Focus"
       }
     }
   }
@@ -177,7 +177,7 @@ class PomodoroTimer: Timer {
     switch self.state {
     case .Off: output = ""
     case .On: output = "\(type.button) | \(workCount) | \(output)"
-    case .Paused: output = "paused | \(workCount) | \(output)"
+    case .Paused: output = "Paused | \(workCount) | \(output)"
     }
     
     Util.threadMain {

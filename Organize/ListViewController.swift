@@ -402,14 +402,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   
   // MARK: - buttons
   func settingsButtonPressed(button button: SettingViewController.Button) {
-    switch button {
+    switch button.detail {
     case .NotebookTitle: displayNotebookTitle()
     case .NotebookCollapse: notebook.collapseAll(tableView: tableView)
     case .NotebookUncollapse: notebook.uncollapseAll(tableView: tableView)
+    case .NotebookHideReminder: displayToggleReminders(button: button)
     case .NotebookDeleteCompleted: displayDeleteCompleted()
       
     case .AppTutorial: displayAppTutorial()
-    case .AppTimer: displayAppTimer()
+    case .AppTimer: displayAppTimer(button: button)
     case .AppColor: displayAppColor()
     case .AppFeedback: displayAppFeedback()
     case .AppShare: displayAppShare()
@@ -421,6 +422,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       
     default: break
     }
+  }
+  
+  private func displayToggleReminders(button button: SettingViewController.Button) {
+    updateSettingsMenuButtonTitle(button: button, userDefaultRawKey: Constant.UserDefault.Key.IsRemindersHidden.rawValue)
   }
   
   func cellAccessoryButtonPressed(cell cell: UITableViewCell) {
@@ -509,7 +514,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.show(controller: self, dismissible: true)
   }
   
-  private func displayAppTimer() {
+  private func updateSettingsMenuButtonTitle(button button: SettingViewController.Button, userDefaultRawKey: String) {
+    if let key = Constant.UserDefault.Key(rawValue: userDefaultRawKey) {
+      let hide: Bool = Constant.UserDefault.get(key: key) as? Bool ?? false
+      Constant.UserDefault.set(key: key, val: !hide)
+      button.button.setTitle(button.detail.title, forState: .Normal)
+    }
+  }
+  
+  private func displayAppTimer(button button: SettingViewController.Button) {
     guard let navigationController = navigationController as? MenuNavigationController else {
       return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
     }
@@ -524,12 +537,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int {
         if selection == 1 {
           switch timer.state {
-          case .On: timer.pause()
-          case .Off, .Paused: timer.start()
+          case .On:
+            timer.pause()
+          case .Off:
+            timer.start()
+            self.updateSettingsMenuButtonTitle(button: button, userDefaultRawKey: Constant.UserDefault.Key.IsTimerActive.rawValue)
+          case .Paused:
+            timer.start()
           }
         } else {
           switch timer.state {
-          case .On, .Paused: timer.stop()
+          case .On, .Paused:
+            timer.stop()
+            self.updateSettingsMenuButtonTitle(button: button, userDefaultRawKey: Constant.UserDefault.Key.IsTimerActive.rawValue)
           case .Off: break
           }
         }

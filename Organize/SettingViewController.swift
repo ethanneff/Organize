@@ -5,20 +5,23 @@ protocol SettingsDelegate: class {
 }
 
 class SettingViewController: UIViewController {
+  // MARK: - properties
   weak var menu: SettingsDelegate?
   weak var delegate: SettingsDelegate?
+  var buttons: [Int: Button] = [:]
   
-  override func loadView() {
-    super.loadView()
-    setupView()
+  struct Button {
+    let button: UIButton
+    let detail: Detail
   }
   
-  enum Button: Int  {
+  enum Detail: Int {
     case Notebook
     case NotebookTitle
     case NotebookChange
     case NotebookUncollapse
     case NotebookCollapse
+    case NotebookHideReminder
     case NotebookDeleteCompleted
     
     case App
@@ -74,11 +77,12 @@ class SettingViewController: UIViewController {
       case .NotebookChange: return "Change notebook"
       case .NotebookCollapse: return "Collapse all"
       case .NotebookUncollapse: return "Expand all"
+      case .NotebookHideReminder: return Constant.UserDefault.get(key: Constant.UserDefault.Key.IsRemindersHidden) as? Bool ?? false ? "Hide reminders" : "Show reminders"
       case .NotebookDeleteCompleted: return "Delete completed"
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
-      case .AppTimer: return "Activate timer"
+      case .AppTimer: return Constant.UserDefault.get(key: Constant.UserDefault.Key.IsTimerActive) as? Bool ?? false ? "Update timer" : "Activate timer"
       case .AppColor: return "Change color"
       case .AppFeedback: return "Send feedback"
       case .AppShare: return "Share with a friend"
@@ -100,6 +104,12 @@ class SettingViewController: UIViewController {
     }
   }
   
+  // MARK: - load
+  override func loadView() {
+    super.loadView()
+    setupView()
+  }
+  
   private func setupView() {
     var constraints: [NSLayoutConstraint] = []
     view.backgroundColor = Constant.Color.background
@@ -112,30 +122,32 @@ class SettingViewController: UIViewController {
     
     // buttons
     var prev: UIButton = UIButton()
-    for i in 0..<Button.count {
-      if let info = Button(rawValue: i) {
-        if !info.active {
-          continue
-        }
+    for i in 0..<Detail.count {
+      if let detail = Detail(rawValue: i) {
         let button = UIButton()
-        let enabled: Bool = info.header ? false : true
-        let color: UIColor = info.header ? Constant.Color.border : Constant.Color.button
-        
+        let enabled: Bool = detail.header ? false : true
+        let color: UIColor = detail.header ? Constant.Color.border : Constant.Color.button
         let topItem: UIView = i == 0 ? scrollView : prev
         let topAttribute: NSLayoutAttribute = i == 0 ? .Top : .Bottom
-        let topConstant: CGFloat = i == 0 ? Constant.Button.padding : info.header ? Constant.Button.padding*2 : 0
+        let topConstant: CGFloat = i == 0 ? Constant.Button.padding : detail.header ? Constant.Button.padding*2 : 0
         
-        button.tag = i
+        button.tag = detail.rawValue
+        button.hidden = !detail.active
         button.backgroundColor = Constant.Color.background
         button.layer.cornerRadius = 5
         button.clipsToBounds = true
-        button.setTitle(info.title, forState: .Normal)
+        button.setTitle(detail.title, forState: .Normal)
         button.setTitleColor(color, forState: .Normal)
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.enabled = enabled
-        button.contentHorizontalAlignment = info.header ? .Center : .Left
+        button.contentHorizontalAlignment = detail.header ? .Center : .Left
         button.titleLabel?.font = .systemFontOfSize(Constant.Button.fontSize)
         button.translatesAutoresizingMaskIntoConstraints = false
+        
+        buttons[detail.rawValue] = Button(button: button, detail: detail)
+        if !detail.active {
+          continue
+        }
         scrollView.addSubview(button)
         
         constraints.append(NSLayoutConstraint(item: button, attribute: .Leading, relatedBy: .Equal, toItem: view, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding*2))
@@ -158,9 +170,10 @@ class SettingViewController: UIViewController {
     NSLayoutConstraint.activateConstraints(constraints)
   }
   
+  // MARK: - button
   func buttonPressed(button: UIButton) {
     Util.animateButtonPress(button: button)
-    if let button = Button(rawValue: button.tag) {
+    if let button = buttons[button.tag] {
       delegate?.settingsButtonPressed(button: button)
     }
   }

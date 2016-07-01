@@ -22,7 +22,7 @@ struct Constant {
     static let firebaseAppId: String = "ca-app-pub-4503899421913794~1486671265"
     static let firebaseBannerAdUnitID: String = "ca-app-pub-4503899421913794/4160936069"
     static let firebaseTestDevices = release ? [] : ["890bce2d489474fd09494eaad9f55aab", kGADSimulatorID]
-    static let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.DarkMode) as? Bool ?? false
+    static let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
   }
   
   struct Button {
@@ -65,8 +65,8 @@ struct Constant {
     static let gray = UIColor(hex: "#757575")
     
     static func toggleColor() {
-      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.DarkMode) as? Bool ?? false
-      Constant.UserDefault.set(key: Constant.UserDefault.Key.DarkMode, val: !darkMode)
+      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
+      Constant.UserDefault.set(key: Constant.UserDefault.Key.IsDarkMode, val: !darkMode)
       
       button = Constant.Color.getColor(.Button)
       title = Constant.Color.getColor(.Title)
@@ -77,7 +77,7 @@ struct Constant {
     }
     
     private static func getColor(item: Item) -> UIColor {
-      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.DarkMode) as? Bool ?? false
+      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
       switch item {
       case .Button: return darkMode ? UIColor(hex:"#CB6724") : UIColor(hex:"#3498db")
       case .Title: return darkMode ? UIColor(hex: "#ffffff").colorWithAlphaComponent(1.0) : UIColor(hex: "#212121")
@@ -87,14 +87,14 @@ struct Constant {
     }
     
     private static func getStatusBar() -> UIBarStyle {
-      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.DarkMode) as? Bool ?? false
+      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
       let barStyle: UIBarStyle = darkMode ? .BlackTranslucent : .Default
       
       return barStyle
     }
     
     private static func getStatusBarStyle() -> UIStatusBarStyle {
-      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.DarkMode) as? Bool ?? false
+      let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
       let statusBarStyle: UIStatusBarStyle = darkMode ? .LightContent : .Default
       return statusBarStyle
     }
@@ -111,8 +111,10 @@ struct Constant {
   
   struct UserDefault {
     enum Key: String {
-      case AskedLocalNotification
-      case DarkMode
+      case IsLocalNotificationPermissionAsked
+      case IsDarkMode
+      case IsRemindersHidden
+      case IsTimerActive
       case FeedbackApp
       case ReviewApp
       case ReviewCount
