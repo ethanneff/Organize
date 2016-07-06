@@ -980,7 +980,7 @@ class Notebook: NSObject, NSCoding, Copying {
       if display[i] !== rightfulDisplay[i] {
         display = rightfulDisplay
         tableView.reloadData()
-        print(notebook)
+        print(self)
         print("\(rightfulDisplay) 💜💜💜💜💜")
         Util.vibrate()
         break
