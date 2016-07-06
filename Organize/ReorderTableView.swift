@@ -175,7 +175,7 @@ class ReorderTableView: UITableView {
     // handle out of bounds limit of tableview
     let newIndexPath = indexPathForRowAtPoint(newLocation) ?? NSIndexPath(forRow: numberOfRowsInSection(0)-1, inSection: 0)
     
-    //    FIXME: broken, causes reorder mismatch
+    //    FIXME: broken, causes reorder mismatch (grab collapse from bottom)
     //    if location != newLocation {
     //      // reorder any changes from the delegate
     //      moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)

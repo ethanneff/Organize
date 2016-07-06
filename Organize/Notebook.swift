@@ -519,6 +519,9 @@ class Notebook: NSObject, NSCoding, Copying {
           indexPaths += self.updateBolded(indexPath: fromIndexPath)
           indexPaths += self.updateBolded(indexPath: toIndexPath)
           self.reload(indexPaths: indexPaths, tableView: tableView) {
+            // TODO: 0.05% crash.. need to find bug (maybe has to do with tableview scroll?)
+            self.correctDisplay(tableView: tableView)
+            
             // save
             Notebook.set(data: self)
             // has to be main thread for reorder finish animation
@@ -946,46 +949,54 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func correctDisplay(tableView tableView: UITableView) {
-    if notes.count <= 0 {
-      return
-    }
-    
-    var index = 0
-    var skip = false
-    var rightfulDisplay: [Note] = []
-    var collapsedNote = notes[0]
-    while index < notes.count {
-      let note = notes[index]
-      
-      if skip && note.indent > collapsedNote.indent {
-        index += 1
-        continue
+    Util.threadBackground {
+      if self.notes.count <= 0 {
+        return
       }
-      if note.collapsed {
-        skip = true
-        collapsedNote = note
+      
+      var index = 0
+      var skip = false
+      var rightfulDisplay: [Note] = []
+      var collapsedNote = self.notes[0]
+      while index < self.notes.count {
+        let note = self.notes[index]
+        
+        if skip && note.indent > collapsedNote.indent {
+          index += 1
+          continue
+        }
+        if note.collapsed {
+          skip = true
+          collapsedNote = note
+          rightfulDisplay.append(note)
+          index += 1
+          continue
+        }
+        
         rightfulDisplay.append(note)
+        skip = false
         index += 1
         continue
       }
       
-      rightfulDisplay.append(note)
-      skip = false
-      index += 1
-      continue
-    }
-    
-    // if display != rightfulDisplay, reload display
-    for i in 0..<display.count {
-      if display[i] !== rightfulDisplay[i] {
-        display = rightfulDisplay
-        tableView.reloadData()
-        print(self)
-        print("\(rightfulDisplay) 💜💜💜💜💜")
-        Util.vibrate()
-        break
+      // if display != rightfulDisplay, reload display
+      for i in 0..<self.display.count {
+        if self.display[i] !== rightfulDisplay[i] {
+          Util.threadMain {
+            self.display = rightfulDisplay
+            tableView.reloadData()
+          }
+          
+          if !Constant.App.release {
+            print(self)
+            print("\(rightfulDisplay) 💜💜💜💜💜")
+            Util.vibrate()
+          }
+          break
+        }
       }
     }
+    
   }
   
   private func updateBolded(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
@@ -1156,7 +1167,7 @@ class Notebook: NSObject, NSCoding, Copying {
       }
     })
   }
-
+  
   
   // MARK: - DEFAULT
   static func getDefault() -> Notebook {
