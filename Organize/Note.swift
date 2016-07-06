@@ -40,7 +40,7 @@ class Note: NSObject, NSCoding, Copying, Nameable, Indentable, Completable, Coll
   var created: NSDate
   var updated: NSDate
   override var description: String {
-    return "\(title[0..<2])"
+    return "\(title)"
   }
   
   // MARK: - INIT

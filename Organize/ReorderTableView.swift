@@ -38,8 +38,9 @@ class ReorderTableView: UITableView {
   private var reorderInitialCellCenter: CGPoint?
   private var reorderSnapshot: UIView?
   private var reorderScrollRate: CGFloat = 0
-  private var reorderGesturePressed: Bool = false
   private var reorderScrollLink: CADisplayLink?
+  private var reorderGestureMoving: Bool = false
+  private var reorderGestureLifted: Bool = false
   
   
   
@@ -92,6 +93,7 @@ class ReorderTableView: UITableView {
   
   // MARK: - DEALLOC
   deinit {
+    // TODO: does not get called (probably b/c list deinit not being called)
     reorderDealloc()
   }
   
@@ -122,7 +124,6 @@ class ReorderTableView: UITableView {
       // began
       if let indexPath = indexPathForRowAtPoint(location) {
         reorderNotifyDelegate(notification: .BeforeLift, fromIndexPath: indexPath, toIndexPath: nil) {
-          self.reorderLoopToDetectScrolling()
           self.reorderHandleDelegateIndexChange(gesture: gesture, location: location, indexPath: indexPath)
           
           if let previousIndexPath = self.reorderPreviousIndexPath, let cell = self.cellForRowAtIndexPath(previousIndexPath) {
@@ -130,7 +131,8 @@ class ReorderTableView: UITableView {
             self.reorderCreateSnapshotCell(cell: cell)
             self.reorderLiftSnapshotCell(location: location, cell: cell)
             self.reorderNotifyDelegate(notification: .AfterLift, fromIndexPath: indexPath, toIndexPath: previousIndexPath) {
-              self.reorderGesturePressed = true
+              self.reorderLoopToDetectScrolling()
+              self.reorderGestureLifted = true
             }
           }
         }
@@ -140,20 +142,23 @@ class ReorderTableView: UITableView {
       reorderUpdateScrollRateForTableViewScrolling(location: location)
     default:
       // ended
-      if let initialIndexPath = reorderInitalIndexPath,
-        let previousIndexPath = reorderPreviousIndexPath,
-        let previousCell = cellForRowAtIndexPath(previousIndexPath) {
-        reorderNotifyDelegate(notification: .BeforeDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {
-          let cell = self.reorderPreventReorderOnSameCellCenterOffset(initialIndexPath: initialIndexPath, previousIndexPath: previousIndexPath, previousCell: previousCell)
-          self.reorderGesturePressed = false
-          self.reorderDropSnapshotCell(cell: cell) { finished in
-            self.reorderNotifyDelegate(notification: .AfterDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {}
-            self.reorderDealloc()
+      waitForGestureDelegates {
+        if let initialIndexPath = self.reorderInitalIndexPath,
+          let previousIndexPath = self.reorderPreviousIndexPath,
+          let previousCell = self.cellForRowAtIndexPath(previousIndexPath) {
+          self.reorderNotifyDelegate(notification: .BeforeDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {
+            let cell = self.reorderAdjustCellCenterOffset(initialIndexPath: initialIndexPath, previousIndexPath: previousIndexPath, previousCell: previousCell)
+            
+            self.reorderDropSnapshotCell(cell: cell) {
+              self.reorderNotifyDelegate(notification: .AfterDrop, fromIndexPath: initialIndexPath, toIndexPath: previousIndexPath) {}
+              self.reorderDealloc()
+            }
           }
         }
       }
     }
   }
+  
   
   
   // MARK: - BEGIN
@@ -169,14 +174,16 @@ class ReorderTableView: UITableView {
     
     // handle out of bounds limit of tableview
     let newIndexPath = indexPathForRowAtPoint(newLocation) ?? NSIndexPath(forRow: numberOfRowsInSection(0)-1, inSection: 0)
-    if location != newLocation {
-      // reorder any changes from the delegate
-      moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
-    }
+    
+    //    FIXME: broken, causes reorder mismatch
+    //    if location != newLocation {
+    //      // reorder any changes from the delegate
+    //      moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
+    //    }
     
     // save initial and previous indexes (used the passed index [reorderInitalIndexPath] if available)
     reorderInitalIndexPath = newIndexPath
-    reorderPreviousIndexPath = newIndexPath
+    reorderPreviousIndexPath = indexPath
   }
   
   private func reorderCreateSnapshotCell(cell cell: UITableViewCell) {
@@ -209,9 +216,7 @@ class ReorderTableView: UITableView {
         reorderSnapshot.alpha = 0.8
       }
       }, completion: { (finished) -> Void in
-        if finished {
-          cell.hidden = true
-        }
+        cell.hidden = true
     })
   }
   
@@ -249,8 +254,8 @@ class ReorderTableView: UITableView {
   }
   
   internal func reorderScrollTableWithCell() {
-    // looping via the CADisplayLink of reorderScrollLink to detect whether to move the tableview or not
-    if let gesture: UILongPressGestureRecognizer = reorderGesture where reorderGesturePressed {
+    // looping via the CADisplayLink of reorderScrollLink to detect whether to move the tableview or not (start after lifted)
+    if let gesture: UILongPressGestureRecognizer = reorderGesture {
       let location: CGPoint = gesture.locationInView(self)
       let prevOffset: CGPoint = contentOffset
       let nextOffset: CGPoint = CGPointMake(prevOffset.x, prevOffset.y + reorderScrollRate * kReorderScrollMultiplier)
@@ -280,11 +285,14 @@ class ReorderTableView: UITableView {
   private func reorderUpdateCurrentLocation(gesture gesture: UILongPressGestureRecognizer, location: CGPoint) {
     // reorder the tableview cells on drag
     if let nextIndexPath = indexPathForRowAtPoint(location), let prevIndexPath = reorderPreviousIndexPath {
-      // prevents spamming and fast scrolling bug where the order is incorrect
-      if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1 {
+      // prevents spamming and fast scrolling bug (allow only 1 difference b/c of swap function)
+      if nextIndexPath != prevIndexPath && abs(nextIndexPath.row - prevIndexPath.row) == 1 && !reorderGestureMoving {
+        // prevents sending multiple data updates to controller (can cause swapping of cells)
+        reorderGestureMoving = true
         reorderNotifyDelegate(notification: .DuringMove, fromIndexPath: prevIndexPath, toIndexPath: nextIndexPath) {
           self.moveRowAtIndexPath(prevIndexPath, toIndexPath: nextIndexPath)
           self.reorderPreviousIndexPath = nextIndexPath
+          self.reorderGestureMoving = false
         }
       }
     }
@@ -293,14 +301,15 @@ class ReorderTableView: UITableView {
   
   
   // MARK: - ENDED
-  private func reorderPreventReorderOnSameCellCenterOffset(initialIndexPath initialIndexPath: NSIndexPath, previousIndexPath: NSIndexPath, previousCell: UITableViewCell) -> UITableViewCell {
+  private func reorderAdjustCellCenterOffset(initialIndexPath initialIndexPath: NSIndexPath, previousIndexPath: NSIndexPath, previousCell: UITableViewCell) -> UITableViewCell {
+    // if picked up and dropped on the same cell location... re adjust so the cell drops in the center and not a few pixels off
     if let initialCenter = reorderInitialCellCenter where initialIndexPath == previousIndexPath {
       previousCell.center = initialCenter
     }
     return previousCell
   }
   
-  private func reorderDropSnapshotCell(cell cell: UITableViewCell, completion: (finished: Bool) -> ()) {
+  private func reorderDropSnapshotCell(cell cell: UITableViewCell, completion: () -> ()) {
     cell.hidden = false
     cell.alpha = 0.0
     UIView.animateWithDuration(kReorderLiftAnimation, animations: {
@@ -312,7 +321,18 @@ class ReorderTableView: UITableView {
       }
       }, completion: { (finished) -> Void in
         cell.hidden = false
-        completion(finished: finished)
+        completion()
     })
+  }
+  
+  private func waitForGestureDelegates(completion: () -> ()) {
+    if reorderGestureLifted && !reorderGestureMoving {
+      completion()
+    } else {
+      let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(0.1 * Double(NSEC_PER_SEC)))
+      dispatch_after(delayTime, dispatch_get_main_queue()) {
+        self.waitForGestureDelegates(completion)
+      }
+    }
   }
 }
