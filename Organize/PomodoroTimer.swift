@@ -71,7 +71,7 @@ class PomodoroTimer: Timer {
   
   // MARK: init
   override init() {
-    testing = false
+    testing = true
     workTime = testing ? 5 : 25*60
     longBreakTime = testing ? 5 : 15*60
     shortBreakTime = testing ? 2 : 5*60

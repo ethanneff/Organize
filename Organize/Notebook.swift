@@ -109,8 +109,19 @@ class Notebook: NSObject, NSCoding, Copying {
       
       // note
       note.indent = indexPath.row == 0 ? 0 : self.display[indexPath.row-1].indent+1
-      self.notes.insert(note, atIndex: indexPath.row)
       
+      if indexPath.row > 0 {
+        // display parent
+        let prev = indexPath.row-1
+        let displayParent = self.display[prev]
+        
+        // note parent index
+        let noteParent = self.getNoteParent(displayParent: displayParent)
+        self.notes.insert(note, atIndex: noteParent.index+1)
+      } else {
+        self.notes.insert(note, atIndex: indexPath.row)
+      }
+    
       // display
       self.insert(indexPaths: [indexPath], tableView: tableView, data: [note]) {
         
