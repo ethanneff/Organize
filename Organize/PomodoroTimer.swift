@@ -71,7 +71,7 @@ class PomodoroTimer: Timer {
   
   // MARK: init
   override init() {
-    testing = true
+    testing = false
     workTime = testing ? 5 : 25*60
     longBreakTime = testing ? 5 : 15*60
     shortBreakTime = testing ? 2 : 5*60
@@ -262,13 +262,16 @@ class PomodoroTimer: Timer {
   
   private func deleteNotifications(completion: (() -> ())? = nil) {
     dispatch_async(notificationQueue) {
-      for uid in self.notifications {
-        LocalNotification.sharedInstance.delete(uid: uid)
-      }
-      self.notifications.removeAll()
-      Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroNotifications, val: self.notifications)
-      if let completion = completion {
-        completion()
+      if let notifications = Constant.UserDefault.get(key: Constant.UserDefault.Key.PomodoroNotifications) as? [String] {
+        for uid in notifications {
+          LocalNotification.sharedInstance.delete(uid: uid)
+        }
+        
+        self.notifications.removeAll()
+        Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroNotifications, val: self.notifications)
+        if let completion = completion {
+          completion()
+        }
       }
     }
   }
@@ -293,5 +296,4 @@ class PomodoroTimer: Timer {
     Constant.UserDefault.set(key: Constant.UserDefault.Key.PomodoroSeconds, val: seconds)
     timer.invalidate()
   }
-  
 }

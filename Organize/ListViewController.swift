@@ -527,6 +527,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
     }
     
+    // handle alert text
     let timer = navigationController.timer
     let modal = ModalConfirmation()
     modal.message =  timer.state == .On || timer.state == .Paused ? "Pomodoro Timer" : "Create a Pomodoro Timer to track your productivity?"
@@ -535,13 +536,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     modal.trackButtons = true
     modal.show(controller: self, dismissible: true) { output in
       if let selection = output[ModalConfirmation.OutputKeys.Selection.rawValue] as? Int {
+        // operate timer
         if selection == 1 {
           switch timer.state {
           case .On:
             timer.pause()
           case .Off:
             timer.start()
-            self.updateSettingsMenuButtonTitle(button: button, userDefaultRawKey: Constant.UserDefault.Key.IsTimerActive.rawValue)
           case .Paused:
             timer.start()
           }
@@ -549,9 +550,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
           switch timer.state {
           case .On, .Paused:
             timer.stop()
-            self.updateSettingsMenuButtonTitle(button: button, userDefaultRawKey: Constant.UserDefault.Key.IsTimerActive.rawValue)
           case .Off: break
           }
+        }
+        // change settings side menu title
+        let on = navigationController.timer.state != .Off
+        let active = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsTimerActive) as? Bool ?? false
+        if on != active {
+          Constant.UserDefault.set(key: Constant.UserDefault.Key.IsTimerActive, val: navigationController.timer.state != .Off)
+          button.button.setTitle(button.detail.title, forState: .Normal)
         }
       }
     }

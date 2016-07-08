@@ -82,7 +82,7 @@ class SettingViewController: UIViewController {
         
       case .App: return "App"
       case .AppTutorial: return "View tutorial"
-      case .AppTimer: return Constant.UserDefault.get(key: Constant.UserDefault.Key.IsTimerActive) as? Bool ?? false ? "Update timer" : "Activate timer"
+      case .AppTimer: return Constant.UserDefault.get(key: Constant.UserDefault.Key.IsTimerActive) as? Bool ?? false ? "Modify timer" : "Activate timer"
       case .AppColor: return "Change color"
       case .AppFeedback: return "Send feedback"
       case .AppShare: return "Share with a friend"

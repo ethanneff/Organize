@@ -130,7 +130,6 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
     dealloc()
   }
   
-  
   private func dealloc() {
     iconView.removeFromSuperview()
     colorIndicatorView.removeFromSuperview()
