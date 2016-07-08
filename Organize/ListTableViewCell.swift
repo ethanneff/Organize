@@ -41,8 +41,6 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   
   override func prepareForReuse() {
     super.prepareForReuse()
-    dealloc()
-    initialize()
   }
   
   private func initialize() {
@@ -52,16 +50,13 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     setupSwipe(cell: self)
   }
   
-  // MARK: - dealloc
-  private func dealloc() {
-    titleLabel?.removeFromSuperview()
-    accessoryButton?.removeFromSuperview()
-    reminderView?.removeFromSuperview()
-    swipe = nil
-  }
-  
+  // MARK: - deinit
   deinit {
-    dealloc()
+    // TODO: test if deinit when tableview deinits
+    swipe = nil
+    for v in subviews {
+      v.removeFromSuperview()
+    }
   }
   
   // MARK: - create
@@ -115,17 +110,15 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   
   func setupSwipe(cell cell: UITableViewCell) {
     swipe = SwipeCell(cell: cell)
-    if let swipe = swipe {
-      swipe.delegate = self
-      swipe.firstTrigger = 0.15
-      swipe.secondTrigger = 0.40
-      swipe.thirdTrigger = 0.65
-      
-      for i in 0..<SwipeType.count {
-        if let type = SwipeType(rawValue: i) {
-          swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { cell in
-            self.delegate?.cellSwiped(type: type, cell: cell)
-          }
+    swipe.delegate = self
+    swipe.firstTrigger = 0.15
+    swipe.secondTrigger = 0.40
+    swipe.thirdTrigger = 0.65
+    
+    for i in 0..<SwipeType.count {
+      if let type = SwipeType(rawValue: i) {
+        swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { cell in
+          self.delegate?.cellSwiped(type: type, cell: cell)
         }
       }
     }
@@ -135,7 +128,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   func updateCell(note note: Note) {
     // indent
     titleLabelLeadingConstraint.constant = titleLabelPadding + CGFloat(note.indent) * titleLabelIndentMultiplier
-
+    
     // bolded
     titleLabel?.font = note.bolded ? .boldSystemFontOfSize(UIFont.systemFontSize()) : .systemFontOfSize(UIFont.systemFontSize())
     
