@@ -69,6 +69,16 @@
 		DF12C4E0915BFFB22E1BE63F /* Pods_Organize.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22F7A6BE983A67D347E343ED /* Pods_Organize.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		670C3ED51D3080AA001C2552 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6750379E1CD1764B0061EC6E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 675037A51CD1764B0061EC6E;
+			remoteInfo = Organize;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1BB4069152DF10FDBB7B53E0 /* Pods-Organize.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Organize.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Organize/Pods-Organize.debug.xcconfig"; sourceTree = "<group>"; };
 		22F7A6BE983A67D347E343ED /* Pods_Organize.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Organize.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +89,9 @@
 		67079DCC1D2443C100CEF997 /* PomodoroTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PomodoroTimer.swift; sourceTree = "<group>"; };
 		670963041CEC0DC80043D2A5 /* Modal+Tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Modal+Tutorial.swift"; sourceTree = "<group>"; };
 		670963061CEE3DD60043D2A5 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		670C3E981D3072FC001C2552 /* OrganizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTests.swift; sourceTree = "<group>"; };
+		670C3E9A1D3072FC001C2552 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		670C3ED01D3080AA001C2552 /* OrganizeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OrganizeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		671053F41CF603B2003B8BDB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		671053F81CF6065C003B8BDB /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		671053FA1CF61A78003B8BDB /* Report.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Report.swift; sourceTree = "<group>"; };
@@ -138,6 +151,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		670C3ECD1D3080AA001C2552 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		675037A31CD1764B0061EC6E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -167,10 +187,20 @@
 			name = test;
 			sourceTree = "<group>";
 		};
+		670C3E971D3072FC001C2552 /* OrganizeTests */ = {
+			isa = PBXGroup;
+			children = (
+				670C3E981D3072FC001C2552 /* OrganizeTests.swift */,
+				670C3E9A1D3072FC001C2552 /* Info.plist */,
+			);
+			path = OrganizeTests;
+			sourceTree = "<group>";
+		};
 		6750379D1CD1764B0061EC6E = {
 			isa = PBXGroup;
 			children = (
 				675037A81CD1764B0061EC6E /* Organize */,
+				670C3E971D3072FC001C2552 /* OrganizeTests */,
 				675037A71CD1764B0061EC6E /* Products */,
 				0D44FB49978A58D6DE9F1ECA /* Pods */,
 				CDD9ED0742613FDE6ECCF41F /* Frameworks */,
@@ -181,6 +211,7 @@
 			isa = PBXGroup;
 			children = (
 				675037A61CD1764B0061EC6E /* Organize.app */,
+				670C3ED01D3080AA001C2552 /* OrganizeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -391,6 +422,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		670C3ECF1D3080AA001C2552 /* OrganizeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 670C3ED71D3080AA001C2552 /* Build configuration list for PBXNativeTarget "OrganizeTests" */;
+			buildPhases = (
+				670C3ECC1D3080AA001C2552 /* Sources */,
+				670C3ECD1D3080AA001C2552 /* Frameworks */,
+				670C3ECE1D3080AA001C2552 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				670C3ED61D3080AA001C2552 /* PBXTargetDependency */,
+			);
+			name = OrganizeTests;
+			productName = OrganizeTests;
+			productReference = 670C3ED01D3080AA001C2552 /* OrganizeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		675037A51CD1764B0061EC6E /* Organize */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 675037B81CD1764B0061EC6E /* Build configuration list for PBXNativeTarget "Organize" */;
@@ -421,6 +470,10 @@
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Ethan Neff";
 				TargetAttributes = {
+					670C3ECF1D3080AA001C2552 = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = 675037A51CD1764B0061EC6E;
+					};
 					675037A51CD1764B0061EC6E = {
 						CreatedOnToolsVersion = 7.3;
 						DevelopmentTeam = PW4Q8885U7;
@@ -449,11 +502,19 @@
 			projectRoot = "";
 			targets = (
 				675037A51CD1764B0061EC6E /* Organize */,
+				670C3ECF1D3080AA001C2552 /* OrganizeTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		670C3ECE1D3080AA001C2552 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		675037A41CD1764B0061EC6E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -515,6 +576,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		670C3ECC1D3080AA001C2552 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		675037A21CD1764B0061EC6E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -580,6 +648,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		670C3ED61D3080AA001C2552 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 675037A51CD1764B0061EC6E /* Organize */;
+			targetProxy = 670C3ED51D3080AA001C2552 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		675037B21CD1764B0061EC6E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
@@ -592,6 +668,34 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		670C3ED81D3080AA001C2552 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/**";
+				INFOPLIST_FILE = OrganizeTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.eneff.app.OrganizeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Organize.app/Organize";
+			};
+			name = Debug;
+		};
+		670C3ED91D3080AA001C2552 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = OrganizeTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.eneff.app.OrganizeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Organize.app/Organize";
+			};
+			name = Release;
+		};
 		675037B61CD1764B0061EC6E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -613,6 +717,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -659,6 +764,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -684,6 +790,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = Organize/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -700,6 +807,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Organize/Organize.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_TESTABILITY = NO;
 				INFOPLIST_FILE = Organize/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -712,6 +820,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		670C3ED71D3080AA001C2552 /* Build configuration list for PBXNativeTarget "OrganizeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				670C3ED81D3080AA001C2552 /* Debug */,
+				670C3ED91D3080AA001C2552 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		675037A11CD1764B0061EC6E /* Build configuration list for PBXProject "Organize" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
