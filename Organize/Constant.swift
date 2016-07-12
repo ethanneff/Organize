@@ -10,31 +10,17 @@ import UIKit
 import GoogleMobileAds
 
 struct Constant {
-  
-  struct App {
-    static let name: String = "Organize"
-    static let id: String = "1116178818"
-    static let loadingDelay: Double = release ? 0.2 : 0
-    static let release: Bool = true
-    static let logging: Bool = true
-    static let deepLink: String = "eneff.organize"
-    static let deepLinkUrl: String = "https://yp4ut.app.goo.gl/4D6z"
-    static let firebaseAppId: String = "ca-app-pub-4503899421913794~1486671265"
-    static let firebaseBannerAdUnitID: String = "ca-app-pub-4503899421913794/4160936069"
-    static let firebaseTestDevices = release ? [] : ["890bce2d489474fd09494eaad9f55aab", kGADSimulatorID]
-    static let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
+  struct NotificationKey {
+    
   }
   
-  struct Button {
-    static let height: CGFloat = 40
-    static let padding: CGFloat = 10
-    static let widthMultiplier: CGFloat = 0.4
-    static let fontSize: CGFloat = 17
-    static func widthConstant(padding padding: CGFloat) -> CGFloat {
-      return padding * -1.8 + 185
-    }
+  struct AnalyticsKey {
+    static let appOpen = "app open"
+    static let appClose = "app close"
   }
-  
+}
+
+extension Constant {
   struct Color {
     // FIXME: this should be a class.sharedInstance
     // toggle should change properties, then save
@@ -99,16 +85,52 @@ struct Constant {
       return statusBarStyle
     }
   }
-  
-  struct NotificationKey {
+}
+
+extension Constant {
+  struct Button {
+    static let radius: CGFloat = 5
+    static let height: CGFloat = 40
+    static let padding: CGFloat = 10
+    static let widthMultiplier: CGFloat = 0.4
+    static let fontSize: CGFloat = 17
+    static func widthConstant(padding padding: CGFloat) -> CGFloat {
+      return padding * -1.8 + 185
+    }
     
+    static func create(title title: String?, bold: Bool, background: Bool) -> UIButton {
+      let button: UIButton = UIButton()
+      button.tag = Int(!bold) // bold for cancel = 0
+      button.layer.cornerRadius = radius
+      button.clipsToBounds = true
+      button.contentHorizontalAlignment = .Center
+      button.setTitle(title, forState: .Normal)
+      button.backgroundColor = background ? Constant.Color.button : Constant.Color.background
+      button.setTitleColor(background ? Constant.Color.background : Constant.Color.button, forState: .Normal)
+      button.titleLabel?.font = bold ? .boldSystemFontOfSize(fontSize) : .systemFontOfSize(fontSize)
+      button.translatesAutoresizingMaskIntoConstraints = false
+      return button
+    }
   }
-  
-  struct AnalyticsKey {
-    static let appOpen = "app open"
-    static let appClose = "app close"
+}
+
+extension Constant {
+  struct App {
+    static let name: String = "Organize"
+    static let id: String = "1116178818"
+    static let loadingDelay: Double = release ? 0.2 : 0
+    static let release: Bool = true
+    static let logging: Bool = true
+    static let deepLink: String = "eneff.organize"
+    static let deepLinkUrl: String = "https://yp4ut.app.goo.gl/4D6z"
+    static let firebaseAppId: String = "ca-app-pub-4503899421913794~1486671265"
+    static let firebaseBannerAdUnitID: String = "ca-app-pub-4503899421913794/4160936069"
+    static let firebaseTestDevices = release ? [] : ["890bce2d489474fd09494eaad9f55aab", kGADSimulatorID]
+    static let darkMode: Bool = Constant.UserDefault.get(key: Constant.UserDefault.Key.IsDarkMode) as? Bool ?? false
   }
-  
+}
+
+extension Constant {
   struct UserDefault {
     enum Key: String {
       case IsLocalNotificationPermissionAsked
@@ -123,6 +145,7 @@ struct Constant {
       case PomodoroNotifications
       case AppOpenDate
       case AppCloseDate
+      case AppFirstOpen
     }
     
     static func get(key key: UserDefault.Key) -> AnyObject? {

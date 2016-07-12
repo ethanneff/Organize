@@ -10,7 +10,6 @@ class AccessNavigationController: UINavigationController {
   
   private func navigationBarColor() {
     navigationBar.hideBottomHairline()
-//    navigationBar.barStyle = Constant.Color.statusBar    
   }
   
   private func setupGestures() {
