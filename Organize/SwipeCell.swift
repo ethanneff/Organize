@@ -1,3 +1,10 @@
+//
+//  SwipeTableViewCell.swift
+//  swipe
+//
+//  Created by Ethan Neff on 3/11/16.
+//  Copyright © 2016 Ethan Neff. All rights reserved.
+//
 import UIKit
 
 // delegate
@@ -20,8 +27,7 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
   // MARK: - PROPERTIES
   
   // required
-  // TODO: should be weak var?
-  private let cell: UITableViewCell
+  weak var cell: UITableViewCell!
   
   // optional
   weak var delegate: SwipeCellDelegate?
@@ -43,7 +49,7 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
   var defaultColor: UIColor = .lightGrayColor()
   
   // private
-  private var gesture: UIPanGestureRecognizer?
+  private var gesture: UIPanGestureRecognizer!
   private var dragging: Bool = false
   private var isExiting: Bool = false
   private lazy var contentScreenshotView: UIImageView = UIImageView()
@@ -114,19 +120,14 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
   
   private func initialize() {
     gesture = UIPanGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
-    if let gesture = gesture {
-      gesture.maximumNumberOfTouches = 1
-      gesture.delegate = self
-      cell.addGestureRecognizer(gesture)
-    }
+    gesture.maximumNumberOfTouches = 1
+    gesture.delegate = self
+    cell.addGestureRecognizer(gesture)
   }
   
   
   // MARK: - DEINIT
   deinit {
-    if let gesture = gesture {
-      cell.removeGestureRecognizer(gesture)
-    }
     dealloc()
   }
   

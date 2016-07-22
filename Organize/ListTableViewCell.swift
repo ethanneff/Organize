@@ -117,7 +117,7 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
     
     for i in 0..<SwipeType.count {
       if let type = SwipeType(rawValue: i) {
-        swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { cell in
+        swipe.create(position: type.position, animation: type.animation, icon: type.icon, color: type.color) { [unowned self] cell in
           self.delegate?.cellSwiped(type: type, cell: cell)
         }
       }
