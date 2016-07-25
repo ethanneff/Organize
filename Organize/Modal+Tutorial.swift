@@ -74,18 +74,20 @@ class ModalTutorial: Modal {
     super.init()
     createViews()
     createConstraints()
+    createListener()
   }
   
   required init?(coder aDecoder: NSCoder) {
     fatalError("init coder not implemented")
   }
   
-  // MARK: - deinit
   deinit {
 
   }
-  
-  // MARK: - create
+}
+
+// MARK: - create
+extension ModalTutorial {
   private func createViews() {
     let slide = Slide(rawValue: 0)!
     message = createTitle(title: slide.title)
@@ -103,7 +105,7 @@ class ModalTutorial: Modal {
     modal.addSubview(button)
     
     button.tag = 0
-    button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
+    button.addTarget(self, action: #selector(buttonPressed), forControlEvents: .TouchUpInside)
   }
   
   private func createConstraints() {
@@ -159,8 +161,16 @@ class ModalTutorial: Modal {
       ])
   }
   
-  // MARK: - buttons
-  internal func buttonPressed(button: UIButton) {
+  private func createListener() {
+    let tap = UITapGestureRecognizer(target: self, action: #selector(buttonPressed))
+    modal.addGestureRecognizer(tap)
+  }
+}
+
+
+// MARK: - buttons
+extension ModalTutorial {
+  internal func buttonPressed() {
     Util.animateButtonPress(button: button)
     
     if button.tag >= Slide.count-1 {
