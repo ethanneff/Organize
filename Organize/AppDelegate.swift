@@ -185,7 +185,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   // MARK: - reporting
   private func reportState(active active: Bool) {
-    AppState.sharedInstance.foreground = active ? true : false
     Report.sharedInstance.track(event: active ? "app_open" : "app_close")
   }
 }

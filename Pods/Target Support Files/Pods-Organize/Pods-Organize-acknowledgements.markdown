@@ -7,11 +7,11 @@ Copyright 2016 Google Inc.
 
 ## FirebaseAnalytics
 
-Copyright 2016 Google Inc.
+Copyright 2016 Google
 
 ## FirebaseAuth
 
-Copyright 2016 Google Inc. All Rights Reserved.
+Copyright 2016 Google
 
 ## FirebaseCrash
 
@@ -41,14 +41,6 @@ Copyright 2016 Google Inc.
 
 Copyright 2011 Google Inc. All Rights Reserved.
 
-## GoogleAppUtilities
-
-Copyright 2015 Google Inc.
-
-## GoogleAuthUtilities
-
-Copyright 2015 Google Inc.
-
 ## GoogleIPhoneUtilities
 
 Copyright 2015 Google Inc.
@@ -64,14 +56,6 @@ Copyright 2015 Google Inc.
 ## GoogleParsingUtilities
 
 Copyright 2015 Google Inc.
-
-## GooglePlusUtilities
-
-Copyright 2015 Google Inc.
-
-## GoogleSignIn
-
-Copyright 2015 Google Inc. All Rights Reserved.
 
 ## GoogleSymbolUtilities
 

@@ -199,7 +199,7 @@ class ModalNoteDetail: Modal, UITextViewDelegate {
     textView.delegate = self
     textView.returnKeyType = .Done
     textView.textAlignment = header ? .Center : .Left
-    textView.font = header ? .boldSystemFontOfSize(Constant.Button.fontSize) : .systemFontOfSize(UIFont.systemFontSize())
+    textView.font = header ? .boldSystemFontOfSize(Constant.Font.button) : .systemFontOfSize(UIFont.systemFontSize())
     textView.translatesAutoresizingMaskIntoConstraints = false
     textView.backgroundColor = Constant.Color.background
     textView.tintColor = Constant.Color.button

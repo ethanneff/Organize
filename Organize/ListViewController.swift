@@ -3,17 +3,19 @@ import MessageUI
 import Firebase
 import GoogleMobileAds
 
-class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MFMailComposeViewControllerDelegate, ListTableViewCellDelegate, SettingsDelegate, ReorderTableViewDelegate,GADBannerViewDelegate {
+class ListViewController: UIViewController {
   // MARK: - properties
   private var notebook: Notebook
   
-  lazy var tableView: UITableView = ReorderTableView()
   weak var menuDelegate: MenuViewController?
-  private var addButton: UIButton!
-  private var bannerAd: GADBannerView!
-  private var bannerAdHeight: CGFloat = 50
+  private let tableView: ReorderTableView
+  private let addButton: UIButton
+  private let bannerAd: GADBannerView
+  
+  private let bannerAdHeight: CGFloat = 50
+  private let addButtonBottomPadding: CGFloat = Constant.Button.padding*2
+  
   private var tableViewBottomConstraint: NSLayoutConstraint!
-  private var addButtonBottomPadding: CGFloat = Constant.Button.padding*2
   private var addButtonBottomConstraint: NSLayoutConstraint!
   
   lazy var refreshControl: UIRefreshControl = {
@@ -26,6 +28,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   // MARK: - init
   init() {
     notebook = Notebook(title: "")
+    tableView = ReorderTableView()
+    addButton = Constant.Button.create(title: nil, bold: false, small: false, background: true, shadow: true)
+    bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
     super.init(nibName: nil, bundle: nil)
     initialize()
   }
@@ -43,21 +48,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     createGestures()
   }
   
-  // MARK: - deinit
   deinit {
     print("list deinit)")
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidBecomeActiveNotification, object: nil)
     NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillResignActiveNotification, object: nil)
-    NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationWillTerminateNotification, object: nil)
-    // FIXME: dismiss viewcontollor does not call deinit (reference cycle) (has to do with menu)
+    // FIXME: dismiss view controller does not call deinit (reference cycle) (has to do with menu)
   }
-  
-  // MARK: - error
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-  }
-  
-  // MARK: - appear
+}
+
+// MARK: - events
+extension ListViewController {
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
     // session
@@ -71,13 +71,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
     // shake
+    super.viewDidAppear(animated)
     becomeFirstResponder()
   }
   
-  
-  // MARK: - load
   internal func applicationDidBecomeActiveNotification() {
     // update reminder icons
     tableView.reloadData()
@@ -86,7 +84,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   internal func applicationDidBecomeInactiveNotification() {
     Remote.Auth.upload(notebook: notebook)
   }
-  
+}
+
+// MARK: - load
+extension ListViewController {
   private func loadNotebook() {
     Notebook.get { data in
       if let data = data {
@@ -104,7 +105,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func loadListeners() {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeActiveNotification), name: UIApplicationDidBecomeActiveNotification, object: nil)
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
-    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillTerminateNotification, object: nil)
   }
   
   private func loadSession() {
@@ -118,7 +118,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         // ads
         if let user = Remote.Auth.user {
           // FIXME: remove hardcode in place for user check if paid
-          if user.email != "ethan.neff@eneff.com" && config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
+          if user.email != Constant.App.email && config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
             self.loadBannerAd()
           }
         }
@@ -134,11 +134,20 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
-  
-  // MARK: - create
+}
+
+// MARK: - actions
+extension ListViewController {
+  private func updateTitle() {
+    if let controller = navigationController?.childViewControllers.first {
+      controller.navigationItem.title = notebook.title
+    }
+  }
+}
+
+// MARK: - layout
+extension ListViewController {
   private func createBannerAd() {
-    bannerAd = GADBannerView(adSize: kGADAdSizeSmartBannerPortrait)
-    
     view.addSubview(bannerAd)
     bannerAd.delegate = self
     bannerAd.rootViewController = self
@@ -160,9 +169,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     // delegates
     tableView.delegate = self
     tableView.dataSource = self
-    if let tableView = tableView as? ReorderTableView {
-      tableView.reorderDelegate = self
-    }
+    tableView.reorderDelegate = self
     
     // cell
     tableView.registerClass(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
@@ -196,56 +203,25 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func createAddButton() {
-    let button = UIButton()
     let buttonSize = Constant.Button.height*1.33
-    let image = UIImage(named: "icon-add")!
-    let imageView = Util.imageViewWithColor(image: image, color: Constant.Color.background)
-    view.addSubview(button)
-    button.layer.cornerRadius = buttonSize/2
-    // TODO: make shadow same as menu
-    button.layer.shadowColor = UIColor.blackColor().CGColor
-    button.layer.shadowOffset = CGSizeMake(0, 2)
-    button.layer.shadowOpacity = 0.2
-    button.layer.shadowRadius = 2
-    button.layer.masksToBounds = false
-    button.backgroundColor = Constant.Color.button
-    button.tintColor = Constant.Color.background
-    button.setImage(imageView.image, forState: .Normal)
-    button.setImage(imageView.image, forState: .Highlighted)
-    button.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
-    addButtonBottomConstraint = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -addButtonBottomPadding)
-    button.translatesAutoresizingMaskIntoConstraints = false
+    let imageView = Util.imageViewWithColor(image: Constant.Image.add, color: Constant.Color.background)
+    view.addSubview(addButton)
+    addButton.layer.cornerRadius = buttonSize/2
+    addButton.setImage(imageView.image, forState: .Normal)
+    addButton.setImage(imageView.image, forState: .Highlighted)
+    addButton.addTarget(self, action: #selector(addButtonPressed(_:)), forControlEvents: .TouchUpInside)
+    addButtonBottomConstraint = NSLayoutConstraint(item: addButton, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1, constant: -addButtonBottomPadding)
     NSLayoutConstraint.activateConstraints([
-      NSLayoutConstraint(item: button, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -addButtonBottomPadding),
+      NSLayoutConstraint(item: addButton, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1, constant: -addButtonBottomPadding),
       addButtonBottomConstraint,
-      NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
-      NSLayoutConstraint(item: button, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
+      NSLayoutConstraint(item: addButton, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
+      NSLayoutConstraint(item: addButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: buttonSize),
       ])
-    addButton = button
   }
-  
-  private func createGestures() {
-    // double tap
-    let gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
-    gestureDoubleTap.numberOfTapsRequired = 2
-    gestureDoubleTap.numberOfTouchesRequired = 1
-    tableView.addGestureRecognizer(gestureDoubleTap)
-    
-    // single tap
-    let gestureSingleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedSingleTap(_:)))
-    gestureSingleTap.numberOfTapsRequired = 1
-    gestureSingleTap.numberOfTouchesRequired = 1
-    gestureSingleTap.requireGestureRecognizerToFail(gestureDoubleTap)
-    tableView.addGestureRecognizer(gestureSingleTap)
-  }
-  
-  private func updateTitle() {
-    if let controller = self.navigationController?.childViewControllers.first {
-      controller.navigationItem.title = notebook.title
-    }
-  }
-  
-  // MARK: - banner
+}
+
+// MARK: - banner
+extension ListViewController: GADBannerViewDelegate {
   private func loadBannerAd() {
     let request = GADRequest()
     request.testDevices = Constant.App.firebaseTestDevices
@@ -267,14 +243,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       self.view.layoutIfNeeded()
     })
   }
-  
-  // MARK: - tableview datasource
+}
+
+// MARK: - tableview datasource
+extension ListViewController: UITableViewDelegate, UITableViewDataSource {
   func numberOfSectionsInTableView(tableView: UITableView) -> Int {
     return 1
   }
   
   func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    addButton?.hidden = notebook.display.count > 0
+    addButton.hidden = notebook.display.count > 0
     return notebook.display.count
   }
   
@@ -295,8 +273,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     tableView.separatorStyle = .None;
     tableView.separatorStyle = .SingleLine
   }
-  
-  // MARK: - refresh
+}
+
+// MARK: - refresh
+extension ListViewController {
   func tableViewRefresh(refreshControl: UIRefreshControl) {
     if !Constant.App.release {
       notebook = Notebook.getDefault()
@@ -324,8 +304,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
-  
-  // MARK - swipe
+}
+
+// MARK - swipe
+extension ListViewController: ListTableViewCellDelegate {
   func cellSwiped(type type: SwipeType, cell: UITableViewCell) {
     Util.playSound(systemSound: .Tap)
     if let indexPath = tableView.indexPathForCell(cell) {
@@ -339,8 +321,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       }
     }
   }
-  
-  // MARK: - reorder
+}
+
+// MARK: - reorder
+extension ListViewController: ReorderTableViewDelegate {
   func reorderBeforeLift(fromIndexPath: NSIndexPath, completion: () -> ()) {
     notebook.reorderBeforeLift(indexPath: fromIndexPath, tableView: tableView) {
       completion()
@@ -366,9 +350,26 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     Util.playSound(systemSound: .Tap)
   }
+}
+
+// MARK: - gestures
+extension ListViewController {
+  private func createGestures() {
+    // double tap
+    let gestureDoubleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedDoubleTap(_:)))
+    gestureDoubleTap.numberOfTapsRequired = 2
+    gestureDoubleTap.numberOfTouchesRequired = 1
+    tableView.addGestureRecognizer(gestureDoubleTap)
+    
+    // single tap
+    let gestureSingleTap = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizedSingleTap(_:)))
+    gestureSingleTap.numberOfTapsRequired = 1
+    gestureSingleTap.numberOfTouchesRequired = 1
+    gestureSingleTap.requireGestureRecognizerToFail(gestureDoubleTap)
+    tableView.addGestureRecognizer(gestureSingleTap)
+  }
   
-  // MARK: - gestures
-  func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
+  internal func gestureRecognizedSingleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
     if let indexPath = tableView.indexPathForRowAtPoint(location), cell = tableView.cellForRowAtIndexPath(indexPath) {
       Util.animateButtonPress(button: cell)
@@ -376,7 +377,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
   }
   
-  func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
+  internal func gestureRecognizedDoubleTap(gesture: UITapGestureRecognizer) {
     let location = gesture.locationInView(tableView)
     if let indexPath = tableView.indexPathForRowAtPoint(location) {
       let item = notebook.display[indexPath.row]
@@ -388,8 +389,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       Util.playSound(systemSound: .Tap)
     }
   }
-  
-  // MARK: - shake
+}
+
+// MARK: - shake
+extension ListViewController {
   override func canBecomeFirstResponder() -> Bool {
     return true
   }
@@ -399,8 +402,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
       displayDeleteCompleted()
     }
   }
-  
-  // MARK: - buttons
+}
+
+// MARK: - buttons
+extension ListViewController: SettingsDelegate {
   func settingsButtonPressed(button button: SettingViewController.Button) {
     switch button.detail {
     case .NotebookTitle: displayNotebookTitle()
@@ -443,7 +448,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     Util.animateButtonPress(button: button)
     displayNoteDetail(indexPath: NSIndexPath(forRow: 0, inSection: 0), create: true)
   }
-  
+}
+
+// MARK: - logout
+extension ListViewController {
   private func displayLogout() {
     let modal = ModalError()
     modal.message = "An error has occured and you will need to log back in"
@@ -467,12 +475,15 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   private func logout() {
     Util.threadBackground {
       LocalNotification.sharedInstance.destroy()
+      LocalNotification.sharedInstance.destroy()
     }
     Report.sharedInstance.track(event: "logout")
     dismissViewControllerAnimated(true, completion: nil)
   }
-  
-  // MARK: - modals
+}
+
+// MARK: - modals
+extension ListViewController: MFMailComposeViewControllerDelegate {
   private func displayNotebookTitle() {
     let modal = ModalTextField()
     modal.limit = 20
@@ -523,6 +534,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
   }
   
   private func displayAppTimer(button button: SettingViewController.Button) {
+    // TODO: needs to be delegate... is coupled
     guard let navigationController = navigationController as? MenuNavigationController else {
       return Report.sharedInstance.log("unable to get the correct parent navigation controller of MenuNavigationController")
     }
@@ -633,7 +645,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     if MFMailComposeViewController.canSendMail() {
       let mail = MFMailComposeViewController()
       mail.mailComposeDelegate = self
-      mail.setToRecipients(["ethan.neff@eneff.com"])
+      mail.setToRecipients([Constant.App.email])
       mail.setSubject("I have feedback for your Organize app!")
       mail.setMessageBody("<p>Hey Ethan,</p></br>", isHTML: true)
       presentViewController(mail, animated: true, completion: nil)

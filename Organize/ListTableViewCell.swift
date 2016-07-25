@@ -1,34 +1,29 @@
 import UIKit
 
+// MARK: - delegate to view controller
 protocol ListTableViewCellDelegate: class {
   func cellAccessoryButtonPressed(cell cell: UITableViewCell)
   func cellSwiped(type type: SwipeType, cell: UITableViewCell)
 }
 
-class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
-  
-  // MARK: properties
+class ListTableViewCell: UITableViewCell {
+  // MARK: - properties
   static let identifier: String = "cell"
   static let height: CGFloat = 34
   
   private var titleLabel: UILabel!
-  private var titleLabelLeadingConstraint: NSLayoutConstraint!
   private var accessoryButton: UIButton!
   private var reminderView: UIView!
-  private let titleLabelPadding: CGFloat = Constant.Button.padding
-  private let accessoryButtonWidth: CGFloat = Constant.Button.height
-  private let reminderViewWidth: CGFloat = 3
   
+  private var titleLabelLeadingConstraint: NSLayoutConstraint!
+  
+  private let reminderViewWidth: CGFloat = 3
   private let titleLabelIndentMultiplier: CGFloat = 20
   
   weak var delegate: ListTableViewCellDelegate?
   private var swipe: SwipeCell!
   
   // MARK: - init
-  override func awakeFromNib() {
-    super.awakeFromNib()
-  }
-  
   override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     initialize()
@@ -46,60 +41,45 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
   private func initialize() {
     setupView()
     setupViewConstraints()
-    setupCellDefaults()
-    setupSwipe(cell: self)
+    setupDefaults()
+    setupSwipe()
   }
   
-  // MARK: - deinit
   deinit {
-    // TODO: test if deinit when tableview deinits
     swipe = nil
     for v in subviews {
       v.removeFromSuperview()
     }
   }
-  
-  // MARK: - create
+}
+
+// MARK: - layout
+extension ListTableViewCell {
   private func setupView() {
-    titleLabel = UILabel()
+    titleLabel = Constant.Label.create(title: nil, primary: true, alignment: .Left)
+    accessoryButton = Constant.Button.create(title: nil, bold: false, small: true, background: false, shadow: false)
+    reminderView = Constant.View.create()
+    
+    accessoryButton.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
+    
     addSubview(titleLabel)
-    
-    accessoryButton = UIButton()
     addSubview(accessoryButton)
-    accessoryButton?.titleLabel?.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
-    accessoryButton?.addTarget(self, action: #selector(accessoryButtonPressed(_:)), forControlEvents: .TouchUpInside)
-    
-    reminderView = UIView()
     addSubview(reminderView)
   }
   
-  private func setupCellDefaults() {
-    backgroundColor = Constant.Color.background
-    separatorInset = UIEdgeInsetsZero
-    layoutMargins = UIEdgeInsetsZero
-    preservesSuperviewLayoutMargins = false
-    selectionStyle = .None
-    // fixes separator disappearance
-    textLabel?.backgroundColor = .clearColor()
-  }
-  
   private func setupViewConstraints() {
-    titleLabel.translatesAutoresizingMaskIntoConstraints = false
-    accessoryButton.translatesAutoresizingMaskIntoConstraints = false
-    reminderView.translatesAutoresizingMaskIntoConstraints = false
-    
-    titleLabelLeadingConstraint = NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: titleLabelPadding)
+    titleLabelLeadingConstraint = NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding)
     
     NSLayoutConstraint.activateConstraints([
       titleLabelLeadingConstraint,
       NSLayoutConstraint(item: titleLabel, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: accessoryButton, attribute: .Leading, multiplier: 1, constant: titleLabelPadding),
+      NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: accessoryButton, attribute: .Leading, multiplier: 1, constant: Constant.Button.padding),
       NSLayoutConstraint(item: titleLabel, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
       
       NSLayoutConstraint(item: accessoryButton, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: accessoryButton, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: accessoryButton, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1, constant: 0),
-      NSLayoutConstraint(item: accessoryButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: accessoryButtonWidth),
+      NSLayoutConstraint(item: accessoryButton, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: Constant.Button.height),
       
       NSLayoutConstraint(item: reminderView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1, constant: 0),
       NSLayoutConstraint(item: reminderView, attribute: .Leading, relatedBy: .Equal, toItem: self, attribute: .Leading, multiplier: 1, constant: 0),
@@ -107,9 +87,12 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
       NSLayoutConstraint(item: reminderView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: reminderViewWidth),
       ])
   }
-  
-  func setupSwipe(cell cell: UITableViewCell) {
-    swipe = SwipeCell(cell: cell)
+}
+
+// MARK: - swipe
+extension ListTableViewCell: SwipeCellDelegate {
+  func setupSwipe() {
+    swipe = SwipeCell(cell: self)
     swipe.delegate = self
     swipe.firstTrigger = 0.15
     swipe.secondTrigger = 0.40
@@ -123,53 +106,57 @@ class ListTableViewCell: UITableViewCell, SwipeCellDelegate {
       }
     }
   }
-  
-  // MARK: load
+}
+
+// MARK: - buttons
+extension ListTableViewCell {
+  func accessoryButtonPressed(button: UIButton) {
+    Util.animateButtonPress(button: button)
+    delegate?.cellAccessoryButtonPressed(cell: self)
+  }
+}
+
+// MARK: - load
+extension ListTableViewCell {
   func updateCell(note note: Note) {
     // indent
-    titleLabelLeadingConstraint.constant = titleLabelPadding + CGFloat(note.indent) * titleLabelIndentMultiplier
+    titleLabelLeadingConstraint.constant = Constant.Button.padding + CGFloat(note.indent) * titleLabelIndentMultiplier
     
     // bolded
-    titleLabel?.font = note.bolded ? .boldSystemFontOfSize(UIFont.systemFontSize()) : .systemFontOfSize(UIFont.systemFontSize())
+    titleLabel.font = note.bolded ? .boldSystemFontOfSize(Constant.Font.title) : .systemFontOfSize(Constant.Font.title)
     
     // title & complete
     if note.completed {
       let attrString = NSAttributedString(string: note.title, attributes: [NSStrikethroughStyleAttributeName: NSUnderlineStyle.StyleSingle.rawValue])
-      titleLabel?.attributedText = attrString
-      titleLabel?.textColor = Constant.Color.border
-      accessoryButton?.tintColor = Constant.Color.border
+      titleLabel.attributedText = attrString
+      titleLabel.textColor = Constant.Color.border
+      accessoryButton.tintColor = Constant.Color.border
     } else {
-      titleLabel?.textColor = Constant.Color.title
-      accessoryButton?.tintColor = Constant.Color.button
-      titleLabel?.text = note.title
+      titleLabel.textColor = Constant.Color.title
+      accessoryButton.tintColor = Constant.Color.button
+      titleLabel.text = note.title
     }
     
     // accessoryButton
-    accessoryButton?.enabled = true
+    accessoryButton.enabled = true
     if note.collapsed {
-      accessoryButton?.setTitle(String(note.children), forState: .Normal)
-      accessoryButton?.setTitleColor(Constant.Color.border, forState: .Normal)
+      accessoryButton.setTitle(String(note.children), forState: .Normal)
+      accessoryButton.setTitleColor(Constant.Color.border, forState: .Normal)
     } else {
-      accessoryButton?.setTitle("+", forState: .Normal)
-      accessoryButton?.setTitleColor(Constant.Color.button, forState: .Normal)
+      accessoryButton.setTitle("+", forState: .Normal)
+      accessoryButton.setTitleColor(Constant.Color.button, forState: .Normal)
       
       if note.completed {
-        accessoryButton?.setTitleColor(Constant.Color.border, forState: .Normal)
-        accessoryButton?.enabled = false
+        accessoryButton.setTitleColor(Constant.Color.border, forState: .Normal)
+        accessoryButton.enabled = false
       }
     }
     
     // reminder view
     if note.reminder?.date.timeIntervalSinceNow > 0 {
-      reminderView?.backgroundColor = Constant.Color.button
+      reminderView.backgroundColor = Constant.Color.button
     } else {
-      reminderView?.backgroundColor = .clearColor()
+      reminderView.backgroundColor = .clearColor()
     }
-  }
-  
-  // MARK: buttons
-  func accessoryButtonPressed(button: UIButton) {
-    Util.animateButtonPress(button: button)
-    delegate?.cellAccessoryButtonPressed(cell: self)
   }
 }

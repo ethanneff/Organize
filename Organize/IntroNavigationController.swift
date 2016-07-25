@@ -42,7 +42,6 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func determineNextController() {
-    print("determineNextController")
     // simulator catch
     Notebook.get { data in
       if data == nil {
@@ -62,7 +61,6 @@ class IntroNavigationController: UINavigationController {
   }
   
   private func waitForNextController(completion: (nextController: Controller) -> ()) {
-    print("waitForNextController")
     if let nextController = nextController {
       completion(nextController: nextController)
     } else {

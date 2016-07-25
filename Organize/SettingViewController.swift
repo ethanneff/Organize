@@ -141,7 +141,7 @@ class SettingViewController: UIViewController {
         button.addTarget(self, action: #selector(buttonPressed(_:)), forControlEvents: .TouchUpInside)
         button.enabled = enabled
         button.contentHorizontalAlignment = detail.header ? .Center : .Left
-        button.titleLabel?.font = .systemFontOfSize(Constant.Button.fontSize)
+        button.titleLabel?.font = .systemFontOfSize(Constant.Font.button)
         button.translatesAutoresizingMaskIntoConstraints = false
         
         buttons[detail.rawValue] = Button(button: button, detail: detail)

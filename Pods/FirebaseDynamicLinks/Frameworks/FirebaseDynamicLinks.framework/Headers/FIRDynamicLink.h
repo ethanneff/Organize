@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, FIRDynamicLinkMatchConfidence) {
   /**
    * The match between the Dynamic Link and this device may not be perfect, hence you should not
-   *    reveal any personal information related to the dynamic link.
+   *    reveal any personal information related to the Dynamic Link.
    */
   FIRDynamicLinkMatchConfidenceWeak,
   /**

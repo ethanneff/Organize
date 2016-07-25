@@ -1011,6 +1011,11 @@ class Notebook: NSObject, NSCoding, Copying {
   }
   
   private func updateBolded(indexPath indexPath: NSIndexPath) -> [NSIndexPath] {
+    // delete last note catch
+    guard self.display.count > 0 else {
+      return []
+    }
+    
     let note = self.display[indexPath.row]
     var indexPaths: [NSIndexPath] = []
     if indexPath.row != 0 {

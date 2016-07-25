@@ -22,7 +22,7 @@ class WelcomePageViewController: UIPageViewController {
   // MARK: - init
   init() {
     scrollView = UIScrollView()
-    getStartedButton = Constant.Button.create(title: "Get started", bold: false, background: true)
+    getStartedButton = Constant.Button.create(title: "Get started", bold: false, small: false, background: true, shadow: false)
     super.init(transitionStyle: .Scroll, navigationOrientation: .Horizontal, options: nil)
     initialization()
   }
@@ -45,7 +45,6 @@ class WelcomePageViewController: UIPageViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupPageController()
-    
   }
   
   // MARK: - error

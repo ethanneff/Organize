@@ -27,7 +27,7 @@ typedef void (^FIRDynamicLinkUniversalLinkHandler)(FIRDynamicLink * _Nullable dy
 @interface FIRDynamicLinks : NSObject
 
 /**
- * @method sharedInstance
+ * @method dynamicLinks
  * @abstract Shared instance of FIRDynamicLinks. Returns nil on iOS versions prior to 8.
  * @return Shared instance of FIRDynamicLinks.
  */
@@ -37,32 +37,33 @@ typedef void (^FIRDynamicLinkUniversalLinkHandler)(FIRDynamicLink * _Nullable dy
  * @method shouldHandleDynamicLinkFromCustomSchemeURL:
  * @abstract Determine whether FIRDynamicLinks should handle the given URL. This does not
  *     guarantee that |dynamicLinkFromCustomSchemeURL:| will return a non-nil value, but it means
- *     the client should not attempt to handle the url.
- * @param url custom scheme url.
- * @return whether it can be handled by GINDurableDeepLinkService.
+ *     the client should not attempt to handle the URL.
+ * @param url Custom scheme URL.
+ * @return Whether the URL can be handled by FIRDynamicLinks.
  */
 - (BOOL)shouldHandleDynamicLinkFromCustomSchemeURL:(NSURL *)url;
 
 /**
  * @method dynamicLinkFromCustomSchemeURL:
- * @abstract Get a Dynamic Link from a custom scheme URL. This method could parse URLs with custom
+ * @abstract Get a Dynamic Link from a custom scheme URL. This method parses URLs with a custom
  *     scheme, for instance, "comgoogleapp://google/link?deep_link_id=abc123". It is suggested to
  *     call it inside your |UIApplicationDelegate|'s
- *     |application:openURL:sourceApplication:annotation| and|application:openURL:options:|.
- * @param url custom scheme url.
- * @return Dynamic Link object if url is valid and has link parameter, or nil.
+ *     |application:openURL:sourceApplication:annotation| and |application:openURL:options:|
+ *     methods.
+ * @param url Custom scheme URL.
+ * @return Dynamic Link object if the URL is valid and has link parameter, otherwise nil.
  */
 - (nullable FIRDynamicLink *)dynamicLinkFromCustomSchemeURL:(NSURL *)url;
 
 /**
  * @method dynamicLinkFromUniversalLinkURL:
- * @abstract Get a Dynamic Link from a universal link URL. This method could parse universal link
+ * @abstract Get a Dynamic Link from a universal link URL. This method parses universal link
  *     URLs, for instance,
  *     "https://example.app.goo.gl?link=https://www.google.com&ibi=com.google.app&ius=comgoogleapp".
  *     It is suggested to call it inside your |UIApplicationDelegate|'s
- *     |application:continueUserActivity:restorationHandler:|.
- * @param url Custom scheme url.
- * @return Dynamic Link object if url is valid and has link parameter, or nil.
+ *     |application:continueUserActivity:restorationHandler:| method.
+ * @param url Custom scheme URL.
+ * @return Dynamic Link object if the URL is valid and has link parameter, otherwise nil.
  */
 - (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url;
 
@@ -72,14 +73,14 @@ typedef void (^FIRDynamicLinkUniversalLinkHandler)(FIRDynamicLink * _Nullable dy
  *     will call the handler immediately, but a short link may not.
  * @param universalLinkURL A Universal Link URL.
  * @param completion A block that handles the outcome of attempting to create a FIRDynamicLink.
- * @return YES if the SDK is handling the link, otherwise, NO.
+ * @return YES if FIRDynamicLinks is handling the link, otherwise, NO.
  */
 - (BOOL)handleUniversalLink:(NSURL *)url
                  completion:(FIRDynamicLinkUniversalLinkHandler)completion;
 
 /**
  * @method resolveShortLink:completion:linkResolver:
- * @abstract Retrieves the details of the Dynamic Link that the shortened URL represents
+ * @abstract Retrieves the details of the Dynamic Link that the shortened URL represents.
  * @param url A Short Dynamic Link.
  * @param completion Block to be run upon completion.
  */

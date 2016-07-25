@@ -110,7 +110,7 @@ extension Modal {
     title.textAlignment = .Center
     title.textColor = Constant.Color.title
     title.backgroundColor = Constant.Color.background
-    title.font = .boldSystemFontOfSize(Constant.Button.fontSize)
+    title.font = .boldSystemFontOfSize(Constant.Font.button)
     title.translatesAutoresizingMaskIntoConstraints = false
     
     return title
@@ -151,7 +151,7 @@ extension Modal {
     button.setTitle(title, forState: .Normal)
     button.setTitleColor(Constant.Color.button, forState: .Normal)
     button.setTitleColor(Constant.Color.border, forState: .Highlighted)
-    button.titleLabel?.font = confirm ? .systemFontOfSize(Constant.Button.fontSize) : .boldSystemFontOfSize(Constant.Button.fontSize)
+    button.titleLabel?.font = confirm ? .systemFontOfSize(Constant.Font.button) : .boldSystemFontOfSize(Constant.Font.button)
     button.translatesAutoresizingMaskIntoConstraints = false
     
     return button
@@ -161,7 +161,7 @@ extension Modal {
     let textField = UITextField()
     textField.returnKeyType = .Done
     textField.textAlignment = .Center
-    textField.font = UIFont.boldSystemFontOfSize(Constant.Button.fontSize)
+    textField.font = UIFont.boldSystemFontOfSize(Constant.Font.button)
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.textColor = Constant.Color.title
     textField.backgroundColor = Constant.Color.background
@@ -217,7 +217,7 @@ extension Modal {
     label.text = text
     label.textAlignment = .Center
     label.numberOfLines = 0
-    label.font = .boldSystemFontOfSize(Constant.Button.fontSize)
+    label.font = .boldSystemFontOfSize(Constant.Font.button)
     label.lineBreakMode = .ByTruncatingTail
     let minLabelSize = CGSizeMake(modalMinWidth, modalMinHeight/2);
     let maxLabelSize = CGSizeMake(modalMaxWidth, modalMaxHeight);

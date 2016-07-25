@@ -24,6 +24,9 @@ class Util {
     controller.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
   }
   
+}
+
+extension Util {
   // background thread delay
   class func delay(delay: Double, closure: ()->()) {
     dispatch_after(
@@ -33,7 +36,9 @@ class Util {
       ),
       dispatch_get_main_queue(), closure)
   }
-  
+}
+
+extension Util {
   // random
   class func randomString(length length: Int) -> String {
     let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -51,21 +56,11 @@ class Util {
   class func randomNumber(upperLimit upperLimit: UInt32) -> Int {
     return Int(arc4random_uniform(upperLimit))
   }
-  
-  // threading
-  class func threadBackground(completion: () -> ()) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-      completion()
-    }
-  }
-  
-  class func threadMain(completion: () -> ()) {
-    dispatch_async(dispatch_get_main_queue()) {
-      completion()
-    }
-  }
-  
+}
+
+extension Util {
   // animation
+  // TODO: should be button.animate instead
   class func animateButtonPress(button button: UIView, completion: (() -> ())? = nil) {
     UIView.animateWithDuration(0.05, animations: {
       button.alpha = 0.4
@@ -80,7 +75,9 @@ class Util {
     })
     Util.playSound(systemSound: .Tap)
   }
-  
+}
+
+extension Util {
   // sounds
   enum SystemSounds: UInt32 {
     case Type = 1104
@@ -118,7 +115,9 @@ class Util {
       AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
     }
   }
-  
+}
+
+extension Util {
   // image
   class func imageViewWithColor(image image: UIImage, color: UIColor) -> UIImageView {
     let imageView = UIImageView(image: image)
@@ -127,6 +126,9 @@ class Util {
     return imageView
   }
   
+}
+
+extension Util {
   // network indicator
   class func toggleNetworkIndicator(on on: Bool) {
     UIApplication.sharedApplication().networkActivityIndicatorVisible = on
@@ -153,8 +155,9 @@ class Util {
     
     return (isReachable && !needsConnection)
   }
-  
-  
+}
+
+extension Util {
   // keyboard
   class func handleKeyboardScrollView(keyboardNotification keyboardNotification: NSNotification, scrollViewBottomConstraint: NSLayoutConstraint, view: UIView, constant: CGFloat? = nil) {
     if let userInfo = keyboardNotification.userInfo {
@@ -180,5 +183,20 @@ class Util {
       return keyboardHeight
     }
     return 0
+  }
+}
+
+extension Util {
+  // threading
+  class func threadBackground(completion: () -> ()) {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+      completion()
+    }
+  }
+  
+  class func threadMain(completion: () -> ()) {
+    dispatch_async(dispatch_get_main_queue()) {
+      completion()
+    }
   }
 }

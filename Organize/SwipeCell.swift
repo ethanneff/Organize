@@ -326,7 +326,7 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
   private func directionBounce(duration duration: NSTimeInterval, direction: Direction, icon: UIView?, percentage: CGFloat, completion: Completion?) {
     let icon = icon ?? UIView()
     
-    UIView.animateWithDuration(duration, delay: 0, usingSpringWithDamping: kDamping, initialSpringVelocity: kVelocity, options: .CurveEaseInOut, animations: { () -> Void in
+    UIView.animateWithDuration(duration, delay: 0, usingSpringWithDamping: kDamping, initialSpringVelocity: kVelocity, options: .CurveEaseInOut, animations: { () -> () in
       var frame: CGRect = self.contentScreenshotView.frame
       frame.origin.x = 0
       self.contentScreenshotView.frame = frame
@@ -334,7 +334,7 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
       self.colorIndicatorView.backgroundColor = self.defaultColor
       self.iconView.alpha = 0
       self.updateIcon(percentage: 0, direction: direction, icon: icon, isDragging: self.shouldAnimateIcons)
-    }) { (finished) -> Void in
+    }) { (finished) -> () in
       // don't complete if before get trigger
       if let completion = completion where !self.getBeforeTrigger(percentage: percentage, direction: direction) {
         completion(cell: self.cell)
@@ -357,11 +357,11 @@ class SwipeCell: UIViewController, UIGestureRecognizerDelegate {
     var frame: CGRect = contentScreenshotView.frame
     frame.origin.x = origin
     
-    UIView.animateWithDuration(duration, delay: 0, options: ([.CurveEaseOut, .AllowUserInteraction]), animations: {() -> Void in
+    UIView.animateWithDuration(duration, delay: 0, options: ([.CurveEaseOut, .AllowUserInteraction]), animations: {() -> () in
       self.contentScreenshotView.frame = frame
       self.iconView.alpha = 0
       self.updateIcon(percentage: percentage, direction: direction, icon: icon, isDragging: self.shouldAnimateIcons)
-      }, completion: {(finished: Bool) -> Void in
+      }, completion: {(finished: Bool) -> () in
         completion(cell: self.cell)
         // delay for animated swipe of cell
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(self.kAnimationSlideDelay * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {

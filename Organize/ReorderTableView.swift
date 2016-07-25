@@ -215,7 +215,7 @@ class ReorderTableView: UITableView {
         reorderSnapshot.transform = CGAffineTransformMakeScale(1.05, 1.05)
         reorderSnapshot.alpha = 0.8
       }
-      }, completion: { (finished) -> Void in
+      }, completion: { (finished) -> () in
         cell.hidden = true
     })
   }
@@ -319,7 +319,7 @@ class ReorderTableView: UITableView {
         reorderSnapshot.transform = CGAffineTransformIdentity
         reorderSnapshot.alpha = 0.0
       }
-      }, completion: { (finished) -> Void in
+      }, completion: { (finished) -> () in
         cell.hidden = false
         completion()
     })
