@@ -58,6 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       window.makeKeyAndVisible()
     }
   }
+  
   // MARK: - review app
   func configureReviewApp() {
     Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)

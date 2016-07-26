@@ -60,10 +60,8 @@ class ListViewController: UIViewController {
 extension ListViewController {
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
-    // session
-    loadSession()
     // config
-    loadRemoteConfig()
+    loadAds()
     // title
     updateTitle()
     // accessed
@@ -79,6 +77,8 @@ extension ListViewController {
   internal func applicationDidBecomeActiveNotification() {
     // update reminder icons
     tableView.reloadData()
+    // review
+    loadReview()
   }
   
   internal func applicationDidBecomeInactiveNotification() {
@@ -107,28 +107,30 @@ extension ListViewController {
     NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(applicationDidBecomeInactiveNotification), name: UIApplicationWillResignActiveNotification, object: nil)
   }
   
-  private func loadSession() {
-    let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: reviewCount+1)
-  }
-  
-  private func loadRemoteConfig() {
+  private func loadAds() {
     Remote.Config.fetch { config in
       if let config = config {
-        // ads
         if let user = Remote.Auth.user {
-          // FIXME: remove hardcode in place for user check if paid
           if user.email != Constant.App.email && config[Remote.Config.Keys.ShowAds.rawValue].boolValue {
             self.loadBannerAd()
           }
         }
-        
-        // review
+      }
+    }
+  }
+  
+  private func loadReview() {
+    let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
+    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: reviewCount+1)
+    
+    Remote.Config.fetch { config in
+      if let config = config {
         let feedbackApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.FeedbackApp) as? Bool ?? false
         let reviewApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewApp) as? Bool ?? false
         let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
         let reviewCountConfig = config[Remote.Config.Keys.ShowReview.rawValue].numberValue as? Int ?? 0
-        if !(reviewApp || feedbackApp) && reviewCount > reviewCountConfig {
+        
+        if !(reviewApp || feedbackApp) && reviewCount >= reviewCountConfig {
           self.displayReview()
         }
       }
@@ -503,15 +505,16 @@ extension ListViewController: MFMailComposeViewControllerDelegate {
       if let selection = output[ModalReview.OutputKeys.Selection.rawValue] as? Int {
         Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)
         let modal = ModalConfirmation()
+        modal.left = "No thanks"
         if selection >= 3 {
-          modal.message = "Can you help us by leaving a review?"
+          modal.message = "Help us by leaving a review?"
           modal.show(controller: self) { output in
             Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewApp, val: true)
             Report.sharedInstance.track(event: "sent_review")
             UIApplication.sharedApplication().openURL(NSURL(string: "itms-apps://itunes.apple.com/app/?id=" + Constant.App.id)!)
           }
         } else {
-          modal.message = "Can you tell us how we can improve?"
+          modal.message = "Tell us how we can improve?"
           modal.show(controller: self) { output in
             self.displayAppFeedback()
           }
