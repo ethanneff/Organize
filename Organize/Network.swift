@@ -11,6 +11,7 @@ import UIKit
 class Network {
   // MARK: - singleton
   static let sharedInstance = Network()
+  private init() {}
   
   // MARK: - completion blocks
   typealias JSONDictionaryCompletion = ([String: AnyObject]? -> ())

@@ -120,19 +120,9 @@ extension ListViewController {
   }
   
   private func loadReview() {
-    let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: reviewCount+1)
-    
-    Remote.Config.fetch { config in
-      if let config = config {
-        let feedbackApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.FeedbackApp) as? Bool ?? false
-        let reviewApp = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewApp) as? Bool ?? false
-        let reviewCount = Constant.UserDefault.get(key: Constant.UserDefault.Key.ReviewCount) as? Int ?? 0
-        let reviewCountConfig = config[Remote.Config.Keys.ShowReview.rawValue].numberValue as? Int ?? 0
-        
-        if !(reviewApp || feedbackApp) && reviewCount >= reviewCountConfig {
-          self.displayReview()
-        }
+    Review.sharedInstance.show { (success) in
+      if success {
+        self.displayReview()
       }
     }
   }
@@ -503,13 +493,13 @@ extension ListViewController: MFMailComposeViewControllerDelegate {
     let modal = ModalReview()
     modal.show(controller: self) { output in
       if let selection = output[ModalReview.OutputKeys.Selection.rawValue] as? Int {
-        Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)
+        Review.sharedInstance.setCount()
         let modal = ModalConfirmation()
         modal.left = "No thanks"
         if selection >= 3 {
           modal.message = "Help us by leaving a review?"
           modal.show(controller: self) { output in
-            Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewApp, val: true)
+            Review.sharedInstance.setReview()
             Report.sharedInstance.track(event: "sent_review")
             UIApplication.sharedApplication().openURL(NSURL(string: "itms-apps://itunes.apple.com/app/?id=" + Constant.App.id)!)
           }
@@ -663,7 +653,7 @@ extension ListViewController: MFMailComposeViewControllerDelegate {
     controller.dismissViewControllerAnimated(true, completion: nil)
     Util.playSound(systemSound: .Tap)
     if result.rawValue == 2 {
-      Constant.UserDefault.set(key: Constant.UserDefault.Key.FeedbackApp, val: true)
+      Review.sharedInstance.setFeedback()
       Report.sharedInstance.track(event: "sent_feedback")
     }
   }

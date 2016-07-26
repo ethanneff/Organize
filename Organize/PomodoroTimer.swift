@@ -89,7 +89,7 @@ class PomodoroTimer: Timer {
                 Interval(duration: workTime, type: .Work),
                 Interval(duration: longBreakTime, type: .LongBreak)]
     notifications = []
-    notificationCount = 30
+    notificationCount = 50
     notificationQueue = dispatch_queue_create("com.eneff.app.organize.pomodorotimer", nil)
     super.init()
   }

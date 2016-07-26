@@ -18,8 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     // load (install or updated)
     configureFirebase()
-    configureReviewApp()
     navigateToFirstController()
+    Review.sharedInstance.reset()
     return true
   }
   func applicationWillTerminate(application: UIApplication) {
@@ -30,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // launch and foreground
     reportState(active: true)
     updateFirebase()
+    Review.sharedInstance.update()
     Constant.UserDefault.set(key: Constant.UserDefault.Key.AppOpenDate, val: NSDate())
   }
   
@@ -57,13 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       window.rootViewController = IntroNavigationController()
       window.makeKeyAndVisible()
     }
-  }
-  
-  // MARK: - review app
-  func configureReviewApp() {
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewCount, val: 0)
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.ReviewApp, val: false)
-    Constant.UserDefault.set(key: Constant.UserDefault.Key.FeedbackApp, val: false)
   }
   
   // MARK: - firebase

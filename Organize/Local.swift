@@ -11,16 +11,16 @@ import Foundation
 class Local {
   // MARK: - singleton
   static let sharedInstance = Local()
+  private init() {}
   
   // MARK: - data locations
   private static let DocumentsDirectory = NSFileManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-  enum Location {
-    case Assignment
+  
+  enum Location: String {
+    case Notebook
     
     var path: String {
-      switch self {
-      case .Assignment: return DocumentsDirectory.URLByAppendingPathComponent("assignment").path!
-      }
+      return DocumentsDirectory.URLByAppendingPathComponent(rawValue).path!
     }
   }
   

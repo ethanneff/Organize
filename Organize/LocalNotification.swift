@@ -5,6 +5,7 @@ import UIKit
 
 class LocalNotification {
   static let sharedInstance = LocalNotification()
+  private init() {}
   
   private let displayTitle: String = "Enable Notifications"
   private let displayMessage: String = "Would you like to get notified of the reminders you create?"

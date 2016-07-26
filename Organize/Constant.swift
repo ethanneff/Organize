@@ -33,16 +33,27 @@ extension Constant {
 extension Constant {
   struct UserDefault {
     enum Key: String {
+      // notifications
       case IsLocalNotificationPermissionAsked
+      
+      // color
       case IsDarkMode
+      
+      // settings labels
       case IsRemindersHidden
       case IsTimerActive
+      
+      // review
       case FeedbackApp
       case ReviewApp
       case ReviewCount
+      
+      // timer
       case PomodoroState
       case PomodoroSeconds
       case PomodoroNotifications
+      
+      // app
       case AppOpenDate
       case AppCloseDate
       case AppFirstOpen
@@ -63,19 +74,6 @@ extension Constant {
     }
   }
 }
-
-// MARK: - keys
-extension Constant {
-  struct NotificationKey {
-    
-  }
-  
-  struct AnalyticsKey {
-    static let appOpen = "app open"
-    static let appClose = "app close"
-  }
-}
-
 
 // MARK: - color
 extension Constant {
