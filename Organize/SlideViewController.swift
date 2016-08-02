@@ -43,5 +43,4 @@ class SlideViewController: UIViewController {
   private func setupView() {
 
   }
-  
 }
