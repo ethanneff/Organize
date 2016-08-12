@@ -48,7 +48,7 @@ struct Remote {
       }
     }
     
-    // MARK: - public
+    // MARK: - user
     static var user: FIRUser? {
       return FIRAuth.auth()?.currentUser ?? nil
     }
@@ -241,8 +241,10 @@ struct Remote {
       }
     }
     
+    // MARK: - notebook
     static func upload(notebook notebook: Notebook, completion: completionBlock? = nil) {
       readUser { (error, user) in
+        // FIXME: handle like download (but in background without loading stop)
         if let error = error {
           Report.sharedInstance.log("upload get user error: \(error)")
           if let completion = completion {
@@ -253,7 +255,7 @@ struct Remote {
         
         let user = user!
         let update = convertNotebookLocalToRemote(notebook: notebook, user: user)
-        
+        // FIXME: doesn't remove old notes
         updateDatabase(data: update) { (error) in
           if let error = error {
             Report.sharedInstance.log("upload update database error: \(error)")
@@ -315,7 +317,7 @@ struct Remote {
       }
     }
     
-    // MARK: - create
+    // MARK: - create helpers
     static private func createSignup(email email: String, password: String, completion: (error: String?, user: FIRUser?) -> ()) {
       FIRAuth.auth()?.createUserWithEmail(email, password: password) { (user, error) in
         if let error = error {
@@ -357,7 +359,7 @@ struct Remote {
       }
     }
     
-    // MARK: - read
+    // MARK: - read helpers
     static private func readDeviceUUID(completion: (error: String?, uuid: String) -> ()) {
       if let uuid = UIDevice.currentDevice().identifierForVendor?.UUIDString {
         completion(error: nil, uuid: uuid)
@@ -376,7 +378,7 @@ struct Remote {
       }
     }
     
-    // MARK: - database
+    // MARK: - database helpers
     static private func updateDatabase(data data: [String: AnyObject], completion: (error: String?) -> ()) {
       database.updateChildValues(data, withCompletionBlock: { (error: NSError?, reference: FIRDatabaseReference) in
         if let error = error {
@@ -474,6 +476,7 @@ struct Remote {
       var error: Bool = false
       var notes: [[String: AnyObject]] = []
       for id in noteIds {
+        // multiple requests
         database.child("notes/\(id)").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
           // catch max timeout
           if NSDate().timeIntervalSinceDate(start) > timeout {
@@ -495,7 +498,7 @@ struct Remote {
           note["id"] = id
           notes.append(note)
           
-          // complete
+          // complete (all request finished)
           count -= 1
           if count == 0 {
             return completion(error: nil, notes: notes)
@@ -515,7 +518,7 @@ struct Remote {
       }
     }
     
-    // MARK: - finish
+    // MARK: - finish helper
     static private func finish(loadingModal loadingModal: ModalLoading, logout: Bool, completion: completionBlock, error: String?) {
       loadingModal.hide {
         if let error = error {
@@ -529,7 +532,7 @@ struct Remote {
       }
     }
     
-    // MARK: - convert
+    // MARK: - convert helpers
     static private func convertNotesRemoteToLocal(notebook notebook: [String: AnyObject], notes: [[String: AnyObject]], completion: (error: String?, notes: [Note], display: [Note]) -> ()) {
       // quick exit
       guard let noteIds = notebook["notes"] as? [String], let displayIds = notebook["display"] as? [String] else {
