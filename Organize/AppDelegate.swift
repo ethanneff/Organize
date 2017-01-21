@@ -53,11 +53,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   // MARK: - navigation
   func navigateToFirstController() {
     window = UIWindow(frame: UIScreen.mainScreen().bounds)
-    if let window = window {
-      window.backgroundColor = UIColor.whiteColor()
-      window.rootViewController = IntroNavigationController()
-      window.makeKeyAndVisible()
-    }
+    guard let window = window else { return }
+    window.backgroundColor = UIColor.whiteColor()
+    window.rootViewController = IntroNavigationController()
+    window.makeKeyAndVisible()
   }
   
   // MARK: - firebase
@@ -101,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     return handled!
   }
   
-  private func handleDeepLink(url url: NSURL?, firstTime: Bool) {
+  private func handleDeepLink(url: NSURL?, firstTime: Bool) {
     
   }
   
@@ -179,7 +178,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
   
   // MARK: - reporting
-  private func reportState(active active: Bool) {
+  private func reportState(active: Bool) {
     Report.sharedInstance.track(event: active ? "app_open" : "app_close")
   }
 }
