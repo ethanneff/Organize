@@ -4,4 +4,4 @@
 
 ## [Apple App Store](https://itunes.apple.com/app/?id=1116178818)
 
-![image](https://eneff.com/apps/portfolio/www/assets/img/playground/ios_organize.png)
+<img src="https://eneff.com/apps/portfolio/www/assets/img/playground/ios_organize.png" width="200" />
